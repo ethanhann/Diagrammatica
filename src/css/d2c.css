@@ -1,0 +1,48 @@
+.eeh-chart .axis {
+  font: 10px sans-serif; }
+.eeh-chart .axis path,
+.eeh-chart .axis line {
+  fill: none;
+  stroke: #EFEFEF;
+  shape-rendering: crispEdges; }
+.eeh-chart .line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px; }
+.eeh-chart .x.label, .eeh-chart .y.label {
+  font: 10px sans-serif; }
+
+.eeh-chart .legend .legend-item {
+  font: 12px sans-serif;
+  cursor: pointer; }
+.eeh-chart .legend .legend-item :hover {
+  cursor: pointer; }
+
+.eeh-chart .hover-line {
+  stroke: #EFEFEF;
+  pointer-events: none; }
+
+.eeh-chart-tooltip {
+  position: absolute;
+  pointer-events: none; }
+
+.eeh-chart-tooltip-content {
+  font: 12px sans-serif;
+  padding: 8px;
+  background-color: white;
+  border: solid 1px #EFEFEF; }
+
+.eeh-chart-tooltip > .left-arrow:before {
+  color: #EFEFEF;
+  content: "\3008";
+  margin: -4px 0 0 0;
+  top: 50%;
+  left: -8px; }
+
+.eeh-chart-tooltip > div {
+  display: inline; }
+
+.eeh-chart-line .line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px; }

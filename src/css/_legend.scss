@@ -1,0 +1,13 @@
+.eeh-chart {
+    .legend {
+        .legend-item {
+            font: 12px sans-serif;
+            //        pointer-events: all;
+            //        pointer-events: none;
+            cursor: pointer;
+        }
+        .legend-item :hover {
+            cursor: pointer;
+        }
+    }
+}

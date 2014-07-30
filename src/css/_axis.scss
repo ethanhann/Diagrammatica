@@ -1,0 +1,26 @@
+.eeh-chart {
+    .axis {
+        font: 10px sans-serif;
+    }
+
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #EFEFEF;
+        shape-rendering: crispEdges;
+    }
+
+    //    .x.axis path {
+    //        display: none;
+    //    }
+
+    .line {
+        fill: none;
+        stroke: steelblue;
+        stroke-width: 1.5px;
+    }
+
+    .x.label, .y.label {
+        font: 10px sans-serif;
+    }
+}

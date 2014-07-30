@@ -1,0 +1,26 @@
+{
+  "name": "d2c",
+  "version": "0.0.0",
+  "main": "./dist/d2c.min.js",
+  "description": "A chart library built with D3.",
+  "authors": [
+    "Ethan Hann <ethanhann@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "./demo/bower_components"
+  ],
+  "dependencies": {
+    "d3": "~3.4.8",
+    "check-types": "~1.3.1",
+    "colorbrewer2": "*"
+  },
+  "devDependencies": {
+    "jasmine": "~2.0.0"
+  }
+}

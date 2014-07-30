@@ -5,7 +5,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Ethan Hann <ethanhann@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-contrib-jshint": "~0.7.1",

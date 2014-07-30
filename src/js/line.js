@@ -226,6 +226,9 @@ var line = function (selection, data) {
                         .attr('opacity', function (t) {
                             return t === selectedLegendItem ? 1 : 0.3;
                         });
+                    lines.transition().attr('opacity', function (t) {
+                        return check.object(selectedLegendItem) && t.name === selectedLegendItem.name ? 1 : 0;
+                    });
                 } else {
                     legendItems.transition().attr('opacity', 1);
                     lines.transition().attr('opacity', 1);

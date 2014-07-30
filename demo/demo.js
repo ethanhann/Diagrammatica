@@ -1,4 +1,4 @@
-(function (d2c, jQuery) {
+(function (diagrammatica, jQuery) {
     'use strict';
 
     var random = function () {
@@ -18,7 +18,7 @@
         return data;
     };
 
-    var barChart = d2c.bar('#bar-chart1', randomData(1)).yAxisLabelText('some text');
+    var barChart = diagrammatica.bar('#bar-chart1', randomData(1)).yAxisLabelText('some text');
     barChart();
 
     jQuery('#bar-chart1-reload').click(function () {
@@ -30,14 +30,14 @@
         barChart(randomData(1));
     });
 
-    var columnChart = d2c.column('#column-chart1', randomData(1));
+    var columnChart = diagrammatica.column('#column-chart1', randomData(1));
 
     jQuery('#column-chart1-reload').click(function () {
         columnChart.height(500).xAxisLabelText('x label').yAxisLabelText('y label');
         columnChart(randomData(1));
     });
 
-    var pieChart = d2c.pie('#pie-chart1', [
+    var pieChart = diagrammatica.pie('#pie-chart1', [
         {age: '<5', population: random()},
         {age: '5-13', population: random()},
         {age: '14-17', population: random()},
@@ -55,7 +55,7 @@
         ]);
     });
 
-    var lineChart = d2c.line('#line-chart1', [
+    var lineChart = diagrammatica.line('#line-chart1', [
         {
             name: 'series 1',
             data: [
@@ -87,9 +87,6 @@
             ]
         }
     ]);
-
-//    var lineChartLegend =
-//    d2c.legend('#line-chart1-legend', lineChart);
 
     jQuery('#line-chart1-reload').click(function () {
         lineChart.width(900)
@@ -129,7 +126,7 @@
         ]);
     });
 
-    d2c.heatMap('#heat-map-chart1', [
+    diagrammatica.heatMap('#heat-map-chart1', [
         {category: 'alpha', date: new Date(2014, 1, 1), value: 16},
         {category: 'alpha', date: new Date(2014, 2, 2), value: 20},
         {category: 'alpha', date: new Date(2014, 3, 3), value: 10},
@@ -147,4 +144,4 @@
         {category: 'epsilon', date: new Date(2014, 3, 3), value: 0},
         {category: 'epsilon', date: new Date(2014, 4, 3), value: 2}
     ]);
-})(d2c, jQuery);
+})(diagrammatica, jQuery);

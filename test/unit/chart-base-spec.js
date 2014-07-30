@@ -1,6 +1,6 @@
 'use strict';
 
-describe('d2c.line', function () {
+describe('diagrammatica.ChartBase', function () {
     var chartBase;
     var dataset;
     var fixture;

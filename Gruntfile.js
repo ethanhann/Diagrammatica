@@ -7,7 +7,8 @@ module.exports = function (grunt) {
     grunt.initConfig({
         settings: {
             src: 'src',
-            dist: 'dist'
+            dist: 'dist',
+            libName: 'diagrammatica'
         },
         jshint: {
             options: {
@@ -17,6 +18,22 @@ module.exports = function (grunt) {
             src: [
                 '<%= settings.src %>/{,*/}*.js'
             ]
+        },
+        karma: {
+            unit: {
+                configFile: 'test/karma.conf.js'
+            }
+        },
+        sass: {
+            dist: {
+                files: [{
+                    expand: true,
+                    cwd: '<%= settings.src %>/css',
+                    src: ['**/*.scss'],
+                    dest: '<%= settings.src %>/css',
+                    ext: '.css'
+                }]
+            }
         },
         watch: {
             src: {
@@ -30,10 +47,10 @@ module.exports = function (grunt) {
         uglify: {
             beautify: {
                 files: {
-                    '<%= settings.dist %>/d2c.js': ['<%= settings.src %>/**/*.js']
+                    '<%= settings.dist %>/<%= settings.libName %>.js': ['<%= settings.src %>/**/*.js']
                 },
                 options: {
-                    wrap: 'd2c',
+                    wrap: 'diagrammatica',
                     exportAll: true,
                     compress: false,
                     mangle: false,
@@ -42,10 +59,10 @@ module.exports = function (grunt) {
             },
             minify: {
                 files: {
-                    '<%= settings.dist %>/d2c.min.js': ['<%= settings.src %>/**/*.js']
+                    '<%= settings.dist %>/<%= settings.libName %>.min.js': ['<%= settings.src %>/**/*.js']
                 },
                 options: {
-                    wrap: 'd2c',
+                    wrap: '<%= settings.libName %>',
                     exportAll: true,
                     sourceMap: true
                 }
@@ -57,13 +74,19 @@ module.exports = function (grunt) {
         'watch:src'
     ]);
 
-    grunt.registerTask('dist', [
+    grunt.registerTask('build', [
+        'sass:dist',
         'jshint:src',
         'uglify:beautify',
         'uglify:minify'
     ]);
 
+    grunt.registerTask('test', [
+        'build',
+        'karma:unit'
+    ]);
+
     grunt.registerTask('default', [
-        'dist'
+        'build'
     ]);
 };

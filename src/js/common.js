@@ -1,5 +1,6 @@
 'use strict';
 /* check: false */
+/* exported scrollPosition */
 
 function scrollPosition() {
     if (typeof window.scrollX === 'number' && typeof window.scrollY === 'number') {

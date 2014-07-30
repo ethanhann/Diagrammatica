@@ -1,8 +1,8 @@
 {
-  "name": "d2c",
+  "name": "diagrammatica",
   "version": "0.0.0",
-  "main": "./dist/d2c.min.js",
-  "description": "A chart library built with D3.",
+  "main": "./dist/diagrammatica.min.js",
+  "description": "D3 chart library.",
   "authors": [
     "Ethan Hann <ethanhann@gmail.com>"
   ],

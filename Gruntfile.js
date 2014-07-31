@@ -30,15 +30,15 @@ module.exports = function (grunt) {
                     expand: true,
                     cwd: '<%= settings.src %>/css',
                     src: ['**/*.scss'],
-                    dest: '<%= settings.src %>/css',
+                    dest: '<%= settings.dist %>',
                     ext: '.css'
                 }]
             }
         },
         watch: {
             src: {
-                files: ['<%= settings.src %>/**/*.js'],
-                tasks: ['uglify:minify'],
+                files: ['<%= settings.src %>/**/*.*'],
+                tasks: ['uglify:minify', 'sass:dist'],
                 options: {
                     spawn: false
                 }

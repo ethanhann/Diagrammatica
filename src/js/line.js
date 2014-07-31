@@ -1,5 +1,5 @@
 'use strict';
-/* global d3: false, ChartBase */
+/* global d3: false, ChartBase, tooltip */
 /* exported line */
 var line = function (selection, data) {
     selection = check.string(selection) ? d3.select(selection) : selection;
@@ -130,16 +130,14 @@ var line = function (selection, data) {
     var tooltipRectangleGroup = chart.renderArea.append('g')
         .attr('class', 'tooltip-rect-group');
 
-    var tooltip = d3.select('body').append('div')
-        .attr('class', 'eeh-chart-tooltip eeh-chart-tooltip-content')
-        .style('opacity', 0);
-
     config.tooltipHtml = function (points) {
         var html = '';
+        html += '<div class="diagrammatica-tooltip-content">';
         points.forEach(function (d) {
             html += '<svg height="10" width="10"><rect height="10" width="10" fill="' + chart.colors(d.name) + '"></rect></svg>';
             html += '<span> ' + d.name + '</span> : ' + formatTime(d.x) + ' : ' + d.y + '<br>';
         });
+        html += '</div>';
         return html;
     };
 
@@ -156,6 +154,7 @@ var line = function (selection, data) {
             .attr('width', tooltipRectangleWidth)
             .attr('opacity', 0)
             .classed('tooltip-rect', true)
+            .classed('diagrammatica-tooltip-target', true)
             .attr('x', function (d) {
                 return chart.xScale(d.x) - tooltipRectangleOffset;
             })

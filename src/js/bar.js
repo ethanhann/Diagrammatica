@@ -1,5 +1,5 @@
 'use strict';
-/* global d3: false, check: false, ChartBase, scrollPosition: false */
+/* global d3: false, check: false, ChartBase, scrollPosition: false, tooltip */
 /* exported bar */
 var bar = function (selection, data) {
         selection = check.string(selection) ? d3.select(selection) : selection;
@@ -64,7 +64,7 @@ var bar = function (selection, data) {
         var bars = chart.renderArea.selectAll('.bar')
             .data(data)
             .enter().append('rect')
-            .attr('class', 'bar')
+            .attr('class', 'bar diagrammatica-tooltip-target')
             .attr('x', 0)
             .attr('y', function (d) {
                 return chart.xScale(d.name);
@@ -80,13 +80,10 @@ var bar = function (selection, data) {
         // ------------------------------------------------------------------------
         // Tooltip
         // ------------------------------------------------------------------------
-        var tooltip = d3.select('body')
-            .append('div')
-            .attr('class', 'eeh-chart-tooltip')
-            .style('opacity', 1);
-
         config.tooltipHtml = function (d) {
-            return '<div class="left-arrow"></div><div class="eeh-chart-tooltip-content">' + d.value + '</div>';
+            var html = '<div class="left-arrow diagrammatica-tooltip-inline"></div>';
+            html += '<div class="diagrammatica-tooltip-content diagrammatica-tooltip-inline">' + d.value + '</div>';
+            return html;
         };
 
         bars.on('mouseover', function (d) {

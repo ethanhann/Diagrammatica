@@ -1,48 +1,48 @@
-.eeh-chart .axis {
+.diagrammatica .axis {
   font: 10px sans-serif; }
-.eeh-chart .axis path,
-.eeh-chart .axis line {
+.diagrammatica .axis path,
+.diagrammatica .axis line {
   fill: none;
   stroke: #EFEFEF;
   shape-rendering: crispEdges; }
-.eeh-chart .line {
+.diagrammatica .line {
   fill: none;
   stroke: steelblue;
   stroke-width: 1.5px; }
-.eeh-chart .x.label, .eeh-chart .y.label {
+.diagrammatica .x.label, .diagrammatica .y.label {
   font: 10px sans-serif; }
 
-.eeh-chart .legend .legend-item {
+.diagrammatica .legend .legend-item {
   font: 12px sans-serif;
   cursor: pointer; }
-.eeh-chart .legend .legend-item :hover {
+.diagrammatica .legend .legend-item :hover {
   cursor: pointer; }
 
-.eeh-chart .hover-line {
+.diagrammatica .hover-line {
   stroke: #EFEFEF;
   pointer-events: none; }
 
-.eeh-chart-tooltip {
+.diagrammatica-tooltip {
   position: absolute;
   pointer-events: none; }
 
-.eeh-chart-tooltip-content {
+.diagrammatica-tooltip-content {
   font: 12px sans-serif;
   padding: 8px;
   background-color: white;
   border: solid 1px #EFEFEF; }
 
-.eeh-chart-tooltip > .left-arrow:before {
+.diagrammatica-tooltip > .left-arrow:before {
   color: #EFEFEF;
   content: "\3008";
   margin: -4px 0 0 0;
   top: 50%;
   left: -8px; }
 
-.eeh-chart-tooltip > div {
+.diagrammatica-tooltip-inline {
   display: inline; }
 
-.eeh-chart-line .line {
+.diagrammatica-line .line {
   fill: none;
   stroke: steelblue;
   stroke-width: 1.5px; }

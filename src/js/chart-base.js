@@ -26,7 +26,7 @@ var ChartBase = function (selection, chartClass) {
         return 'tooltip content';
     };
     this.svg = this.selection.append('svg')
-        .attr('class', 'eeh-chart eeh-chart-' + chartClass)
+        .attr('class', 'diagrammatica diagrammatica-' + chartClass)
         .attr('width', config.width)
         .attr('height', config.height);
     this.renderArea = this.svg.append('g')

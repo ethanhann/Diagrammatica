@@ -2,44 +2,68 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>demo</title>
+    <title>Diagrammatica</title>
     <link href="bower_components/colorbrewer2/colorbrewer.css" rel="stylesheet">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css" rel="stylesheet">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="../src/css/diagrammatica.css" rel="stylesheet">
+    <link href="../dist/diagrammatica.css" rel="stylesheet">
 </head>
 <body>
-<div class="container">
-    <h1 class="page-header">Diagrammatica</h1>
+<div class="jumbotron text-center">
+    <h1>Diagrammatica</h1>
 
+    <p class="lead">
+        D3 chart library.
+    </p>
+
+    <p class="btn-group">
+        <a class="btn btn-primary" href="https://github.com/ethanhann/Diagrammatica">
+            <i class="fa fa-code fa-fw"></i>Code on GitHub
+        </a>
+        <a class="btn btn-primary" href="https://github.com/ethanhann/Diagrammatica/zipball/master">
+            <i class="fa fa-download fa-fw"></i>Download ZIP</a>
+        <a class="btn btn-primary" href="https://github.com/ethanhann/Diagrammatica/tarball/master">
+            <i class="fa fa-download fa-fw"></i>Download TAR
+        </a>
+    </p>
+</div>
+
+<div class="container">
     <h2>Heat Map Chart</h2>
     <div id="heat-map-chart1"></div>
 
     <h2>Line Chart</h2>
-    <button id="line-chart1-reload" class="btn btn-default"><span class="fa fa-refresh"></span></button>
+    <button id="line-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
     <hr>
     <div id="line-chart1"></div>
 
     <h2>Pie Chart</h2>
-    <button id="pie-chart1-reload" class="btn btn-default"><span class="fa fa-refresh"></span></button>
+    <button id="pie-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
     <hr>
     <div id="pie-chart1"></div>
 
     <h2>Bar Chart</h2>
-    <button id="bar-chart1-reload" class="btn btn-default"><span class="fa fa-refresh"></span></button>
+    <button id="bar-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
     <hr>
     <div id="bar-chart1"></div>
 
     <h2>Column Chart</h2>
-    <button id="column-chart1-reload" class="btn btn-default"><span class="fa fa-refresh"></span></button>
+    <button id="column-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
     <hr>
     <div id="column-chart1"></div>
 
 </div>
 
+<div class="footer text-center">
+    <hr>
+    <p>
+        Created by <a href="https://github.com/ethanhann">Ethan Hann</a>
+    </p>
+</div>
+
 <!--Scripts-->
-<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
 <script src="bower_components/d3/d3.js"></script>
 <script src="bower_components/check-types/src/check-types.min.js"></script>
 <script src="bower_components/colorbrewer2/colorbrewer.js"></script>

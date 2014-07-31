@@ -1,23 +1,23 @@
-.eeh-chart {
+.diagrammatica {
     .hover-line {
         stroke: #EFEFEF;
         pointer-events: none;
     }
 }
 
-.eeh-chart-tooltip {
+.diagrammatica-tooltip {
     position: absolute;
     pointer-events: none;
 }
 
-.eeh-chart-tooltip-content {
+.diagrammatica-tooltip-content {
     font: 12px sans-serif;
     padding: 8px;
     background-color: rgba(255, 255, 255, 1);
     border: solid 1px #EFEFEF;
 }
 
-.eeh-chart-tooltip > .left-arrow:before {
+.diagrammatica-tooltip > .left-arrow:before {
     color: #EFEFEF;
     content: "\3008";
     margin: -4px 0 0 0;
@@ -25,6 +25,6 @@
     left: -8px;
 }
 
-.eeh-chart-tooltip > div {
+.diagrammatica-tooltip-inline {
     display: inline;
 }

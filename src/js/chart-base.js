@@ -62,7 +62,7 @@ ChartBase.prototype = {
         return this.axisLabelText('x', value);
     },
     width: function (value, axisUpdateCallback) {
-        if (!arguments.length) {
+        if (!check.defined(value)) {
             return this.config.width;
         }
         this.config.width = value;
@@ -74,7 +74,7 @@ ChartBase.prototype = {
         return this.update;
     },
     height: function (value, axisUpdateCallback) {
-        if (!arguments.length) {
+        if (!check.defined(value)) {
             return this.config.height;
         }
         this.config.height = value;

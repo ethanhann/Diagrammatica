@@ -46,50 +46,48 @@ var ChartBase = function (selection, chartClass) {
     this.colors = d3.scale.category10();
 };
 
-ChartBase.prototype = {
-    axisLabelText: function (axisLetter, value) {
-        var label = this.selection.select('.' + axisLetter + '.axis .label');
-        if (check.not.defined(value)) {
-            return label.empty() ? '' : label.text();
-        }
-        label.text(value);
-        return this.update;
-    },
-    yAxisLabelText: function (value) {
-        return this.axisLabelText('y', value);
-    },
-    xAxisLabelText: function (value) {
-        return this.axisLabelText('x', value);
-    },
-    width: function (value, axisUpdateCallback) {
-        if (!check.defined(value)) {
-            return this.config.width;
-        }
-        this.config.width = value;
-        if (check.defined(axisUpdateCallback)) {
-            axisUpdateCallback();
-        }
-        this.svg.attr('width', this.config.width);
-        this.updateDimensions();
-        return this.update;
-    },
-    height: function (value, axisUpdateCallback) {
-        if (!check.defined(value)) {
-            return this.config.height;
-        }
-        this.config.height = value;
-        if (check.defined(axisUpdateCallback)) {
-            axisUpdateCallback();
-        }
-        this.svg.attr('height', this.config.height);
-        this.updateDimensions();
-        return this.update;
-    },
-    tooltipHtml: function (value) {
-        if (!arguments.length) {
-            return this.config.tooltipHtml();
-        }
-        this.config.tooltipHtml = value;
-        return this.update;
+ChartBase.prototype.axisLabelText = function (axisLetter, value) {
+    var label = this.selection.select('.' + axisLetter + '.axis .label');
+    if (check.not.defined(value)) {
+        return label.empty() ? '' : label.text();
     }
+    label.text(value);
+    return this.update;
+};
+
+ChartBase.prototype.yAxisLabelText = function (value) {
+    return this.axisLabelText('y', value);
+};
+
+ChartBase.prototype.xAxisLabelText = function (value) {
+    return this.axisLabelText('x', value);
+};
+
+ChartBase.prototype.setDimension = function (value, axisUpdateCallback, property) {
+    if (!check.defined(value)) {
+        return this.config[property];
+    }
+    this.config[property] = value;
+    if (check.defined(axisUpdateCallback)) {
+        axisUpdateCallback();
+    }
+    this.svg.attr(property, this.config[property]);
+    this.updateDimensions();
+    return this.update;
+};
+
+ChartBase.prototype.width = function (value, axisUpdateCallback) {
+    return this.setDimension(value, axisUpdateCallback, 'width');
+};
+
+ChartBase.prototype.height = function (value, axisUpdateCallback) {
+    return this.setDimension(value, axisUpdateCallback, 'height');
+};
+
+ChartBase.prototype.tooltipHtml = function (value) {
+    if (!arguments.length) {
+        return this.config.tooltipHtml();
+    }
+    this.config.tooltipHtml = value;
+    return this.update;
 };

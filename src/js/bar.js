@@ -48,47 +48,24 @@ var BarBase = function (selection, data, orientation) {
     };
 };
 
-BarBase.prototype.renderXAxis = function () {
+BarBase.prototype.renderAxis = function (axis) {
     var chart = this.chart;
     var config = this.config;
     var selection = chart.renderArea.append('g')
-        .attr('class', 'x axis')
-        .call(chart.xAxis);
+        .attr('class', axis + ' axis')
+        .call(chart[axis + 'Axis']);
     var text = selection.append('text')
-        .attr('class', 'x label')
+        .attr('class', axis + ' label')
         .attr('text-anchor', 'middle');
-    if (this.isHorizontal()) {
+    if ((this.isHorizontal() && axis === 'x') || (!this.isHorizontal() && axis === 'y')) {
         text.attr('transform', 'rotate(-90)')
-            .attr('y', config.margin.left * -1)
             .attr('x', (config.paddedHeight() / 2) * -1)
+            .attr('y', config.margin.left * -1)
             .attr('dy', '1em');
     } else {
         selection.attr('transform', 'translate(0,' + config.paddedHeight() + ')');
         text.attr('x', config.paddedWidth() / 2)
             .attr('y', 28);
-    }
-    return this;
-};
-
-BarBase.prototype.renderYAxis = function () {
-    var chart = this.chart;
-    var config = this.config;
-    var selection = chart.renderArea.append('g')
-        .attr('class', 'y axis')
-        .call(chart.yAxis);
-    var text = selection.append('text')
-        .attr('class', 'label')
-        .attr('text-anchor', 'middle');
-    if (this.isHorizontal()) {
-        selection.attr('transform', 'translate(0,' + config.paddedHeight() + ')');
-        text.attr('x', config.paddedWidth() / 2)
-            .attr('y', 28);
-    }
-    else {
-        text.attr('transform', 'rotate(-90)')
-            .attr('x', (config.paddedHeight() / 2) * -1)
-            .attr('y', config.margin.left * -1)
-            .attr('dy', '1em');
     }
     return this;
 };
@@ -145,8 +122,8 @@ BarBase.prototype.renderBars = function () {
 };
 
 BarBase.prototype.render = function () {
-    this.renderXAxis();
-    this.renderYAxis();
+    this.renderAxis('x');
+    this.renderAxis('y');
     this.renderBars();
     return this;
 };

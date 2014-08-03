@@ -76,7 +76,7 @@ BarBase.prototype.renderBars = function () {
     var chart = this.chart;
     var data = this.data;
     var config = this.config;
-    chart.renderArea.selectAll('.bar')
+    this.bars = chart.renderArea.selectAll('.bar')
         .data(data)
         .enter().append('rect')
         .attr('class', 'bar diagrammatica-tooltip-target')
@@ -119,23 +119,20 @@ var bar = function (selection, data) {
     var config = barBase.config;
     var updateX = barBase.updateX;
     var updateY = barBase.updateY;
-
+    var bars = barBase.bars;
     var update = chart.update = function (newData) {
         data = check.defined(newData) ? newData : data;
-
         updateY(data);
         chart.renderArea.select('.y.axis')
             .transition()
             .duration(1000)
             .call(chart.yAxis)
             .attr('transform', 'translate(0,' + config.paddedHeight() + ')');
-
         updateX(data);
         chart.renderArea.select('.x.axis')
             .transition()
             .duration(1000)
             .call(chart.xAxis);
-
         chart.renderArea.selectAll('.bar')
             .data(data)
             .transition()
@@ -181,6 +178,22 @@ var bar = function (selection, data) {
 
     update.xAxisLabelText = function (value) {
         return chart.xAxisLabelText(value);
+    };
+
+    update.chartBase = function () {
+        return chart;
+    };
+
+    update.updateY = function () {
+        return updateY;
+    };
+
+    update.updateX = function () {
+        return updateX;
+    };
+
+    update.bars = function () {
+        return bars;
     };
 
     return update;

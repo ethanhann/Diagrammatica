@@ -18,14 +18,6 @@ describe('diagrammatica.bar', function () {
         fixture.remove();
     });
 
-    it('should set chart height when chart is created', function () {
-        var expected = 150;
-
-        var height = chart.height();
-
-        expect(height).toEqual(expected);
-    });
-
     it('should add bars to chart', function () {
         var bars = chart.bars();
 

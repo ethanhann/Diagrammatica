@@ -135,8 +135,8 @@ var bar = function (selection, data, orientation) {
     var updateX = barBase.updateX;
     var updateY = barBase.updateY;
     var bars = barBase.bars;
-    var update = chart.update = function (newData) {
-        data = check.defined(newData) ? newData : data;
+
+    function updateAxes(data) {
         updateY(data);
         var yAxisSelection = chart.renderArea.select('.y.axis')
             .transition()
@@ -147,6 +147,9 @@ var bar = function (selection, data, orientation) {
             .call(chart.xAxis);
         var axisToTranslate = barBase.isHorizontal() ? yAxisSelection : xAxisSelection;
         axisToTranslate.attr('transform', 'translate(0,' + config.paddedHeight() + ')');
+    }
+
+    function updateBars(data) {
         var barTransition = bars.data(data)
             .transition();
         if (barBase.isHorizontal()) {
@@ -171,6 +174,12 @@ var bar = function (selection, data, orientation) {
                     return config.paddedHeight() - chart.yScale(d.value);
                 });
         }
+    }
+
+    var update = chart.update = function (newData) {
+        data = check.defined(newData) ? newData : data;
+        updateAxes(data);
+        updateBars(data);
     };
 
     update.height = function (value) {

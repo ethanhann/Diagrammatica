@@ -6,32 +6,38 @@ var BarBase = function (selection, data) {
     this.data = data;
     var chart = this.chart = new ChartBase(this.selection, 'bar');
     var config = this.config = chart.config;
+    var orientation = this.orientation = 'horizontal';
     chart.xScale = d3.scale.ordinal();
     chart.yScale = d3.scale.linear();
     this.updateX = function (newData) {
         data = check.defined(newData) ? newData : data;
+        var xScaleRange = orientation === 'horizontal' ? [0, config.paddedHeight()] : [0, config.paddedWidth()];
         chart.xScale
             .domain(data.map(function (d) {
                 return d.name;
             }))
-            .rangeRoundBands([0, config.paddedHeight()], 0.1);
+            .rangeRoundBands(xScaleRange, 0.1);
+        console.log(config.paddedHeight());
     };
     this.updateY = function (newData) {
         data = check.defined(newData) ? newData : data;
         chart.yScale
             .domain([0, d3.max(data, function (d) {
                 return d.value;
-            })])
-            .range([0, config.paddedWidth()]);
+            })]);
+        var yScaleRange = orientation === 'horizontal' ? [0, config.paddedWidth()] : [config.paddedHeight(), 0];
+        chart.yScale.range(yScaleRange);
     };
     this.updateX();
     this.updateY();
+    var xAxisOrient = orientation === 'horizontal' ? 'left' : 'bottom';
     chart.xAxis = d3.svg.axis()
         .scale(chart.xScale)
-        .orient('left');
+        .orient(xAxisOrient);
+    var yAxisOrient = orientation === 'horizontal' ? 'bottom' : 'left';
     chart.yAxis = d3.svg.axis()
         .scale(chart.yScale)
-        .orient('bottom');
+        .orient(yAxisOrient);
     config.tooltipHtml = function (d) {
         var html = '<div class="left-arrow diagrammatica-tooltip-inline"></div>';
         html += '<div class="diagrammatica-tooltip-content diagrammatica-tooltip-inline">' + d.value + '</div>';
@@ -42,33 +48,52 @@ var BarBase = function (selection, data) {
 BarBase.prototype.renderXAxis = function () {
     var chart = this.chart;
     var config = this.config;
-    chart.renderArea.append('g')
+    var selection = chart.renderArea.append('g')
         .attr('class', 'x axis')
-        .call(chart.xAxis)
-        .append('text')
-        .attr('class', 'label')
-        .attr('transform', 'rotate(-90)')
-        .attr('y', config.margin.left * -1)
-        .attr('x', (config.paddedHeight() / 2) * -1)
-        .attr('dy', '1em')
-        .style('text-anchor', 'middle')
-        .text('');
+        .call(chart.xAxis);
+
+    if (this.orientation === 'horizontal') {
+        selection.append('text')
+            .attr('class', 'x label')
+            .attr('transform', 'rotate(-90)')
+            .attr('y', config.margin.left * -1)
+            .attr('x', (config.paddedHeight() / 2) * -1)
+            .attr('dy', '1em')
+            .style('text-anchor', 'middle');
+    } else {
+        selection.attr('transform', 'translate(0,' + config.paddedHeight() + ')')
+            .append('text')
+            .attr('class', 'x label')
+            .attr('text-anchor', 'middle')
+            .attr('x', config.paddedWidth() / 2)
+            .attr('y', 28);
+    }
     return this;
 };
 
 BarBase.prototype.renderYAxis = function () {
     var chart = this.chart;
     var config = this.config;
-    chart.renderArea.append('g')
+    var selection = chart.renderArea.append('g')
         .attr('class', 'y axis')
-        .attr('transform', 'translate(0,' + config.paddedHeight() + ')')
-        .call(chart.yAxis)
-        .append('text')
-        .attr('class', 'label')
-        .attr('text-anchor', 'middle')
-        .attr('x', config.paddedWidth() / 2)
-        .attr('y', 28)
-        .text('');
+        .call(chart.yAxis);
+    if (this.orientation === 'horizontal') {
+        selection.attr('transform', 'translate(0,' + config.paddedHeight() + ')')
+            .append('text')
+            .attr('class', 'label')
+            .attr('text-anchor', 'middle')
+            .attr('x', config.paddedWidth() / 2)
+            .attr('y', 28);
+    }
+    else {
+        selection.append('text')
+            .attr('class', 'y label')
+            .attr('transform', 'rotate(-90)')
+            .attr('y', config.margin.left * -1)
+            .attr('x', (config.paddedHeight() / 2) * -1)
+            .attr('dy', '1em')
+            .style('text-anchor', 'middle');
+    }
     return this;
 };
 
@@ -80,14 +105,6 @@ BarBase.prototype.renderBars = function () {
         .data(data)
         .enter().append('rect')
         .attr('class', 'bar diagrammatica-tooltip-target')
-        .attr('x', 0)
-        .attr('y', function (d) {
-            return chart.xScale(d.name);
-        })
-        .attr('width', function (d) {
-            return chart.yScale(d.value);
-        })
-        .attr('height', chart.xScale.rangeBand())
         .attr('fill', function (d) {
             return chart.colors(d.value);
         })
@@ -103,6 +120,31 @@ BarBase.prototype.renderBars = function () {
         .on('mouseout', function () {
             tooltip.style('opacity', 0);
         });
+
+    if (this.orientation === 'horizontal') {
+        this.bars
+            .attr('x', 0)
+            .attr('y', function (d) {
+                return chart.xScale(d.name);
+            })
+            .attr('width', function (d) {
+                return chart.yScale(d.value);
+            })
+            .attr('height', chart.xScale.rangeBand());
+    } else {
+        this.bars
+            .attr('x', function (d) {
+                return chart.xScale(d.name);
+            })
+            .attr('y', function (d) {
+                return chart.yScale(d.value);
+            })
+            .attr('width', chart.xScale.rangeBand())
+            .attr('height', function (d) {
+                return config.paddedHeight() - chart.yScale(d.value);
+            });
+    }
+
     return this;
 };
 
@@ -123,52 +165,65 @@ var bar = function (selection, data) {
     var update = chart.update = function (newData) {
         data = check.defined(newData) ? newData : data;
         updateY(data);
-        chart.renderArea.select('.y.axis')
+        var yAxisSelection = chart.renderArea.select('.y.axis')
             .transition()
-            .duration(1000)
-            .call(chart.yAxis)
-            .attr('transform', 'translate(0,' + config.paddedHeight() + ')');
+            .call(chart.yAxis);
         updateX(data);
-        chart.renderArea.select('.x.axis')
+        var xAxisSelection = chart.renderArea.select('.x.axis')
             .transition()
-            .duration(1000)
             .call(chart.xAxis);
-        chart.renderArea.selectAll('.bar')
-            .data(data)
-            .transition()
-            .delay(function (d, i) {
-                return i * 100;
-            })
-            .duration(500)
-            .ease('linear')
-            .attr('y', function (d) {
-                return chart.xScale(d.name);
-            })
-            .attr('width', function (d) {
-                return chart.yScale(d.value);
-            })
-            .attr('height', chart.xScale.rangeBand());
-    };
+        if (barBase.orientation === 'horizontal') {
+            yAxisSelection.attr('transform', 'translate(0,' + config.paddedHeight() + ')');
+        } else {
+            xAxisSelection.attr('transform', 'translate(0,' + config.paddedHeight() + ')');
+        }
 
-    update.width = function (value) {
-        return chart.width(value, function () {
-            updateY();
-            barBase.selection.select('.y.axis .label')
+        if (barBase.orientation === 'horizontal') {
+            bars.data(data)
                 .transition()
-                .duration(1000)
-                .attr('x', config.paddedWidth() / 2)
-                .attr('y', 28);
-        });
+                .attr('y', function (d) {
+                    return chart.xScale(d.name);
+                })
+                .attr('width', function (d) {
+                    return chart.yScale(d.value);
+                })
+                .attr('height', chart.xScale.rangeBand());
+        } else {
+            console.log(barBase.orientation);
+            bars.data(data)
+                .transition()
+                .attr('x', function (d) {
+                    return chart.xScale(d.name);
+                })
+                .attr('y', function (d) {
+                    return chart.yScale(d.value);
+                })
+                .attr('width', chart.xScale.rangeBand())
+                .attr('height', function (d) {
+                    return config.paddedHeight() - chart.yScale(d.value);
+                });
+        }
     };
 
     update.height = function (value) {
+        var axis = barBase.orientation === 'horizontal' ? 'x' : 'y';
         return chart.height(value, function () {
             updateX();
-            barBase.selection.select('.x.axis .label')
+            barBase.selection.select('.' + axis + '.axis .label')
                 .transition()
-                .duration(1000)
                 .attr('y', config.margin.left * -1)
                 .attr('x', (config.paddedHeight() / 2) * -1);
+        });
+    };
+
+    update.width = function (value) {
+        var axis = barBase.orientation === 'horizontal' ? 'y' : 'x';
+        return chart.width(value, function () {
+            updateY();
+            barBase.selection.select('.' + axis + '.axis .label')
+                .transition()
+                .attr('x', config.paddedWidth() / 2)
+                .attr('y', 28);
         });
     };
 
@@ -194,6 +249,10 @@ var bar = function (selection, data) {
 
     update.bars = function () {
         return bars;
+    };
+
+    update.orientation = function (value) {
+        barBase.orientation = value;
     };
 
     return update;

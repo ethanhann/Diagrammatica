@@ -93,7 +93,6 @@ HeatMapBase.prototype.renderRectangles = function () {
             return chart.colors(d.value);
         });
 
-    // Tooltip
     heatMap.append('title').text(function (d) {
         return d.value;
     });

@@ -1,34 +1,37 @@
 'use strict';
 /* global d3: false, check: false, ChartBase */
 /* exported column */
-
 var ColumnBase = function (selection, data) {
     this.selection = check.string(selection) ? d3.select(selection) : selection;
     this.data = data;
     var chart = this.chart = new ChartBase(this.selection, 'column');
     var config = this.config = chart.config;
-    this.updateX = function () {
-        chart.xScale = d3.scale.ordinal()
+    chart.xScale = d3.scale.ordinal();
+    chart.yScale = d3.scale.linear();
+    this.updateX = function (newData) {
+        data = check.defined(newData) ? newData : data;
+        chart.xScale
             .domain(data.map(function (d) {
                 return d.name;
             }))
             .rangeRoundBands([0, config.paddedHeight()], 0.1);
-        chart.xAxis = d3.svg.axis()
-            .scale(chart.xScale)
-            .orient('bottom');
     };
-    this.updateX();
-    this.updateY = function () {
-        chart.yScale = d3.scale.linear()
+    this.updateY = function (newData) {
+        data = check.defined(newData) ? newData : data;
+        chart.yScale
             .domain([0, d3.max(data, function (d) {
                 return d.value;
             })])
             .range([config.paddedHeight(), 0]);
-        chart.yAxis = d3.svg.axis()
-            .scale(chart.yScale)
-            .orient('left');
     };
+    this.updateX();
     this.updateY();
+    chart.xAxis = d3.svg.axis()
+        .scale(chart.xScale)
+        .orient('bottom');
+    chart.yAxis = d3.svg.axis()
+        .scale(chart.yScale)
+        .orient('left');
 };
 
 ColumnBase.prototype.renderXAxis = function () {
@@ -113,17 +116,16 @@ var column = function (selection, data) {
 
     var update = chart.update = function (newData) {
         data = check.defined(newData) ? newData : data;
-
-        updateY();
+        updateY(data);
         chart.renderArea.select('.y.axis')
             .transition()
             .duration(1000)
             .call(chart.yAxis);
 
-        updateX();
+        updateX(data);
         chart.renderArea.select('.x.axis')
             .transition()
-            .duration(1000)
+            .duration(100)
             .call(chart.xAxis)
             .attr('transform', 'translate(0,' + config.paddedHeight() + ')');
 

@@ -97,7 +97,6 @@ ColumnBase.prototype.renderColumns = function () {
     return this;
 };
 
-
 ColumnBase.prototype.render = function () {
     this.renderXAxis();
     this.renderYAxis();

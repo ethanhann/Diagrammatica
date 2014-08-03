@@ -1,22 +1,34 @@
 'use strict';
 /* global d3: false, check: false, ChartBase, colorbrewer */
 /* exported heatMap */
-var heatMap = function (selection, data) {
-    selection = check.string(selection) ? d3.select(selection) : selection;
-    var chart = new ChartBase(selection, 'heat-map');
-    var config = chart.config;
-    chart.config.margin.top = 55;
-    chart.config.margin.bottom = 40;
-    chart.config.margin.left = 50;
+var HeatMapBase = function (selection, data) {
+    selection = this.selection = check.string(selection) ? d3.select(selection) : selection;
+    this.data = data;
+    var chart = this.chart = new ChartBase(selection, 'heat-map');
+    var config = this.config = chart.config;
+    config.margin.top = 55;
+    config.margin.bottom = 40;
+    config.margin.left = 50;
     chart.updateDimensions();
-    var dates = d3.set(data.map(function (d) { return d.date; })).values();
-    var cellWidth = Math.floor(config.paddedWidth() / dates.length); // divide by number points of points on the x axis
-    var categories = d3.set(data.map(function (d) { return d.category; })).values();
-    var cellHeight = Math.floor(config.paddedHeight() / categories.length); // divide by number of categories
-    var buckets = 9;
-    var colors = colorbrewer.OrRd[buckets];
+    this.dates = d3.set(data.map(function (d) { return d.date; })).values();
+    this.cellWidth = Math.floor(config.paddedWidth() / this.dates.length); // divide by number points of points on the x axis
+    this.categories = d3.set(data.map(function (d) { return d.category; })).values();
+    this.cellHeight = Math.floor(config.paddedHeight() / this.categories.length); // divide by number of categories
+    this.buckets = 9;
+    this.colors = colorbrewer.OrRd[this.buckets];
+};
 
-    var legendElementWidth = Math.floor(config.paddedWidth() / buckets);
+HeatMapBase.prototype.renderRectangles = function () {
+    var chart = this.chart;
+    var data = this.data;
+    var config = this.config;
+    var cellHeight = this.cellHeight;
+    var cellWidth = this.cellWidth;
+    var dates = this.dates;
+    var buckets = this.buckets;
+    var categories = this.categories;
+    var colors = this.colors;
+
     var xCellScale = d3.scale.linear()
         .domain([0, dates.length - 1])
         .range([0, config.paddedWidth() - cellWidth]);
@@ -27,7 +39,7 @@ var heatMap = function (selection, data) {
         }))
         .rangeRoundBands([0, config.paddedHeight() + 3]);
 
-    var colorScale = d3.scale.quantile()
+    chart.colors = d3.scale.quantile()
         .domain([0, buckets - 1, d3.max(data, function (d) {
             return d.value;
         })])
@@ -77,12 +89,8 @@ var heatMap = function (selection, data) {
         })
         .attr('width', cellWidth)
         .attr('height', cellHeight)
-        .style('fill', colors[0]);
-
-    // Fade-in transition
-    heatMap.transition().duration(1000)
         .style('fill', function (d) {
-            return colorScale(d.value);
+            return chart.colors(d.value);
         });
 
     // Tooltip
@@ -90,11 +98,21 @@ var heatMap = function (selection, data) {
         return d.value;
     });
 
-    // Legend
+    return this;
+};
+
+HeatMapBase.prototype.renderLegend = function () {
+    var chart = this.chart;
+    var config = this.config;
+    var buckets = this.buckets;
+    var cellHeight = this.cellHeight;
+    var colors = this.colors;
+
+    var legendElementWidth = Math.floor(config.paddedWidth() / buckets);
     var legend = chart.renderArea.append('g')
         .attr('class', 'legend');
     var legendItems = legend.selectAll('.legend-item')
-        .data([0].concat(colorScale.quantiles()), function (d) {
+        .data([0].concat(chart.colors.quantiles()), function (d) {
             return d;
         })
         .enter().append('g')
@@ -120,7 +138,19 @@ var heatMap = function (selection, data) {
         })
         .attr('y', config.paddedHeight() + cellHeight + 2);
 
-    var update = function () {
+    return this;
+};
+
+HeatMapBase.prototype.render = function () {
+    this.renderRectangles();
+    this.renderLegend();
+    return this;
+};
+
+var heatMap = function (selection, data) {
+    var heatMapBase = new HeatMapBase(selection, data).render();
+
+    var update = heatMapBase.chart.update = function () {
     };
 
     return update;

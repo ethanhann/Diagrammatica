@@ -30,11 +30,11 @@
         barChart(randomData(1));
     });
 
-    var columnChart = diagrammatica.column('#column-chart1', randomData(1));
+    var verticalBarChart = diagrammatica.bar('#column-chart1', randomData(1), 'vertical');
 
     jQuery('#column-chart1-reload').click(function () {
-        columnChart.height(500).xAxisLabelText('x label').yAxisLabelText('y label');
-        columnChart(randomData(1));
+        verticalBarChart.height(500).xAxisLabelText('x label').yAxisLabelText('y label');
+        verticalBarChart(randomData(1));
     });
 
     var pieChart = diagrammatica.pie('#pie-chart1', [

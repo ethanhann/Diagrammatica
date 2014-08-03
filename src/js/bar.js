@@ -1,12 +1,12 @@
 'use strict';
 /* global d3: false, check: false, ChartBase, scrollPosition: false, tooltip */
 /* exported bar */
-var BarBase = function (selection, data) {
+var BarBase = function (selection, data, orientation) {
     this.selection = check.string(selection) ? d3.select(selection) : selection;
     this.data = data;
     var chart = this.chart = new ChartBase(this.selection, 'bar');
     var config = this.config = chart.config;
-    var orientation = this.orientation = 'horizontal';
+    orientation = this.orientation = orientation || 'horizontal';
     chart.xScale = d3.scale.ordinal();
     chart.yScale = d3.scale.linear();
     this.updateX = function (newData) {
@@ -17,7 +17,10 @@ var BarBase = function (selection, data) {
                 return d.name;
             }))
             .rangeRoundBands(xScaleRange, 0.1);
-        console.log(config.paddedHeight());
+        var xAxisOrient = orientation === 'horizontal' ? 'left' : 'bottom';
+        chart.xAxis = d3.svg.axis()
+            .scale(chart.xScale)
+            .orient(xAxisOrient);
     };
     this.updateY = function (newData) {
         data = check.defined(newData) ? newData : data;
@@ -27,17 +30,14 @@ var BarBase = function (selection, data) {
             })]);
         var yScaleRange = orientation === 'horizontal' ? [0, config.paddedWidth()] : [config.paddedHeight(), 0];
         chart.yScale.range(yScaleRange);
+        var yAxisOrient = orientation === 'horizontal' ? 'bottom' : 'left';
+        chart.yAxis = d3.svg.axis()
+            .scale(chart.yScale)
+            .orient(yAxisOrient);
     };
     this.updateX();
     this.updateY();
-    var xAxisOrient = orientation === 'horizontal' ? 'left' : 'bottom';
-    chart.xAxis = d3.svg.axis()
-        .scale(chart.xScale)
-        .orient(xAxisOrient);
-    var yAxisOrient = orientation === 'horizontal' ? 'bottom' : 'left';
-    chart.yAxis = d3.svg.axis()
-        .scale(chart.yScale)
-        .orient(yAxisOrient);
+
     config.tooltipHtml = function (d) {
         var html = '<div class="left-arrow diagrammatica-tooltip-inline"></div>';
         html += '<div class="diagrammatica-tooltip-content diagrammatica-tooltip-inline">' + d.value + '</div>';
@@ -51,21 +51,17 @@ BarBase.prototype.renderXAxis = function () {
     var selection = chart.renderArea.append('g')
         .attr('class', 'x axis')
         .call(chart.xAxis);
-
+    var text = selection.append('text')
+        .attr('class', 'x label')
+        .attr('text-anchor', 'middle');
     if (this.orientation === 'horizontal') {
-        selection.append('text')
-            .attr('class', 'x label')
-            .attr('transform', 'rotate(-90)')
+        text.attr('transform', 'rotate(-90)')
             .attr('y', config.margin.left * -1)
             .attr('x', (config.paddedHeight() / 2) * -1)
-            .attr('dy', '1em')
-            .style('text-anchor', 'middle');
+            .attr('dy', '1em');
     } else {
-        selection.attr('transform', 'translate(0,' + config.paddedHeight() + ')')
-            .append('text')
-            .attr('class', 'x label')
-            .attr('text-anchor', 'middle')
-            .attr('x', config.paddedWidth() / 2)
+        selection.attr('transform', 'translate(0,' + config.paddedHeight() + ')');
+        text.attr('x', config.paddedWidth() / 2)
             .attr('y', 28);
     }
     return this;
@@ -155,8 +151,8 @@ BarBase.prototype.render = function () {
     return this;
 };
 
-var bar = function (selection, data) {
-    var barBase = new BarBase(selection, data).render();
+var bar = function (selection, data, orientation) {
+    var barBase = new BarBase(selection, data, orientation).render();
     var chart = barBase.chart;
     var config = barBase.config;
     var updateX = barBase.updateX;
@@ -189,7 +185,6 @@ var bar = function (selection, data) {
                 })
                 .attr('height', chart.xScale.rangeBand());
         } else {
-            console.log(barBase.orientation);
             bars.data(data)
                 .transition()
                 .attr('x', function (d) {
@@ -249,10 +244,6 @@ var bar = function (selection, data) {
 
     update.bars = function () {
         return bars;
-    };
-
-    update.orientation = function (value) {
-        barBase.orientation = value;
     };
 
     return update;

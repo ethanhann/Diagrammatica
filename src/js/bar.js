@@ -128,6 +128,52 @@ BarBase.prototype.render = function () {
     return this;
 };
 
+BarBase.prototype.updateAxes = function (data) {
+    var chart = this.chart;
+    var config = this.config;
+    this.updateY(data);
+    var yAxisSelection = chart.renderArea.select('.y.axis')
+        .transition()
+        .call(chart.yAxis);
+    this.updateX(data);
+    var xAxisSelection = chart.renderArea.select('.x.axis')
+        .transition()
+        .call(chart.xAxis);
+    var axisToTranslate = this.isHorizontal() ? yAxisSelection : xAxisSelection;
+    axisToTranslate.attr('transform', 'translate(0,' + config.paddedHeight() + ')');
+    return this;
+};
+
+BarBase.prototype.updateBars = function (data) {
+    var chart = this.chart;
+    var bars = this.bars;
+    var config = this.config;
+    var barTransition = bars.data(data)
+        .transition();
+    if (this.isHorizontal()) {
+        barTransition
+            .attr('y', function (d) {
+                return chart.xScale(d.name);
+            })
+            .attr('width', function (d) {
+                return chart.yScale(d.value);
+            })
+            .attr('height', chart.xScale.rangeBand());
+    } else {
+        barTransition
+            .attr('x', function (d) {
+                return chart.xScale(d.name);
+            })
+            .attr('y', function (d) {
+                return chart.yScale(d.value);
+            })
+            .attr('width', chart.xScale.rangeBand())
+            .attr('height', function (d) {
+                return config.paddedHeight() - chart.yScale(d.value);
+            });
+    }
+};
+
 var bar = function (selection, data, orientation) {
     var barBase = new BarBase(selection, data, orientation).render();
     var chart = barBase.chart;
@@ -136,50 +182,10 @@ var bar = function (selection, data, orientation) {
     var updateY = barBase.updateY;
     var bars = barBase.bars;
 
-    function updateAxes(data) {
-        updateY(data);
-        var yAxisSelection = chart.renderArea.select('.y.axis')
-            .transition()
-            .call(chart.yAxis);
-        updateX(data);
-        var xAxisSelection = chart.renderArea.select('.x.axis')
-            .transition()
-            .call(chart.xAxis);
-        var axisToTranslate = barBase.isHorizontal() ? yAxisSelection : xAxisSelection;
-        axisToTranslate.attr('transform', 'translate(0,' + config.paddedHeight() + ')');
-    }
-
-    function updateBars(data) {
-        var barTransition = bars.data(data)
-            .transition();
-        if (barBase.isHorizontal()) {
-            barTransition
-                .attr('y', function (d) {
-                    return chart.xScale(d.name);
-                })
-                .attr('width', function (d) {
-                    return chart.yScale(d.value);
-                })
-                .attr('height', chart.xScale.rangeBand());
-        } else {
-            barTransition
-                .attr('x', function (d) {
-                    return chart.xScale(d.name);
-                })
-                .attr('y', function (d) {
-                    return chart.yScale(d.value);
-                })
-                .attr('width', chart.xScale.rangeBand())
-                .attr('height', function (d) {
-                    return config.paddedHeight() - chart.yScale(d.value);
-                });
-        }
-    }
-
     var update = chart.update = function (newData) {
         data = check.defined(newData) ? newData : data;
-        updateAxes(data);
-        updateBars(data);
+        barBase.updateAxes(data);
+        barBase.updateBars(data);
     };
 
     update.height = function (value) {

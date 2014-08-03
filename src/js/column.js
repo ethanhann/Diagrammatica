@@ -31,9 +31,8 @@ var ColumnBase = function (selection, data) {
     this.updateY();
 };
 
-ColumnBase.prototype.render = function () {
+ColumnBase.prototype.renderXAxis = function () {
     var chart = this.chart;
-    var data = this.data;
     var config = this.config;
 
     chart.renderArea.append('g')
@@ -47,6 +46,13 @@ ColumnBase.prototype.render = function () {
         .attr('y', 28)
         .text('');
 
+    return this;
+};
+
+ColumnBase.prototype.renderYAxis = function () {
+    var chart = this.chart;
+    var config = this.config;
+
     chart.renderArea.append('g')
         .attr('class', 'y axis')
         .call(chart.yAxis)
@@ -58,6 +64,14 @@ ColumnBase.prototype.render = function () {
         .attr('dy', '1em')
         .style('text-anchor', 'middle')
         .text('');
+
+    return this;
+};
+
+ColumnBase.prototype.renderColumns = function () {
+    var chart = this.chart;
+    var data = this.data;
+    var config = this.config;
 
     chart.renderArea.selectAll('.column')
         .data(data)
@@ -76,6 +90,15 @@ ColumnBase.prototype.render = function () {
         .attr('fill', function (d) {
             return chart.colors(d.value);
         });
+
+    return this;
+};
+
+
+ColumnBase.prototype.render = function () {
+    this.renderXAxis();
+    this.renderYAxis();
+    this.renderColumns();
 
     return this;
 };

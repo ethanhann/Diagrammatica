@@ -1,0 +1,48 @@
+.diagrammatica .axis {
+  font: 10px sans-serif; }
+.diagrammatica .axis path,
+.diagrammatica .axis line {
+  fill: none;
+  stroke: #EFEFEF;
+  shape-rendering: crispEdges; }
+.diagrammatica .line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px; }
+.diagrammatica .x.label, .diagrammatica .y.label {
+  font: 10px sans-serif; }
+
+.diagrammatica .legend .legend-item {
+  font: 12px sans-serif;
+  cursor: pointer; }
+.diagrammatica .legend .legend-item :hover {
+  cursor: pointer; }
+
+.diagrammatica .hover-line {
+  stroke: #EFEFEF;
+  pointer-events: none; }
+
+.diagrammatica-tooltip {
+  position: absolute;
+  pointer-events: none; }
+
+.diagrammatica-tooltip-content {
+  font: 12px sans-serif;
+  padding: 8px;
+  background-color: white;
+  border: solid 1px #EFEFEF; }
+
+.diagrammatica-tooltip > .left-arrow:before {
+  color: #EFEFEF;
+  content: "\3008";
+  margin: -4px 0 0 0;
+  top: 50%;
+  left: -8px; }
+
+.diagrammatica-tooltip-inline {
+  display: inline; }
+
+.diagrammatica-line .line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px; }

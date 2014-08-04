@@ -1,6 +1,6 @@
 'use strict';
 /* check: false */
-/* exported scrollPosition */
+/* exported scrollPosition, isD3Selection */
 
 function scrollPosition() {
     if (typeof window.scrollX === 'number' && typeof window.scrollY === 'number') {
@@ -16,4 +16,10 @@ function scrollPosition() {
         doc = document.body;
     }
     return {x: doc.scrollLeft, y: doc.scrollTop};
+}
+
+function isD3Selection(value) {
+    // The second half of the statement is for IE9 compatibility.
+    // See: http://stackoverflow.com/a/25024739/2832321
+    return value instanceof d3.selection || (check.array(value) && typeof value[0] !== 'string');
 }

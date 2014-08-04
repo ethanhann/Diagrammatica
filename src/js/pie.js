@@ -2,7 +2,7 @@
 /* global d3: false, check: false, ChartBase */
 /* exported pie */
 var pie = function (selection, data) {
-    selection = check.string(selection) ? d3.select(selection) : selection;
+    selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);
     var chart = new ChartBase(selection, 'pie');
     var config = chart.config;
     chart.updateDimensions = function () {

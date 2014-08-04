@@ -2,7 +2,7 @@
 /* global d3: false, check: false, ChartBase, colorbrewer */
 /* exported heatMap */
 var HeatMapBase = function (selection, data) {
-    selection = this.selection = check.string(selection) ? d3.select(selection) : selection;
+    selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);
     this.data = data;
     var chart = this.chart = new ChartBase(selection, 'heat-map');
     var config = this.config = chart.config;
@@ -64,7 +64,7 @@ HeatMapBase.prototype.renderRectangles = function () {
     var buckets = this.buckets;
     var categories = this.categories;
 
-    chart.renderArea.selectAll('.categoryLabel')
+    this.yLabels = chart.renderArea.selectAll('.yLabel')
         .data(categories)
         .enter().append('text')
         .text(function (d) {
@@ -81,7 +81,7 @@ HeatMapBase.prototype.renderRectangles = function () {
         });
 
     var dateFormat = d3.time.format('%b %Y');
-    chart.renderArea.selectAll('.timeLabel')
+    this.xLabels = chart.renderArea.selectAll('.xLabel')
         .data(dates)
         .enter().append('text')
         .text(function (d) {
@@ -136,25 +136,26 @@ HeatMapBase.prototype.renderLegend = function () {
         .enter().append('g')
         .attr('class', 'legend-item');
 
+    var swatchHeight = 19;
     legendItems.append('rect')
         .attr('x', function (d, i) {
             return legendElementWidth * i;
         })
         .attr('y', config.paddedHeight() + 10)
         .attr('width', legendElementWidth)
-        .attr('height', cellHeight / 2)
+        .attr('height', swatchHeight)
         .style('fill', function (d, i) {
             return colors[i];
         });
 
-    this.legendText = legendItems.append('text')
+    legendItems.append('text')
         .text(function (d) {
             return '≥ ' + Math.round(d);
         })
         .attr('x', function (d, i) {
             return legendElementWidth * i;
         })
-        .attr('y', config.paddedHeight() + cellHeight + 2);
+        .attr('y', config.paddedHeight() + (swatchHeight * 2) + 2);
 
     return this;
 };
@@ -168,26 +169,23 @@ HeatMapBase.prototype.render = function () {
 var heatMap = function (selection, data) {
     var heatMapBase = new HeatMapBase(selection, data).render();
     var chart = heatMapBase.chart;
-    return heatMapBase.chart.update = function (newData) {
+    var update =  heatMapBase.chart.update = function (newData) {
         data = check.defined(newData) ? newData : data;
         heatMapBase.updateColors(data);
         heatMapBase.updateX(data);
         heatMapBase.updateY(data);
-        heatMapBase.rectangles.data(data)
-            .transition()
-            .duration(200)
-            .attr('x', function (d, i) {
-                return chart.xScale(i % heatMapBase.dates.length);
-            })
-            .attr('y', function (d) {
-                return chart.yScale(d.category);
-            })
-            .attr('width', heatMapBase.cellWidth)
-            .attr('height', heatMapBase.cellHeight)
-            .style('fill', function (d) {
-                return chart.colorScale(d.value);
-            });
+        heatMapBase.xLabels.remove();
+        heatMapBase.yLabels.remove();
+        heatMapBase.rectangles.remove();
         heatMapBase.legend.remove();
-        heatMapBase.renderLegend();
+        heatMapBase.render();
     };
+
+    update.width = function (value) {
+        return chart.width(value, function () {
+            heatMapBase.updateY(heatMapBase.data);
+        });
+    };
+
+    return update;
 };

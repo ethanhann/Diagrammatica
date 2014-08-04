@@ -2,7 +2,7 @@
 /* global d3: false, ChartBase, tooltip */
 /* exported line */
 var line = function (selection, data) {
-    selection = check.string(selection) ? d3.select(selection) : selection;
+    selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);
     var chart = new ChartBase(selection, 'line');
     var config = chart.config;
     config.margin.bottom = 50;

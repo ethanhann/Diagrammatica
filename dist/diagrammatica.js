@@ -2,7 +2,7 @@
     global["diagrammatica"] = exports;
     "use strict";
     var BarBase = function(selection, data, orientation) {
-        this.selection = check.string(selection) ? d3.select(selection) : selection;
+        selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);
         this.data = data;
         var chart = this.chart = new ChartBase(this.selection, "bar");
         var config = this.config = chart.config;
@@ -177,7 +177,7 @@
     "use strict";
     var ChartBase = function(selection, chartClass) {
         this.hasRenderedOnce = false;
-        this.selection = check.string(selection) ? d3.select(selection) : selection;
+        this.selection = isD3Selection(selection) ? selection : d3.select(selection);
         this.update = function() {};
         var config = {
             margin: {
@@ -273,9 +273,34 @@
             y: doc.scrollTop
         };
     }
+    function isD3Selection(value) {
+        return value instanceof d3.selection || check.array(value) && typeof value[0] !== "string";
+    }
+    "use strict";
+    var toCommaSeparatedList = function(json, reportTitle, showHeader) {
+        var arrData = check.object(json) ? JSON.parse(json) : json;
+        var csv = showHeader ? Object.keys(arrData[0]).join() + "\r\n" : "";
+        for (var i = 0; i < arrData.length; i++) {
+            var row = "";
+            for (var j in arrData[i]) {
+                row += '"' + arrData[i][j] + '",';
+            }
+            row.slice(0, row.length - 1);
+            csv += row + "\r\n";
+        }
+        var fileName = reportTitle.replace(/ /g, "_");
+        var uri = "data:text/csv;charset=utf-8," + escape(csv);
+        var link = document.createElement("a");
+        link.href = uri;
+        link.style = "visibility:hidden";
+        link.download = fileName + ".csv";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
     "use strict";
     var HeatMapBase = function(selection, data) {
-        selection = this.selection = check.string(selection) ? d3.select(selection) : selection;
+        selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);
         this.data = data;
         var chart = this.chart = new ChartBase(selection, "heat-map");
         var config = this.config = chart.config;
@@ -283,35 +308,49 @@
         config.margin.bottom = 40;
         config.margin.left = 50;
         chart.updateDimensions();
-        this.dates = d3.set(data.map(function(d) {
-            return d.date;
-        })).values();
-        this.cellWidth = Math.floor(config.paddedWidth() / this.dates.length);
-        this.categories = d3.set(data.map(function(d) {
-            return d.category;
-        })).values();
-        this.cellHeight = Math.floor(config.paddedHeight() / this.categories.length);
+        this.updateCellPrimitives = function(data) {
+            this.dates = d3.set(data.map(function(d) {
+                return d.date;
+            })).values();
+            this.cellWidth = Math.floor(config.paddedWidth() / this.dates.length);
+            this.categories = d3.set(data.map(function(d) {
+                return d.category;
+            })).values();
+            this.cellHeight = Math.floor(config.paddedHeight() / this.categories.length);
+        };
+        this.updateCellPrimitives(data);
         this.buckets = 9;
         this.colors = colorbrewer.OrRd[this.buckets];
+        chart.xScale = d3.scale.linear();
+        chart.yScale = d3.scale.ordinal();
+        chart.colorScale = d3.scale.quantile();
+        this.updateX = function(data) {
+            this.updateCellPrimitives(data);
+            chart.xScale.domain([ 0, this.dates.length - 1 ]).range([ 0, config.paddedWidth() - this.cellWidth ]);
+        };
+        this.updateY = function(data) {
+            chart.yScale.domain(data.map(function(d) {
+                return d.category;
+            })).rangeRoundBands([ 0, config.paddedHeight() + 3 ]);
+        };
+        this.updateColors = function(data) {
+            chart.colorScale.domain([ 0, this.buckets - 1, d3.max(data, function(d) {
+                return d.value;
+            }) ]).range(this.colors);
+        };
+        this.updateX(data);
+        this.updateY(data);
+        this.updateColors(data);
     };
     HeatMapBase.prototype.renderRectangles = function() {
         var chart = this.chart;
         var data = this.data;
-        var config = this.config;
         var cellHeight = this.cellHeight;
         var cellWidth = this.cellWidth;
         var dates = this.dates;
         var buckets = this.buckets;
         var categories = this.categories;
-        var colors = this.colors;
-        var xCellScale = d3.scale.linear().domain([ 0, dates.length - 1 ]).range([ 0, config.paddedWidth() - cellWidth ]);
-        var yCellScale = d3.scale.ordinal().domain(data.map(function(d) {
-            return d.category;
-        })).rangeRoundBands([ 0, config.paddedHeight() + 3 ]);
-        chart.colors = d3.scale.quantile().domain([ 0, buckets - 1, d3.max(data, function(d) {
-            return d.value;
-        }) ]).range(colors);
-        chart.renderArea.selectAll(".categoryLabel").data(categories).enter().append("text").text(function(d) {
+        this.yLabels = chart.renderArea.selectAll(".yLabel").data(categories).enter().append("text").text(function(d) {
             return d;
         }).attr("x", 0).attr("y", function(d, i) {
             return i * cellHeight;
@@ -319,21 +358,21 @@
             return i >= 0 && i <= 4 ? "categoryLabel mono axis axis-category" : "categoryLabel mono axis";
         });
         var dateFormat = d3.time.format("%b %Y");
-        chart.renderArea.selectAll(".timeLabel").data(dates).enter().append("text").text(function(d) {
+        this.xLabels = chart.renderArea.selectAll(".xLabel").data(dates).enter().append("text").text(function(d) {
             return dateFormat(new Date(d));
         }).attr("x", 0).attr("y", function(d, i) {
             return i * cellWidth;
         }).style("text-anchor", "middle").attr("transform", "rotate(-90) translate(30, " + cellWidth / 2 + ")").attr("class", function(d, i) {
             return i >= 7 && i <= 16 ? "timeLabel mono axis axis-date" : "timeLabel mono axis";
         });
-        var heatMap = chart.renderArea.selectAll("rect").data(data).enter().append("rect").attr("x", function(d, i) {
-            return xCellScale(i % dates.length);
+        this.rectangles = chart.renderArea.selectAll("rect").data(data).enter().append("rect").attr("x", function(d, i) {
+            return chart.xScale(i % dates.length);
         }).attr("y", function(d) {
-            return yCellScale(d.category);
+            return chart.yScale(d.category);
         }).attr("width", cellWidth).attr("height", cellHeight).style("fill", function(d) {
-            return chart.colors(d.value);
+            return chart.colorScale(d.value);
         });
-        heatMap.append("title").text(function(d) {
+        this.rectangles.append("title").text(function(d) {
             return d.value;
         });
         return this;
@@ -344,21 +383,22 @@
         var buckets = this.buckets;
         var cellHeight = this.cellHeight;
         var colors = this.colors;
-        var legendElementWidth = Math.floor(config.paddedWidth() / buckets);
-        var legend = chart.renderArea.append("g").attr("class", "legend");
-        var legendItems = legend.selectAll(".legend-item").data([ 0 ].concat(chart.colors.quantiles()), function(d) {
+        var legendElementWidth = this.legendElementWidth = Math.floor(config.paddedWidth() / buckets);
+        var legend = this.legend = chart.renderArea.append("g").attr("class", "legend");
+        var legendItems = legend.selectAll(".legend-item").data([ 0 ].concat(chart.colorScale.quantiles()), function(d) {
             return d;
         }).enter().append("g").attr("class", "legend-item");
+        var swatchHeight = 19;
         legendItems.append("rect").attr("x", function(d, i) {
             return legendElementWidth * i;
-        }).attr("y", config.paddedHeight() + 10).attr("width", legendElementWidth).attr("height", cellHeight / 2).style("fill", function(d, i) {
+        }).attr("y", config.paddedHeight() + 10).attr("width", legendElementWidth).attr("height", swatchHeight).style("fill", function(d, i) {
             return colors[i];
         });
         legendItems.append("text").text(function(d) {
             return "≥ " + Math.round(d);
         }).attr("x", function(d, i) {
             return legendElementWidth * i;
-        }).attr("y", config.paddedHeight() + cellHeight + 2);
+        }).attr("y", config.paddedHeight() + swatchHeight * 2 + 2);
         return this;
     };
     HeatMapBase.prototype.render = function() {
@@ -368,12 +408,28 @@
     };
     var heatMap = function(selection, data) {
         var heatMapBase = new HeatMapBase(selection, data).render();
-        var update = heatMapBase.chart.update = function() {};
+        var chart = heatMapBase.chart;
+        var update = heatMapBase.chart.update = function(newData) {
+            data = check.defined(newData) ? newData : data;
+            heatMapBase.updateColors(data);
+            heatMapBase.updateX(data);
+            heatMapBase.updateY(data);
+            heatMapBase.xLabels.remove();
+            heatMapBase.yLabels.remove();
+            heatMapBase.rectangles.remove();
+            heatMapBase.legend.remove();
+            heatMapBase.render();
+        };
+        update.width = function(value) {
+            return chart.width(value, function() {
+                heatMapBase.updateY(heatMapBase.data);
+            });
+        };
         return update;
     };
     "use strict";
     var line = function(selection, data) {
-        selection = check.string(selection) ? d3.select(selection) : selection;
+        selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);
         var chart = new ChartBase(selection, "line");
         var config = chart.config;
         config.margin.bottom = 50;
@@ -597,7 +653,7 @@
     };
     "use strict";
     var pie = function(selection, data) {
-        selection = check.string(selection) ? d3.select(selection) : selection;
+        selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);
         var chart = new ChartBase(selection, "pie");
         var config = chart.config;
         chart.updateDimensions = function() {
@@ -669,6 +725,8 @@
     exports["bar"] = bar;
     exports["ChartBase"] = ChartBase;
     exports["scrollPosition"] = scrollPosition;
+    exports["isD3Selection"] = isD3Selection;
+    exports["toCommaSeparatedList"] = toCommaSeparatedList;
     exports["HeatMapBase"] = HeatMapBase;
     exports["heatMap"] = heatMap;
     exports["line"] = line;

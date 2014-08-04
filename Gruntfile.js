@@ -38,7 +38,7 @@ module.exports = function (grunt) {
         watch: {
             src: {
                 files: ['<%= settings.src %>/**/*.*'],
-                tasks: ['uglify:minify', 'sass:dist'],
+                tasks: ['uglify:beautify', 'uglify:minify', 'sass:dist'],
                 options: {
                     spawn: false
                 }
@@ -50,7 +50,7 @@ module.exports = function (grunt) {
                     '<%= settings.dist %>/<%= settings.libName %>.js': ['<%= settings.src %>/**/*.js']
                 },
                 options: {
-                    wrap: 'diagrammatica',
+                    wrap: '<%= settings.libName %>',
                     exportAll: true,
                     compress: false,
                     mangle: false,

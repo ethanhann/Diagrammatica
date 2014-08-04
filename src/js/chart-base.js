@@ -2,7 +2,7 @@
 
 var ChartBase = function (selection, chartClass) {
     this.hasRenderedOnce = false;
-    this.selection = check.string(selection) ? d3.select(selection) : selection;
+    this.selection = isD3Selection(selection) ? selection : d3.select(selection);
     this.update = function () {
     };
     var config = {
@@ -25,6 +25,7 @@ var ChartBase = function (selection, chartClass) {
     this.config.tooltipHtml = function () {
         return 'tooltip content';
     };
+
     this.svg = this.selection.append('svg')
         .attr('class', 'diagrammatica diagrammatica-' + chartClass)
         .attr('width', config.width)

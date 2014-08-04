@@ -2,7 +2,7 @@
 /* global d3: false, check: false, ChartBase, scrollPosition: false, tooltip */
 /* exported bar */
 var BarBase = function (selection, data, orientation) {
-    this.selection = check.string(selection) ? d3.select(selection) : selection;
+    selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);
     this.data = data;
     var chart = this.chart = new ChartBase(this.selection, 'bar');
     var config = this.config = chart.config;

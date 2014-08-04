@@ -126,26 +126,29 @@
         ]);
     });
 
-    var heatMap = diagrammatica.heatMap('#heat-map-chart1', [
-        {category: 'alpha', date: new Date(2014, 1, 1), value: 16},
-        {category: 'alpha', date: new Date(2014, 2, 2), value: 20},
-        {category: 'alpha', date: new Date(2014, 3, 3), value: 10},
-        {category: 'alpha', date: new Date(2014, 4, 3), value: 16},
-        {category: 'beta', date: new Date(2014, 1, 1), value: 6},
-        {category: 'beta', date: new Date(2014, 2, 2), value: 2},
-        {category: 'beta', date: new Date(2014, 3, 3), value: 19},
-        {category: 'beta', date: new Date(2014, 4, 3), value: 100},
-        {category: 'gamma', date: new Date(2014, 1, 1), value: 10},
-        {category: 'gamma', date: new Date(2014, 2, 2), value: 20},
-        {category: 'gamma', date: new Date(2014, 3, 3), value: 10},
-        {category: 'gamma', date: new Date(2014, 4, 3), value: 5},
-        {category: 'epsilon', date: new Date(2014, 1, 1), value: 6},
-        {category: 'epsilon', date: new Date(2014, 2, 2), value: 2},
-        {category: 'epsilon', date: new Date(2014, 3, 3), value: 0},
-        {category: 'epsilon', date: new Date(2014, 4, 3), value: 2}
-    ]);
+    var heatMapData = [
+        {category: 'alpha', date: new Date(2014, 1, 1), value: random()},
+        {category: 'alpha', date: new Date(2014, 2, 2), value: random()},
+        {category: 'alpha', date: new Date(2014, 3, 3), value: random()},
+        {category: 'alpha', date: new Date(2014, 4, 3), value: random()},
+        {category: 'beta', date: new Date(2014, 1, 1), value: random()},
+        {category: 'beta', date: new Date(2014, 2, 2), value: random()},
+        {category: 'beta', date: new Date(2014, 3, 3), value: random()},
+        {category: 'beta', date: new Date(2014, 4, 3), value: random()},
+        {category: 'gamma', date: new Date(2014, 1, 1), value: random()},
+        {category: 'gamma', date: new Date(2014, 2, 2), value: random()},
+        {category: 'gamma', date: new Date(2014, 3, 3), value: random()},
+        {category: 'gamma', date: new Date(2014, 4, 3), value: random()},
+        {category: 'epsilon', date: new Date(2014, 1, 1), value: random()},
+        {category: 'epsilon', date: new Date(2014, 2, 2), value: random()},
+        {category: 'epsilon', date: new Date(2014, 3, 3), value: random()},
+        {category: 'epsilon', date: new Date(2014, 4, 3), value: random()}
+    ];
+    var heatMap = diagrammatica.heatMap('#heat-map-chart1', heatMapData);
 
-
+    jQuery('#heat-map-chart1-export').click(function () {
+        diagrammatica.toCommaSeparatedList(heatMapData, 'My Heat Map', true);
+    });
 
     jQuery('#heat-map-chart1-reload').click(function () {
         heatMap([
@@ -160,11 +163,7 @@
             {category: 'gamma', date: new Date(2014, 1, 1), value: random()},
             {category: 'gamma', date: new Date(2014, 2, 2), value: random()},
             {category: 'gamma', date: new Date(2014, 3, 3), value: random()},
-            {category: 'gamma', date: new Date(2014, 4, 3), value: random()},
-            {category: 'epsilon', date: new Date(2014, 1, 1), value: random()},
-            {category: 'epsilon', date: new Date(2014, 2, 2), value: random()},
-            {category: 'epsilon', date: new Date(2014, 3, 3), value: random()},
-            {category: 'epsilon', date: new Date(2014, 4, 3), value: random()}
+            {category: 'gamma', date: new Date(2014, 4, 3), value: random()}
         ]);
     });
 

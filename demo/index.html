@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="demo">
 <head lang="en">
     <meta charset="UTF-8">
     <title>Diagrammatica</title>
@@ -29,11 +29,15 @@
     </p>
 </div>
 
-<div class="container">
+<div class="container" ng-controller="MainCtrl">
     <h2>Heat Map Chart</h2>
     <button id="heat-map-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
+    <button id="heat-map-chart1-export" class="btn btn-default btn-sm"><span class="fa fa-download"></span></button>
     <hr>
     <div id="heat-map-chart1"></div>
+    <h3>With Angular Directive</h3>
+    <button ng-click="refresh()" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
+    <div diagrammatica="data"></div>
 
     <h2>Line Chart</h2>
     <button id="line-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
@@ -54,7 +58,6 @@
     <button id="column-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
     <hr>
     <div id="column-chart1"></div>
-
 </div>
 
 <div class="footer text-center">
@@ -69,8 +72,11 @@
 <script src="bower_components/d3/d3.js"></script>
 <script src="bower_components/check-types/src/check-types.min.js"></script>
 <script src="bower_components/colorbrewer2/colorbrewer.js"></script>
-<script src="../dist/diagrammatica.min.js"></script>
+<script src="../dist/diagrammatica.js"></script>
 <script src="demo.js"></script>
+
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.21/angular.min.js"></script>
+<script src="angular-demo.js"></script>
 </body>
 </html>
 

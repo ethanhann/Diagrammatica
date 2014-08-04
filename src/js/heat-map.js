@@ -10,40 +10,59 @@ var HeatMapBase = function (selection, data) {
     config.margin.bottom = 40;
     config.margin.left = 50;
     chart.updateDimensions();
-    this.dates = d3.set(data.map(function (d) { return d.date; })).values();
-    this.cellWidth = Math.floor(config.paddedWidth() / this.dates.length); // divide by number points of points on the x axis
-    this.categories = d3.set(data.map(function (d) { return d.category; })).values();
-    this.cellHeight = Math.floor(config.paddedHeight() / this.categories.length); // divide by number of categories
+
+    this.updateCellPrimitives = function (data) {
+        this.dates = d3.set(data.map(function (d) {
+            return d.date;
+        })).values();
+        this.cellWidth = Math.floor(config.paddedWidth() / this.dates.length); // divide by number points of points on the x axis
+        this.categories = d3.set(data.map(function (d) {
+            return d.category;
+        })).values();
+        this.cellHeight = Math.floor(config.paddedHeight() / this.categories.length); // divide by number of categories
+    };
+    this.updateCellPrimitives(data);
+
     this.buckets = 9;
     this.colors = colorbrewer.OrRd[this.buckets];
+
+    chart.xScale = d3.scale.linear();
+    chart.yScale = d3.scale.ordinal();
+    chart.colorScale = d3.scale.quantile();
+    this.updateX = function (data) {
+        this.updateCellPrimitives(data);
+        chart.xScale
+            .domain([0, this.dates.length - 1])
+            .range([0, config.paddedWidth() - this.cellWidth]);
+    };
+    this.updateY = function (data) {
+        chart.yScale
+            .domain(data.map(function (d) {
+                return d.category;
+            }))
+            .rangeRoundBands([0, config.paddedHeight() + 3])
+    };
+    this.updateColors = function (data) {
+        chart.colorScale
+            .domain([0, this.buckets - 1, d3.max(data, function (d) {
+                return d.value;
+            })])
+            .range(this.colors)
+    };
+
+    this.updateX(data);
+    this.updateY(data);
+    this.updateColors(data);
 };
 
 HeatMapBase.prototype.renderRectangles = function () {
     var chart = this.chart;
     var data = this.data;
-    var config = this.config;
     var cellHeight = this.cellHeight;
     var cellWidth = this.cellWidth;
     var dates = this.dates;
     var buckets = this.buckets;
     var categories = this.categories;
-    var colors = this.colors;
-
-    var xCellScale = d3.scale.linear()
-        .domain([0, dates.length - 1])
-        .range([0, config.paddedWidth() - cellWidth]);
-
-    var yCellScale = d3.scale.ordinal()
-        .domain(data.map(function (d) {
-            return d.category;
-        }))
-        .rangeRoundBands([0, config.paddedHeight() + 3]);
-
-    chart.colors = d3.scale.quantile()
-        .domain([0, buckets - 1, d3.max(data, function (d) {
-            return d.value;
-        })])
-        .range(colors);
 
     chart.renderArea.selectAll('.categoryLabel')
         .data(categories)
@@ -78,22 +97,22 @@ HeatMapBase.prototype.renderRectangles = function () {
             return ((i >= 7 && i <= 16) ? 'timeLabel mono axis axis-date' : 'timeLabel mono axis');
         });
 
-    var heatMap = chart.renderArea.selectAll('rect')
+    this.rectangles = chart.renderArea.selectAll('rect')
         .data(data)
         .enter().append('rect')
         .attr('x', function (d, i) {
-            return xCellScale(i % dates.length);
+            return chart.xScale(i % dates.length);
         })
         .attr('y', function (d) {
-            return yCellScale(d.category);
+            return chart.yScale(d.category);
         })
         .attr('width', cellWidth)
         .attr('height', cellHeight)
         .style('fill', function (d) {
-            return chart.colors(d.value);
+            return chart.colorScale(d.value);
         });
 
-    heatMap.append('title').text(function (d) {
+    this.rectangles.append('title').text(function (d) {
         return d.value;
     });
 
@@ -107,11 +126,11 @@ HeatMapBase.prototype.renderLegend = function () {
     var cellHeight = this.cellHeight;
     var colors = this.colors;
 
-    var legendElementWidth = Math.floor(config.paddedWidth() / buckets);
-    var legend = chart.renderArea.append('g')
+    var legendElementWidth = this.legendElementWidth = Math.floor(config.paddedWidth() / buckets);
+    var legend = this.legend = chart.renderArea.append('g')
         .attr('class', 'legend');
     var legendItems = legend.selectAll('.legend-item')
-        .data([0].concat(chart.colors.quantiles()), function (d) {
+        .data([0].concat(chart.colorScale.quantiles()), function (d) {
             return d;
         })
         .enter().append('g')
@@ -128,7 +147,7 @@ HeatMapBase.prototype.renderLegend = function () {
             return colors[i];
         });
 
-    legendItems.append('text')
+    this.legendText = legendItems.append('text')
         .text(function (d) {
             return '≥ ' + Math.round(d);
         })
@@ -148,9 +167,27 @@ HeatMapBase.prototype.render = function () {
 
 var heatMap = function (selection, data) {
     var heatMapBase = new HeatMapBase(selection, data).render();
-
-    var update = heatMapBase.chart.update = function () {
+    var chart = heatMapBase.chart;
+    return heatMapBase.chart.update = function (newData) {
+        data = check.defined(newData) ? newData : data;
+        heatMapBase.updateColors(data);
+        heatMapBase.updateX(data);
+        heatMapBase.updateY(data);
+        heatMapBase.rectangles.data(data)
+            .transition()
+            .duration(200)
+            .attr('x', function (d, i) {
+                return chart.xScale(i % heatMapBase.dates.length);
+            })
+            .attr('y', function (d) {
+                return chart.yScale(d.category);
+            })
+            .attr('width', heatMapBase.cellWidth)
+            .attr('height', heatMapBase.cellHeight)
+            .style('fill', function (d) {
+                return chart.colorScale(d.value);
+            });
+        heatMapBase.legend.remove();
+        heatMapBase.renderLegend();
     };
-
-    return update;
 };

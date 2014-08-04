@@ -46,8 +46,7 @@ angular.module('demo').directive('diagrammatica', ['$window', function ($window)
             });
 
             scope.$watch('data', function () {
-                console.log(scope.data);
-                chart(chart.data);
+                chart(scope.data);
             });
         }
     };

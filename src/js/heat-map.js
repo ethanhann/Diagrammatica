@@ -170,7 +170,7 @@ var heatMap = function (selection, data) {
     var heatMapBase = new HeatMapBase(selection, data).render();
     var chart = heatMapBase.chart;
     var update =  heatMapBase.chart.update = function (newData) {
-        data = check.defined(newData) ? newData : data;
+        data = heatMapBase.data = check.defined(newData) ? newData : heatMapBase.data;
         heatMapBase.updateColors(data);
         heatMapBase.updateX(data);
         heatMapBase.updateY(data);

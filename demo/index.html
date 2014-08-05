@@ -8,15 +8,28 @@
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css" rel="stylesheet">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="../dist/diagrammatica.css" rel="stylesheet">
+    <style>
+        .section-header {
+            border-bottom: solid 1px #EEEEEE;
+            margin: 30px 0 20px 0;
+        }
+
+        .section-header > h2,
+        .section-header > h4 {
+            padding-bottom: 9px;
+            border-bottom: solid 3px #EEEEEE;
+            display: inline-block;
+            margin-bottom: 0;
+        }
+
+    </style>
 </head>
 <body>
 <div class="jumbotron text-center">
     <h1>Diagrammatica</h1>
-
     <p class="lead">
         D3 chart library.
     </p>
-
     <p class="btn-group">
         <a class="btn btn-primary" href="https://github.com/ethanhann/Diagrammatica">
             <i class="fa fa-code fa-fw"></i>Code on GitHub
@@ -30,33 +43,52 @@
 </div>
 
 <div class="container" ng-controller="MainCtrl">
-    <h2>Heat Map Chart</h2>
-    <button id="heat-map-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
-    <button id="heat-map-chart1-export" class="btn btn-default btn-sm"><span class="fa fa-download"></span></button>
-    <hr>
+    <div class="section-header">
+        <h2>Heat Map Chart</h2>
+    </div>
+    <div class="btn-toolbar">
+        <button id="heat-map-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
+        <button id="heat-map-chart1-export" class="btn btn-default btn-sm"><span class="fa fa-download"></span></button>
+    </div>
     <div id="heat-map-chart1"></div>
-    <h3>With Angular Directive</h3>
-    <button ng-click="refresh()" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
-    <div diagrammatica="data"></div>
+    <div class="section-header">
+        <h4>With Angular Directive</h4>
+    </div>
+    <div class="btn-toolbar">
+        <button ng-click="refresh()" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
+    </div>
+    <div dma-heat-map="data"></div>
 
-    <h2>Line Chart</h2>
-    <button id="line-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
-    <hr>
+    <div class="section-header">
+        <h2>Line Chart</h2>
+    </div>
+    <div class="btn-toolbar">
+        <button id="line-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
+    </div>
     <div id="line-chart1"></div>
 
-    <h2>Pie Chart</h2>
-    <button id="pie-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
-    <hr>
+    <div class="section-header">
+        <h2>Pie Chart</h2>
+    </div>
+    <div class="btn-toolbar">
+        <button id="pie-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
+    </div>
     <div id="pie-chart1"></div>
 
-    <h2>Bar Chart</h2>
-    <button id="bar-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
-    <hr>
+    <div class="section-header">
+        <h2>Bar Chart</h2>
+    </div>
+    <div class="btn-toolbar">
+        <button id="bar-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
+    </div>
     <div id="bar-chart1"></div>
 
-    <h2>Column Chart</h2>
-    <button id="column-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
-    <hr>
+    <div class="section-header">
+        <h2>Column Chart</h2>
+    </div>
+    <div class="btn-toolbar">
+        <button id="column-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
+    </div>
     <div id="column-chart1"></div>
 </div>
 
@@ -76,7 +108,7 @@
 <script src="demo.js"></script>
 
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.21/angular.min.js"></script>
+<script src="../dist/diagrammatica-angular-module.js"></script>
 <script src="angular-demo.js"></script>
 </body>
 </html>
-

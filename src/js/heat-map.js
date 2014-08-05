@@ -61,7 +61,6 @@ HeatMapBase.prototype.renderRectangles = function () {
     var cellHeight = this.cellHeight;
     var cellWidth = this.cellWidth;
     var dates = this.dates;
-    var buckets = this.buckets;
     var categories = this.categories;
 
     this.yLabels = chart.renderArea.selectAll('.yLabel')
@@ -123,7 +122,6 @@ HeatMapBase.prototype.renderLegend = function () {
     var chart = this.chart;
     var config = this.config;
     var buckets = this.buckets;
-    var cellHeight = this.cellHeight;
     var colors = this.colors;
 
     var legendElementWidth = this.legendElementWidth = Math.floor(config.paddedWidth() / buckets);

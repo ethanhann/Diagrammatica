@@ -8,7 +8,8 @@ module.exports = function (grunt) {
         settings: {
             src: 'src',
             dist: 'dist',
-            libName: 'diagrammatica'
+            libName: 'diagrammatica',
+            angularModuleName: 'diagrammatica-angular-module'
         },
         jshint: {
             options: {
@@ -38,16 +39,21 @@ module.exports = function (grunt) {
         watch: {
             src: {
                 files: ['<%= settings.src %>/**/*.*'],
-                tasks: ['uglify:beautify', 'uglify:minify', 'sass:dist'],
+                tasks: [
+                    'uglify:beautifyLibrary',
+                    'uglify:minifyLibrary',
+                    'uglify:beautifyAngularModule',
+                    'uglify:minifyAngularModule',
+                    'sass:dist'],
                 options: {
                     spawn: false
                 }
             }
         },
         uglify: {
-            beautify: {
+            beautifyLibrary: {
                 files: {
-                    '<%= settings.dist %>/<%= settings.libName %>.js': ['<%= settings.src %>/**/*.js']
+                    '<%= settings.dist %>/<%= settings.libName %>.js': ['<%= settings.src %>/css/*.js']
                 },
                 options: {
                     wrap: '<%= settings.libName %>',
@@ -57,13 +63,31 @@ module.exports = function (grunt) {
                     beautify: true
                 }
             },
-            minify: {
+            minifyLibrary: {
                 files: {
-                    '<%= settings.dist %>/<%= settings.libName %>.min.js': ['<%= settings.src %>/**/*.js']
+                    '<%= settings.dist %>/<%= settings.libName %>.min.js': ['<%= settings.src %>/js/*.js']
                 },
                 options: {
                     wrap: '<%= settings.libName %>',
                     exportAll: true,
+                    sourceMap: true
+                }
+            },
+            beautifyAngularModule: {
+                files: {
+                    '<%= settings.dist %>/<%= settings.angularModuleName %>.js': ['<%= settings.src %>/angular-module/*.js']
+                },
+                options: {
+                    compress: false,
+                    mangle: false,
+                    beautify: true
+                }
+            },
+            minifyAngularModule: {
+                files: {
+                    '<%= settings.dist %>/<%= settings.angularModuleName %>.min.js': ['<%= settings.src %>/angular-module/*.js']
+                },
+                options: {
                     sourceMap: true
                 }
             }

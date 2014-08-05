@@ -1,4 +1,4 @@
-/* global diagrammatica, jquery */
+/* global diagrammatica, jQuery */
 (function (diagrammatica, jQuery) {
     'use strict';
 

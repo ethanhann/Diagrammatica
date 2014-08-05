@@ -1,7 +1,7 @@
 {
   "name": "diagrammatica",
   "version": "0.0.0",
-  "main": "./dist/diagrammatica.min.js",
+  "main": ["./dist/diagrammatica.min.js", "./dist/diagrammatica.css"],
   "description": "D3 chart library.",
   "authors": [
     "Ethan Hann <ethanhann@gmail.com>"

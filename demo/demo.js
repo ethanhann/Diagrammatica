@@ -1,3 +1,4 @@
+/* global diagrammatica, jquery */
 (function (diagrammatica, jQuery) {
     'use strict';
 

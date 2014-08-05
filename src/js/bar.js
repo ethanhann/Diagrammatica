@@ -1,5 +1,5 @@
 'use strict';
-/* global d3: false, check: false, ChartBase, scrollPosition: false, tooltip */
+/* global d3: false, check: false, ChartBase, scrollPosition: false, isD3Selection: false, tooltip */
 /* exported bar */
 var BarBase = function (selection, data, orientation) {
     selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);

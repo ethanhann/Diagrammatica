@@ -1,5 +1,5 @@
 'use strict';
-
+/* global isD3Selection: false */
 var ChartBase = function (selection, chartClass) {
     this.hasRenderedOnce = false;
     this.selection = isD3Selection(selection) ? selection : d3.select(selection);

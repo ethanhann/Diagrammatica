@@ -1,5 +1,5 @@
 'use strict';
-/* global d3: false, check: false, ChartBase, colorbrewer */
+/* global d3: false, check: false, ChartBase, colorbrewer, isD3Selection: false */
 /* exported heatMap */
 var HeatMapBase = function (selection, data) {
     selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);
@@ -40,14 +40,14 @@ var HeatMapBase = function (selection, data) {
             .domain(data.map(function (d) {
                 return d.category;
             }))
-            .rangeRoundBands([0, config.paddedHeight() + 3])
+            .rangeRoundBands([0, config.paddedHeight() + 3]);
     };
     this.updateColors = function (data) {
         chart.colorScale
             .domain([0, this.buckets - 1, d3.max(data, function (d) {
                 return d.value;
             })])
-            .range(this.colors)
+            .range(this.colors);
     };
 
     this.updateX(data);

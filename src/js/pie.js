@@ -1,5 +1,5 @@
 'use strict';
-/* global d3: false, check: false, ChartBase */
+/* global d3: false, check: false, ChartBase, isD3Selection: false */
 /* exported pie */
 var pie = function (selection, data) {
     selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);

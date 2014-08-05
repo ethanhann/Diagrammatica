@@ -19,6 +19,7 @@
     "trailing": true,
     "smarttabs": true,
     "globals": {
+        "angular": true,
         "check": true,
         "d3": true,
         "describe": false,

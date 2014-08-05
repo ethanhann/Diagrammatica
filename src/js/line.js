@@ -1,5 +1,5 @@
 'use strict';
-/* global d3: false, ChartBase, tooltip */
+/* global d3: false, ChartBase, tooltip, isD3Selection: false */
 /* exported line */
 var line = function (selection, data) {
     selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);

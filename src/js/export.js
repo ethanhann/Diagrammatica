@@ -1,6 +1,5 @@
 'use strict';
 /* exported toCommaSeparatedList */
-
 // Attribution: http://jsfiddle.net/hybrid13i/JXrwM/
 var toCommaSeparatedList = function (json, reportTitle, showHeader) {
     //If json is not an object then JSON.parse will parse the JSON string in an Object
@@ -19,16 +18,16 @@ var toCommaSeparatedList = function (json, reportTitle, showHeader) {
         csv += row + '\r\n';
     }
 
-    var fileName = reportTitle.replace(/ /g, "_");
-    var uri = 'data:text/csv;charset=utf-8,' + escape(csv);
+    var fileName = reportTitle.replace(/ /g, '_');
+    var uri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
 
     // Hack to allow the file to be downloaded...
     // Generate a temp <a /> tag remove it right away.
-    var link = document.createElement("a");
+    var link = document.createElement('a');
     link.href = uri;
-    link.style = "visibility:hidden";
-    link.download = fileName + ".csv";
+    link.style = 'visibility:hidden';
+    link.download = fileName + '.csv';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-}
+};

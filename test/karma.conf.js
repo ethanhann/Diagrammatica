@@ -8,6 +8,7 @@ module.exports = function(config) {
     files: [
       'demo/bower_components/d3/d3.js',
       'demo/bower_components/check-types/src/check-types.min.js',
+      'demo/bower_components/angular/angular.js',
       'src/**/*.js',
       'test/unit/**/*.js'
     ],

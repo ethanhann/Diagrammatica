@@ -1,7 +1,10 @@
 {
   "name": "diagrammatica",
   "version": "0.0.0",
-  "main": ["./dist/diagrammatica.min.js", "./dist/diagrammatica.css"],
+  "main": [
+    "./dist/diagrammatica.min.js",
+    "./dist/diagrammatica.css"
+  ],
   "description": "D3 chart library.",
   "authors": [
     "Ethan Hann <ethanhann@gmail.com>"
@@ -21,6 +24,7 @@
     "colorbrewer2": "*"
   },
   "devDependencies": {
-    "jasmine": "~2.0.0"
+    "jasmine": "~2.0.0",
+    "angular": "~1.2.21"
   }
 }

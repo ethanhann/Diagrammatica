@@ -53,7 +53,7 @@ module.exports = function (grunt) {
         uglify: {
             beautifyLibrary: {
                 files: {
-                    '<%= settings.dist %>/<%= settings.libName %>.js': ['<%= settings.src %>/css/*.js']
+                    '<%= settings.dist %>/<%= settings.libName %>.js': ['<%= settings.src %>/js/*.js']
                 },
                 options: {
                     wrap: '<%= settings.libName %>',

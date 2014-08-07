@@ -289,7 +289,7 @@
             csv += row + "\r\n";
         }
         var fileName = reportTitle.replace(/ /g, "_");
-        var uri = "data:text/csv;charset=utf-8," + escape(csv);
+        var uri = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
         var link = document.createElement("a");
         link.href = uri;
         link.style = "visibility:hidden";
@@ -306,7 +306,7 @@
         var config = this.config = chart.config;
         config.margin.top = 55;
         config.margin.bottom = 40;
-        config.margin.left = 50;
+        config.margin.left = 0;
         chart.updateDimensions();
         this.updateCellPrimitives = function(data) {
             this.dates = d3.set(data.map(function(d) {
@@ -319,8 +319,8 @@
             this.cellHeight = Math.floor(config.paddedHeight() / this.categories.length);
         };
         this.updateCellPrimitives(data);
-        this.buckets = 9;
-        this.colors = colorbrewer.OrRd[this.buckets];
+        this.colors = [ "#f7fbff", "#deebf7", "#c6dbef", "#9ecae1", "#6baed6", "#4292c6", "#2171b5", "#08519c", "#08306b" ];
+        this.buckets = this.colors.length;
         chart.xScale = d3.scale.linear();
         chart.yScale = d3.scale.ordinal();
         chart.colorScale = d3.scale.quantile();
@@ -348,23 +348,30 @@
         var cellHeight = this.cellHeight;
         var cellWidth = this.cellWidth;
         var dates = this.dates;
-        var buckets = this.buckets;
         var categories = this.categories;
+        var labelPadding = 6;
         this.yLabels = chart.renderArea.selectAll(".yLabel").data(categories).enter().append("text").text(function(d) {
             return d;
         }).attr("x", 0).attr("y", function(d, i) {
             return i * cellHeight;
-        }).style("text-anchor", "end").attr("transform", "translate(-6," + cellHeight / 2 + ")").attr("class", function(d, i) {
-            return i >= 0 && i <= 4 ? "categoryLabel mono axis axis-category" : "categoryLabel mono axis";
+        }).style("text-anchor", "end").attr("transform", "translate(" + -labelPadding + "," + cellHeight / 2 + ")").attr("class", "axis yLabel");
+        var maxYLabelWidth = 0;
+        this.yLabels.each(function() {
+            if (this.getBBox().width > maxYLabelWidth) {
+                maxYLabelWidth = this.getBBox().width + labelPadding;
+            }
         });
+        chart.config.margin.left = maxYLabelWidth + 10;
+        chart.updateDimensions();
         var dateFormat = d3.time.format("%b %Y");
         this.xLabels = chart.renderArea.selectAll(".xLabel").data(dates).enter().append("text").text(function(d) {
             return dateFormat(new Date(d));
         }).attr("x", 0).attr("y", function(d, i) {
             return i * cellWidth;
-        }).style("text-anchor", "middle").attr("transform", "rotate(-90) translate(30, " + cellWidth / 2 + ")").attr("class", function(d, i) {
-            return i >= 7 && i <= 16 ? "timeLabel mono axis axis-date" : "timeLabel mono axis";
-        });
+        }).style("text-anchor", "middle").attr("transform", function(d, i) {
+            var xTrans = chart.xScale(i % dates.length) / cellWidth + cellWidth / 2;
+            return "rotate(-90) translate(30, " + xTrans + ")";
+        }).attr("class", "axis xLabel");
         this.rectangles = chart.renderArea.selectAll("rect").data(data).enter().append("rect").attr("x", function(d, i) {
             return chart.xScale(i % dates.length);
         }).attr("y", function(d) {
@@ -381,9 +388,8 @@
         var chart = this.chart;
         var config = this.config;
         var buckets = this.buckets;
-        var cellHeight = this.cellHeight;
         var colors = this.colors;
-        var legendElementWidth = this.legendElementWidth = Math.floor(config.paddedWidth() / buckets);
+        var legendElementWidth = Math.floor(config.paddedWidth() / buckets);
         var legend = this.legend = chart.renderArea.append("g").attr("class", "legend");
         var legendItems = legend.selectAll(".legend-item").data([ 0 ].concat(chart.colorScale.quantiles()), function(d) {
             return d;
@@ -424,6 +430,20 @@
             return chart.width(value, function() {
                 heatMapBase.updateY(heatMapBase.data);
             });
+        };
+        update.margin = function(value) {
+            if (!check.defined(value)) {
+                return chart.config.margin;
+            }
+            chart.config.margin = value;
+            return update;
+        };
+        update.margin.left = function(value) {
+            if (!check.defined(value)) {
+                return chart.config.margin.left;
+            }
+            chart.config.margin.left = value;
+            return update;
         };
         return update;
     };

@@ -1,5 +1,5 @@
 'use strict';
-/* global d3: false, check: false, ChartBase, colorbrewer, isD3Selection: false */
+/* global d3: false, check: false, ChartBase, isD3Selection: false */
 /* exported heatMap */
 var HeatMapBase = function (selection, data) {
     selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);
@@ -91,7 +91,10 @@ HeatMapBase.prototype.renderRectangles = function () {
             return i * cellWidth;
         })
         .style('text-anchor', 'middle')
-        .attr('transform', 'rotate(-90) translate(30, ' + cellWidth / 2 + ')')
+        .attr('transform', function (d, i) {
+            var xTrans = (chart.xScale(i % dates.length) / cellWidth) + (cellWidth / 2);
+            return 'rotate(-90) translate(30, ' + xTrans + ')';
+        })
         .attr('class', function (d, i) {
             return ((i >= 7 && i <= 16) ? 'timeLabel mono axis axis-date' : 'timeLabel mono axis');
         });

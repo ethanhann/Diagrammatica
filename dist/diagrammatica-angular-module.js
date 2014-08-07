@@ -1,6 +1,15 @@
 angular.module("diagrammatica", []);
 
-angular.module("diagrammatica").directive("dmaHeatMap", [ "$window", function($window) {
+angular.module("diagrammatica").factory("diagrammatica", [ function() {
+    "use strict";
+    if (window.diagrammatica === undefined) {
+        console.log("The Diagrammatica library is required.");
+    }
+    return window.diagrammatica;
+} ]);
+
+angular.module("diagrammatica").directive("dmaHeatMap", [ "$window", "diagrammatica", function($window, diagrammatica) {
+    "use strict";
     return {
         scope: {
             data: "=dmaHeatMap"

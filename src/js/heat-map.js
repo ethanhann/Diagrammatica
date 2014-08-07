@@ -23,8 +23,8 @@ var HeatMapBase = function (selection, data) {
     };
     this.updateCellPrimitives(data);
 
-    this.buckets = 9;
-    this.colors = colorbrewer.OrRd[this.buckets];
+    this.buckets = 7;
+    this.colors = ['#f7fbff', '#deebf7', '#c6dbef', '#9ecae1', '#6baed6', '#4292c6', '#2171b5', '#08519c', '#08306b'];
 
     chart.xScale = d3.scale.linear();
     chart.yScale = d3.scale.ordinal();

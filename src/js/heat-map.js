@@ -8,7 +8,8 @@ var HeatMapBase = function (selection, data) {
     var config = this.config = chart.config;
     config.margin.top = 55;
     config.margin.bottom = 40;
-    config.margin.left = 50;
+    config.margin.left = 0;
+
     chart.updateDimensions();
 
     this.updateCellPrimitives = function (data) {
@@ -63,6 +64,7 @@ HeatMapBase.prototype.renderRectangles = function () {
     var dates = this.dates;
     var categories = this.categories;
 
+    var labelPadding = 6;
     this.yLabels = chart.renderArea.selectAll('.yLabel')
         .data(categories)
         .enter().append('text')
@@ -74,8 +76,17 @@ HeatMapBase.prototype.renderRectangles = function () {
             return i * cellHeight;
         })
         .style('text-anchor', 'end')
-        .attr('transform', 'translate(-6,' + cellHeight / 2 + ')')
-        .attr('class', 'axis');
+        .attr('transform', 'translate(' + -labelPadding + ',' + cellHeight / 2 + ')')
+        .attr('class', 'axis yLabel');
+
+    var maxYLabelWidth = 0;
+    this.yLabels.each(function () {
+        if (this.getBBox().width > maxYLabelWidth) {
+            maxYLabelWidth = this.getBBox().width + labelPadding;
+        }
+    });
+    chart.config.margin.left = maxYLabelWidth + 10;
+    chart.updateDimensions();
 
     var dateFormat = d3.time.format('%b %Y');
     this.xLabels = chart.renderArea.selectAll('.xLabel')
@@ -93,7 +104,7 @@ HeatMapBase.prototype.renderRectangles = function () {
             var xTrans = (chart.xScale(i % dates.length) / cellWidth) + (cellWidth / 2);
             return 'rotate(-90) translate(30, ' + xTrans + ')';
         })
-        .attr('class', 'axis');
+        .attr('class', 'axis xLabel');
 
     this.rectangles = chart.renderArea.selectAll('rect')
         .data(data)
@@ -165,7 +176,7 @@ HeatMapBase.prototype.render = function () {
 var heatMap = function (selection, data) {
     var heatMapBase = new HeatMapBase(selection, data).render();
     var chart = heatMapBase.chart;
-    var update =  heatMapBase.chart.update = function (newData) {
+    var update = heatMapBase.chart.update = function (newData) {
         data = heatMapBase.data = check.defined(newData) ? newData : heatMapBase.data;
         heatMapBase.updateColors(data);
         heatMapBase.updateX(data);
@@ -181,6 +192,22 @@ var heatMap = function (selection, data) {
         return chart.width(value, function () {
             heatMapBase.updateY(heatMapBase.data);
         });
+    };
+
+    update.margin = function (value) {
+        if (!check.defined(value)) {
+            return chart.config.margin;
+        }
+        chart.config.margin = value;
+        return update;
+    };
+
+    update.margin.left = function (value) {
+        if (!check.defined(value)) {
+            return chart.config.margin.left;
+        }
+        chart.config.margin.left = value;
+        return update;
     };
 
     return update;

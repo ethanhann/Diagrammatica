@@ -23,8 +23,8 @@ var HeatMapBase = function (selection, data) {
     };
     this.updateCellPrimitives(data);
 
-    this.buckets = 7;
     this.colors = ['#f7fbff', '#deebf7', '#c6dbef', '#9ecae1', '#6baed6', '#4292c6', '#2171b5', '#08519c', '#08306b'];
+    this.buckets = this.colors.length;
 
     chart.xScale = d3.scale.linear();
     chart.yScale = d3.scale.ordinal();
@@ -75,9 +75,7 @@ HeatMapBase.prototype.renderRectangles = function () {
         })
         .style('text-anchor', 'end')
         .attr('transform', 'translate(-6,' + cellHeight / 2 + ')')
-        .attr('class', function (d, i) {
-            return ((i >= 0 && i <= 4) ? 'categoryLabel mono axis axis-category' : 'categoryLabel mono axis');
-        });
+        .attr('class', 'axis');
 
     var dateFormat = d3.time.format('%b %Y');
     this.xLabels = chart.renderArea.selectAll('.xLabel')
@@ -95,9 +93,7 @@ HeatMapBase.prototype.renderRectangles = function () {
             var xTrans = (chart.xScale(i % dates.length) / cellWidth) + (cellWidth / 2);
             return 'rotate(-90) translate(30, ' + xTrans + ')';
         })
-        .attr('class', function (d, i) {
-            return ((i >= 7 && i <= 16) ? 'timeLabel mono axis axis-date' : 'timeLabel mono axis');
-        });
+        .attr('class', 'axis');
 
     this.rectangles = chart.renderArea.selectAll('rect')
         .data(data)
@@ -126,8 +122,7 @@ HeatMapBase.prototype.renderLegend = function () {
     var config = this.config;
     var buckets = this.buckets;
     var colors = this.colors;
-
-    var legendElementWidth = this.legendElementWidth = Math.floor(config.paddedWidth() / buckets);
+    var legendElementWidth = Math.floor(config.paddedWidth() / buckets);
     var legend = this.legend = chart.renderArea.append('g')
         .attr('class', 'legend');
     var legendItems = legend.selectAll('.legend-item')

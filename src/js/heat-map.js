@@ -8,8 +8,7 @@ var HeatMapBase = function (selection, data) {
     var config = this.config = chart.config;
     config.margin.top = 55;
     config.margin.bottom = 40;
-    config.margin.left = 0;
-
+    config.margin.right = 0;
     chart.updateDimensions();
 
     this.updateCellPrimitives = function (data) {
@@ -85,7 +84,7 @@ HeatMapBase.prototype.renderRectangles = function () {
             maxYLabelWidth = this.getBBox().width + labelPadding;
         }
     });
-    chart.config.margin.left = maxYLabelWidth + 10;
+    chart.config.margin.left = maxYLabelWidth;
     chart.updateDimensions();
 
     var dateFormat = d3.time.format('%b %Y');
@@ -96,15 +95,20 @@ HeatMapBase.prototype.renderRectangles = function () {
             return dateFormat(new Date(d));
         })
         .attr('x', 0)
-        .attr('y', function (d, i) {
-            return i * cellWidth;
-        })
         .style('text-anchor', 'middle')
-        .attr('transform', function (d, i) {
-            var xTrans = (chart.xScale(i % dates.length) / cellWidth) + (cellWidth / 2);
-            return 'rotate(-90) translate(30, ' + xTrans + ')';
-        })
+        .attr('transform', 'rotate(-90) translate(30, 0)')
         .attr('class', 'axis xLabel');
+
+    var maxXLabelHeight = 0;
+    this.xLabels.each(function () {
+        if (this.getBBox().height > maxXLabelHeight) {
+            maxXLabelHeight = this.getBBox().height;
+        }
+    });
+
+    this.xLabels.attr('y', function (d, i) {
+        return chart.xScale(i % dates.length) + (cellWidth / 2) + (maxXLabelHeight / 4);
+    });
 
     this.rectangles = chart.renderArea.selectAll('rect')
         .data(data)

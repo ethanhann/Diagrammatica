@@ -1,4 +1,4 @@
-/* global diagrammatica, jQuery */
+
 (function (diagrammatica, jQuery) {
     'use strict';
 
@@ -140,10 +140,10 @@
         {category: 'gamma', date: new Date(2014, 2, 2), value: random()},
         {category: 'gamma', date: new Date(2014, 3, 3), value: random()},
         {category: 'gamma', date: new Date(2014, 4, 3), value: random()},
-        {category: 'epsilon', date: new Date(2014, 1, 1), value: random()},
-        {category: 'epsilon', date: new Date(2014, 2, 2), value: random()},
-        {category: 'epsilon', date: new Date(2014, 3, 3), value: random()},
-        {category: 'epsilon', date: new Date(2014, 4, 3), value: random()}
+        {category: 'delta', date: new Date(2014, 1, 1), value: random()},
+        {category: 'delta', date: new Date(2014, 2, 2), value: random()},
+        {category: 'delta', date: new Date(2014, 3, 3), value: random()},
+        {category: 'delta', date: new Date(2014, 4, 3), value: random()}
     ];
     var heatMap = diagrammatica.heatMap('#heat-map-chart1', heatMapData);
 
@@ -164,7 +164,11 @@
             {category: 'gamma', date: new Date(2014, 1, 1), value: random()},
             {category: 'gamma', date: new Date(2014, 2, 2), value: random()},
             {category: 'gamma', date: new Date(2014, 3, 3), value: random()},
-            {category: 'gamma', date: new Date(2014, 4, 3), value: random()}
+            {category: 'gamma', date: new Date(2014, 4, 3), value: random()},
+            {category: 'delta', date: new Date(2014, 1, 1), value: random()},
+            {category: 'delta', date: new Date(2014, 2, 2), value: random()},
+            {category: 'delta', date: new Date(2014, 3, 3), value: random()},
+            {category: 'delta', date: new Date(2014, 4, 3), value: random()}
         ]);
     });
 

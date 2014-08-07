@@ -3,24 +3,18 @@ angular.module('demo', ['diagrammatica'], function () {}).controller('MainCtrl',
             return Math.floor(Math.random() * 100);
         };
         $scope.refresh = function () {
-            $scope.data = [
-                {category: 'alpha', date: new Date(2014, 1, 1), value: random()},
-                {category: 'alpha', date: new Date(2014, 2, 2), value: random()},
-                {category: 'alpha', date: new Date(2014, 3, 3), value: random()},
-                {category: 'alpha', date: new Date(2014, 4, 3), value: random()},
-                {category: 'beta', date: new Date(2014, 1, 1), value: random()},
-                {category: 'beta', date: new Date(2014, 2, 2), value: random()},
-                {category: 'beta', date: new Date(2014, 3, 3), value: random()},
-                {category: 'beta', date: new Date(2014, 4, 3), value: random()},
-                {category: 'gamma', date: new Date(2014, 1, 1), value: random()},
-                {category: 'gamma', date: new Date(2014, 2, 2), value: random()},
-                {category: 'gamma', date: new Date(2014, 3, 3), value: random()},
-                {category: 'gamma', date: new Date(2014, 4, 3), value: random()},
-                {category: 'epsilon', date: new Date(2014, 1, 1), value: random()},
-                {category: 'epsilon', date: new Date(2014, 2, 2), value: random()},
-                {category: 'epsilon', date: new Date(2014, 3, 3), value: random()},
-                {category: 'epsilon', date: new Date(2014, 4, 3), value: random()}
-            ];
+            $scope.data = [];
+
+            angular.forEach(['Alpha', 'Beta', 'Gamma', 'Delta'], function (category) {
+                for (var i = 1; i <= 24; i++) {
+                    $scope.data.push({
+                        category: category,
+                        date: moment().add(i, 'month').toDate(),
+                        value: i
+                    });
+                }
+            });
         };
+
         $scope.refresh();
     }]);

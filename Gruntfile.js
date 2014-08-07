@@ -101,8 +101,10 @@ module.exports = function (grunt) {
     grunt.registerTask('build', [
         'sass:dist',
         'jshint:src',
-        'uglify:beautify',
-        'uglify:minify'
+        'uglify:beautifyLibrary',
+        'uglify:minifyLibrary',
+        'uglify:beautifyAngularModule',
+        'uglify:minifyAngularModule'
     ]);
 
     grunt.registerTask('test', [

@@ -1,6 +1,6 @@
 {
   "name": "diagrammatica",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "main": [
     "./dist/diagrammatica.min.js",
     "./dist/diagrammatica.css"

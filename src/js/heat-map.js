@@ -2,6 +2,7 @@
 /* global d3: false, check: false, ChartBase, isD3Selection: false */
 /* exported heatMap */
 var HeatMapBase = function (selection, data) {
+    this.data = data;
     selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);
     var chart = this.chart = new ChartBase(selection, 'heat-map');
     var config = this.config = chart.config;
@@ -9,49 +10,64 @@ var HeatMapBase = function (selection, data) {
     config.margin.bottom = 40;
     config.margin.right = 0;
     chart.updateDimensions();
-    function getDates(data) {
-        return d3.set(data.map(function (d) {
+
+    this.getDates = function (data) {
+        var dates = d3.set(data.map(function (d) {
             return d.date;
         })).values();
-    }
+        if (check.defined(this.fromX)) {
+            dates = dates.filter(function (d) {
+                var fromMoment = moment(new Date(d));
+                return fromMoment.isAfter(this.fromX, 'day') || fromMoment.isSame(this.fromX, 'day');
+            });
+        }
+        if (check.defined(this.toX)) {
+            dates = dates.filter(function (d) {
+                var toMoment = moment(new Date(d));
+                return toMoment.isBefore(this.toX, 'day') || toMoment.isSame(this.toX, 'day');
+            });
+        }
+        return dates;
+    };
+};
 
-    this.dates = getDates(data);
+HeatMapBase.prototype.prepareData = function () {
     var dateThreshold = 24;
+    this.dates = this.getDates(this.data);
+    console.log(this.dates.length);
     this.dateFormat = d3.time.format(this.dates.length >= dateThreshold ? '%Y' : '%b %Y');
-    this.prepareData = function (data) {
-        this.dates = getDates(data);
-        if (this.dates.length >= dateThreshold) {
-            this.dateFormat = d3.time.format('%Y');
-            var x = d3.nest()
-                .key(function (d) {
-                    return d.category;
-                })
-                .key(function (d) {
-                    return (new Date(d.date)).getFullYear();
-                })
-                .entries(data);
-            var displayData = [];
-            x.forEach(function (c) {
-                c.values.forEach(function (s) {
-                    var date = moment(s.key, 'YYYY').toDate();
-                    displayData.push({
-                        category: c.key,
-                        date: date,
-                        value: d3.sum(s.values, function (d) {
-                            return d.value;
-                        })
-                    });
+    if (this.dates.length >= dateThreshold) {
+        this.dateFormat = d3.time.format('%Y');
+        var x = d3.nest()
+            .key(function (d) {
+                return d.category;
+            })
+            .key(function (d) {
+                return (new Date(d.date)).getFullYear();
+            })
+            .entries(this.data);
+        var displayData = [];
+        x.forEach(function (c) {
+            c.values.forEach(function (s) {
+                var date = moment(s.key, 'YYYY').toDate();
+                displayData.push({
+                    category: c.key,
+                    date: date,
+                    value: d3.sum(s.values, function (d) {
+                        return d.value;
+                    })
                 });
             });
-            return displayData;
-        } else {
-            return data;
-        }
-    };
-    this.data = this.prepareData(data);
+        });
+        this.data = displayData;
+    }
+};
 
+HeatMapBase.prototype.preRender = function () {
+    var chart = this.chart;
+    var config = this.chart.config;
     this.updateCellPrimitives = function (data) {
-        this.dates = getDates(data);
+        this.dates = this.getDates(data);
         this.cellWidth = Math.floor(config.paddedWidth() / this.dates.length); // divide by number points of points on the x axis
         this.categories = d3.set(data.map(function (d) {
             return d.category;
@@ -209,6 +225,8 @@ HeatMapBase.prototype.renderLegend = function () {
 };
 
 HeatMapBase.prototype.render = function () {
+    this.prepareData();
+    this.preRender();
     this.renderRectangles();
     this.renderLegend();
     return this;
@@ -218,7 +236,7 @@ var heatMap = function (selection, data) {
     var heatMapBase = new HeatMapBase(selection, data).render();
     var chart = heatMapBase.chart;
     var update = heatMapBase.chart.update = function (newData) {
-        data = heatMapBase.data = check.defined(newData) ? heatMapBase.prepareData(newData): heatMapBase.data;
+        data = heatMapBase.data = check.defined(newData) ? newData : heatMapBase.data;
         heatMapBase.updateColors(data);
         heatMapBase.updateX(data);
         heatMapBase.updateY(data);
@@ -253,6 +271,23 @@ var heatMap = function (selection, data) {
 
     update.data = function () {
         return heatMapBase.data;
+    };
+
+    update.fromX = function (value) {
+        if (!check.defined(value)) {
+            return heatMapBase.fromX;
+        }
+        heatMapBase.fromX = value;
+        return update;
+    };
+
+    update.toX = function (value) {
+        if (!check.defined(value)) {
+            return heatMapBase.toX;
+        }
+        console.log(!check.defined(value));
+        heatMapBase.toX = value;
+        return update;
     };
 
     return update;

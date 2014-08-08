@@ -12,7 +12,9 @@ angular.module("diagrammatica").directive("dmaHeatMap", [ "$window", "diagrammat
     "use strict";
     return {
         scope: {
-            data: "=dmaHeatMap"
+            data: "=dmaHeatMap",
+            from: "=?dmaHeatMapFrom",
+            to: "=?dmaHeatMapTo"
         },
         link: function(scope, element) {
             var chart = diagrammatica.heatMap(element[0], scope.data).width(element.width());
@@ -27,6 +29,10 @@ angular.module("diagrammatica").directive("dmaHeatMap", [ "$window", "diagrammat
             scope.$watch("data", function() {
                 chart(scope.data);
             });
+            scope.$watch("from", function() {
+                chart.fromX(scope.from)();
+            });
+            scope.$watch("to", function() {});
         }
     };
 } ]);

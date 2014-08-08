@@ -3,25 +3,62 @@
 /* exported heatMap */
 var HeatMapBase = function (selection, data) {
     selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);
-    this.data = data;
     var chart = this.chart = new ChartBase(selection, 'heat-map');
     var config = this.config = chart.config;
     config.margin.top = 55;
     config.margin.bottom = 40;
     config.margin.right = 0;
     chart.updateDimensions();
-
-    this.updateCellPrimitives = function (data) {
-        this.dates = d3.set(data.map(function (d) {
+    function getDates(data) {
+        return d3.set(data.map(function (d) {
             return d.date;
         })).values();
+    }
+
+    this.dates = getDates(data);
+    var dateThreshold = 24;
+    this.dateFormat = d3.time.format(this.dates.length >= dateThreshold ? '%Y' : '%b %Y');
+    this.prepareData = function (data) {
+        this.dates = getDates(data);
+        if (this.dates.length >= dateThreshold) {
+            this.dateFormat = d3.time.format('%Y');
+            var x = d3.nest()
+                .key(function (d) {
+                    return d.category;
+                })
+                .key(function (d) {
+                    return (new Date(d.date)).getFullYear();
+                })
+                .entries(data);
+            var displayData = [];
+            x.forEach(function (c) {
+                c.values.forEach(function (s) {
+                    var date = moment(s.key, 'YYYY').toDate();
+                    displayData.push({
+                        category: c.key,
+                        date: date,
+                        value: d3.sum(s.values, function (d) {
+                            return d.value;
+                        })
+                    });
+                });
+            });
+            return displayData;
+        } else {
+            return data;
+        }
+    };
+    this.data = this.prepareData(data);
+
+    this.updateCellPrimitives = function (data) {
+        this.dates = getDates(data);
         this.cellWidth = Math.floor(config.paddedWidth() / this.dates.length); // divide by number points of points on the x axis
         this.categories = d3.set(data.map(function (d) {
             return d.category;
         })).values();
         this.cellHeight = Math.floor(config.paddedHeight() / this.categories.length); // divide by number of categories
     };
-    this.updateCellPrimitives(data);
+    this.updateCellPrimitives(this.data);
 
     this.colors = ['#f7fbff', '#deebf7', '#c6dbef', '#9ecae1', '#6baed6', '#4292c6', '#2171b5', '#08519c', '#08306b'];
     this.buckets = this.colors.length;
@@ -50,9 +87,9 @@ var HeatMapBase = function (selection, data) {
             .range(this.colors);
     };
 
-    this.updateX(data);
-    this.updateY(data);
-    this.updateColors(data);
+    this.updateX(this.data);
+    this.updateY(this.data);
+    this.updateColors(this.data);
 };
 
 HeatMapBase.prototype.renderRectangles = function () {
@@ -62,6 +99,7 @@ HeatMapBase.prototype.renderRectangles = function () {
     var cellWidth = this.cellWidth;
     var dates = this.dates;
     var categories = this.categories;
+    var dateFormat = this.dateFormat;
 
     var labelPadding = 6;
     this.yLabels = chart.renderArea.selectAll('.yLabel')
@@ -87,7 +125,6 @@ HeatMapBase.prototype.renderRectangles = function () {
     chart.config.margin.left = maxYLabelWidth;
     chart.updateDimensions();
 
-    var dateFormat = d3.time.format('%b %Y');
     this.xLabels = chart.renderArea.selectAll('.xLabel')
         .data(dates)
         .enter().append('text')
@@ -181,7 +218,7 @@ var heatMap = function (selection, data) {
     var heatMapBase = new HeatMapBase(selection, data).render();
     var chart = heatMapBase.chart;
     var update = heatMapBase.chart.update = function (newData) {
-        data = heatMapBase.data = check.defined(newData) ? newData : heatMapBase.data;
+        data = heatMapBase.data = check.defined(newData) ? heatMapBase.prepareData(newData): heatMapBase.data;
         heatMapBase.updateColors(data);
         heatMapBase.updateX(data);
         heatMapBase.updateY(data);
@@ -212,6 +249,10 @@ var heatMap = function (selection, data) {
         }
         chart.config.margin.left = value;
         return update;
+    };
+
+    update.data = function () {
+        return heatMapBase.data;
     };
 
     return update;

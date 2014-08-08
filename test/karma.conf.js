@@ -6,6 +6,7 @@ module.exports = function(config) {
     basePath: '../',
     frameworks: ['jasmine'],
     files: [
+      'demo/bower_components/moment/moment.js',
       'demo/bower_components/d3/d3.js',
       'demo/bower_components/check-types/src/check-types.min.js',
       'demo/bower_components/angular/angular.js',

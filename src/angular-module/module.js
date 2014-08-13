@@ -31,10 +31,10 @@ angular.module('diagrammatica').directive('dmaHeatMap', ['$window', 'diagrammati
                 chart(scope.data);
             });
             scope.$watch('from', function () {
-                chart.fromX(scope.from)();
+                chart.fromX(scope.from)(scope.data);
             });
             scope.$watch('to', function () {
-//                chart.toX(moment(scope.to, 'YYYY').toDate())();
+                chart.toX(scope.to)(scope.data);
             });
         }
     };

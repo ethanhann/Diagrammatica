@@ -34,8 +34,9 @@ describe('diagrammatica.heatMap', function () {
             {category: 'Beta', date: moment(2015, 'YYYY').toDate(), value: 12},
             {category: 'Beta', date: moment(2016, 'YYYY').toDate(), value: 9}
         ];
-        var expectedDateFormat = '%Y';
 
-        expect(chart.data()).toEqual(expected);
+        var displayData = chart.displayData();
+
+        expect(displayData.data).toEqual(expected);
     });
 });

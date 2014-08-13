@@ -308,42 +308,53 @@
         config.margin.bottom = 40;
         config.margin.right = 0;
         chart.updateDimensions();
+        var dateRange = d3.extent(data.map(function(d) {
+            return d.date;
+        }));
+        var fromX = this.fromX = dateRange[0];
+        var toX = this.toX = dateRange[1];
         this.getDates = function(data) {
             var dates = d3.set(data.map(function(d) {
                 return d.date;
             })).values();
-            if (check.defined(this.fromX)) {
-                dates = dates.filter(function(d) {
-                    var fromMoment = moment(new Date(d));
-                    return fromMoment.isAfter(this.fromX, "day") || fromMoment.isSame(this.fromX, "day");
-                });
-            }
-            if (check.defined(this.toX)) {
-                dates = dates.filter(function(d) {
-                    var toMoment = moment(new Date(d));
-                    return toMoment.isBefore(this.toX, "day") || toMoment.isSame(this.toX, "day");
-                });
-            }
+            dates = dates.filter(function(d) {
+                var fromMoment = moment(new Date(d));
+                return fromMoment.isAfter(fromX, "day") || fromMoment.isSame(fromX, "day");
+            });
+            dates = dates.filter(function(d) {
+                var toMoment = moment(new Date(d));
+                return toMoment.isBefore(toX, "day") || toMoment.isSame(toX, "day");
+            });
             return dates;
         };
     };
-    HeatMapBase.prototype.prepareData = function() {
+    HeatMapBase.prototype.prepareDisplayData = function() {
         var dateThreshold = 24;
-        this.dates = this.getDates(this.data);
-        console.log(this.dates.length);
-        this.dateFormat = d3.time.format(this.dates.length >= dateThreshold ? "%Y" : "%b %Y");
-        if (this.dates.length >= dateThreshold) {
-            this.dateFormat = d3.time.format("%Y");
+        var monthDates = this.getDates(this.data);
+        this.dateResultion = monthDates.length >= dateThreshold ? "year" : "month";
+        this.displayData = {
+            year: {
+                data: [],
+                dateFormat: d3.time.format("%Y"),
+                dates: []
+            },
+            month: {
+                data: this.data,
+                dateFormat: d3.time.format("%b %Y"),
+                dates: monthDates
+            }
+        };
+        if (this.dateResultion === "year") {
             var x = d3.nest().key(function(d) {
                 return d.category;
             }).key(function(d) {
                 return new Date(d.date).getFullYear();
             }).entries(this.data);
-            var displayData = [];
+            var yearData = [];
             x.forEach(function(c) {
                 c.values.forEach(function(s) {
                     var date = moment(s.key, "YYYY").toDate();
-                    displayData.push({
+                    yearData.push({
                         category: c.key,
                         date: date,
                         value: d3.sum(s.values, function(d) {
@@ -352,21 +363,26 @@
                     });
                 });
             });
-            this.data = displayData;
+            this.displayData[this.dateResultion].data = yearData;
+            this.displayData[this.dateResultion].dates = this.getDates(yearData);
         }
+        this.getDisplayData = function() {
+            return this.displayData[this.dateResultion];
+        };
     };
     HeatMapBase.prototype.preRender = function() {
+        var displayData = this.getDisplayData();
         var chart = this.chart;
         var config = this.chart.config;
         this.updateCellPrimitives = function(data) {
-            this.dates = this.getDates(data);
-            this.cellWidth = Math.floor(config.paddedWidth() / this.dates.length);
+            displayData.dates = this.getDates(data);
+            this.cellWidth = Math.floor(config.paddedWidth() / displayData.dates.length);
             this.categories = d3.set(data.map(function(d) {
                 return d.category;
             })).values();
             this.cellHeight = Math.floor(config.paddedHeight() / this.categories.length);
         };
-        this.updateCellPrimitives(this.data);
+        this.updateCellPrimitives(displayData.data);
         this.colors = [ "#f7fbff", "#deebf7", "#c6dbef", "#9ecae1", "#6baed6", "#4292c6", "#2171b5", "#08519c", "#08306b" ];
         this.buckets = this.colors.length;
         chart.xScale = d3.scale.linear();
@@ -374,7 +390,7 @@
         chart.colorScale = d3.scale.quantile();
         this.updateX = function(data) {
             this.updateCellPrimitives(data);
-            chart.xScale.domain([ 0, this.dates.length - 1 ]).range([ 0, config.paddedWidth() - this.cellWidth ]);
+            chart.xScale.domain([ 0, displayData.dates.length - 1 ]).range([ 0, config.paddedWidth() - this.cellWidth ]);
         };
         this.updateY = function(data) {
             chart.yScale.domain(data.map(function(d) {
@@ -386,18 +402,16 @@
                 return d.value;
             }) ]).range(this.colors);
         };
-        this.updateX(this.data);
-        this.updateY(this.data);
-        this.updateColors(this.data);
+        this.updateX(displayData.data);
+        this.updateY(displayData.data);
+        this.updateColors(displayData.data);
     };
     HeatMapBase.prototype.renderRectangles = function() {
         var chart = this.chart;
-        var data = this.data;
         var cellHeight = this.cellHeight;
         var cellWidth = this.cellWidth;
-        var dates = this.dates;
         var categories = this.categories;
-        var dateFormat = this.dateFormat;
+        var displayData = this.getDisplayData();
         var labelPadding = 6;
         this.yLabels = chart.renderArea.selectAll(".yLabel").data(categories).enter().append("text").text(function(d) {
             return d;
@@ -412,8 +426,8 @@
         });
         chart.config.margin.left = maxYLabelWidth;
         chart.updateDimensions();
-        this.xLabels = chart.renderArea.selectAll(".xLabel").data(dates).enter().append("text").text(function(d) {
-            return dateFormat(new Date(d));
+        this.xLabels = chart.renderArea.selectAll(".xLabel").data(displayData.dates).enter().append("text").text(function(d) {
+            return displayData.dateFormat(new Date(d));
         }).attr("x", 0).style("text-anchor", "middle").attr("transform", "rotate(-90) translate(30, 0)").attr("class", "axis xLabel");
         var maxXLabelHeight = 0;
         this.xLabels.each(function() {
@@ -422,10 +436,10 @@
             }
         });
         this.xLabels.attr("y", function(d, i) {
-            return chart.xScale(i % dates.length) + cellWidth / 2 + maxXLabelHeight / 4;
+            return chart.xScale(i % displayData.dates.length) + cellWidth / 2 + maxXLabelHeight / 4;
         });
-        this.rectangles = chart.renderArea.selectAll("rect").data(data).enter().append("rect").attr("x", function(d, i) {
-            return chart.xScale(i % dates.length);
+        this.rectangles = chart.renderArea.selectAll("rect").data(displayData.data).enter().append("rect").attr("x", function(d, i) {
+            return chart.xScale(i % displayData.dates.length);
         }).attr("y", function(d) {
             return chart.yScale(d.category);
         }).attr("width", cellWidth).attr("height", cellHeight).style("fill", function(d) {
@@ -460,7 +474,7 @@
         return this;
     };
     HeatMapBase.prototype.render = function() {
-        this.prepareData();
+        this.prepareDisplayData();
         this.preRender();
         this.renderRectangles();
         this.renderLegend();
@@ -471,9 +485,11 @@
         var chart = heatMapBase.chart;
         var update = heatMapBase.chart.update = function(newData) {
             data = heatMapBase.data = check.defined(newData) ? newData : heatMapBase.data;
-            heatMapBase.updateColors(data);
-            heatMapBase.updateX(data);
-            heatMapBase.updateY(data);
+            heatMapBase.prepareDisplayData();
+            var displayData = heatMapBase.getDisplayData();
+            heatMapBase.updateColors(displayData.data);
+            heatMapBase.updateX(displayData.data);
+            heatMapBase.updateY(displayData.data);
             heatMapBase.xLabels.remove();
             heatMapBase.yLabels.remove();
             heatMapBase.rectangles.remove();
@@ -499,8 +515,8 @@
             chart.config.margin.left = value;
             return update;
         };
-        update.data = function() {
-            return heatMapBase.data;
+        update.displayData = function() {
+            return heatMapBase.getDisplayData();
         };
         update.fromX = function(value) {
             if (!check.defined(value)) {
@@ -513,7 +529,6 @@
             if (!check.defined(value)) {
                 return heatMapBase.toX;
             }
-            console.log(!check.defined(value));
             heatMapBase.toX = value;
             return update;
         };

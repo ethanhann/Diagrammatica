@@ -112,6 +112,20 @@ var line = function (selection, data) {
         .style('stroke', function (d) {
             return chart.colors(d.name);
         });
+    var dots = series.selectAll('dots')
+        .data(function(d) { return d.data; })
+        .enter().append("circle")
+        .classed('dots', true)
+        .attr("r", 3)
+        .attr("cy", function(d) {
+            return chart.yScale(d.y);
+        })
+        .attr("cx", function(d) {
+            return chart.xScale(d.x);
+        })
+        .attr('fill', function (d, i, j) {
+            return chart.colors(data[j].name);
+        });
 
     // ------------------------------------------------------------------------
     // Tooltip
@@ -348,6 +362,17 @@ var line = function (selection, data) {
             .transition()
             .duration(1000)
             .call(chart.yAxis);
+
+        series.selectAll('.dots')
+            .data(function(d) { return d.data; })
+            .transition()
+            .duration(1000)
+            .attr("cy", function(d) {
+                return chart.yScale(d.y);
+            })
+            .attr("cx", function(d) {
+                return chart.xScale(d.x);
+            });
 
         renderTooltip(data);
         renderLegend(data);

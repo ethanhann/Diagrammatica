@@ -589,6 +589,15 @@
         }).style("stroke", function(d) {
             return chart.colors(d.name);
         });
+        series.selectAll("dots").data(function(d) {
+            return d.data;
+        }).enter().append("circle").classed("dots", true).attr("r", 3).attr("cy", function(d) {
+            return chart.yScale(d.y);
+        }).attr("cx", function(d) {
+            return chart.xScale(d.x);
+        }).attr("fill", function(d, i, j) {
+            return chart.colors(data[j].name);
+        });
         var hoverLineGroup = chart.renderArea.append("g").attr("class", "hover-line");
         var hoverLine = hoverLineGroup.append("line").attr("x1", 0).attr("x2", 0).attr("y1", 0).attr("y2", config.paddedHeight());
         hoverLine.style("opacity", 0);
@@ -730,6 +739,13 @@
             });
             chart.renderArea.select(".x.axis").transition().duration(1e3).call(chart.xAxis).attr("transform", "translate(0," + config.paddedHeight() + ")");
             chart.renderArea.select(".y.axis").transition().duration(1e3).call(chart.yAxis);
+            series.selectAll(".dots").data(function(d) {
+                return d.data;
+            }).transition().duration(1e3).attr("cy", function(d) {
+                return chart.yScale(d.y);
+            }).attr("cx", function(d) {
+                return chart.xScale(d.x);
+            });
             renderTooltip(data);
             renderLegend(data);
         }

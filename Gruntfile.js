@@ -108,6 +108,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('test', [
+        'jshint:src',
         'karma:unit'
     ]);
 

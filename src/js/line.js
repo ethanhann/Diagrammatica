@@ -112,15 +112,15 @@ var line = function (selection, data) {
         .style('stroke', function (d) {
             return chart.colors(d.name);
         });
-    var dots = series.selectAll('dots')
+    series.selectAll('dots')
         .data(function(d) { return d.data; })
-        .enter().append("circle")
+        .enter().append('circle')
         .classed('dots', true)
-        .attr("r", 3)
-        .attr("cy", function(d) {
+        .attr('r', 3)
+        .attr('cy', function(d) {
             return chart.yScale(d.y);
         })
-        .attr("cx", function(d) {
+        .attr('cx', function(d) {
             return chart.xScale(d.x);
         })
         .attr('fill', function (d, i, j) {
@@ -367,10 +367,10 @@ var line = function (selection, data) {
             .data(function(d) { return d.data; })
             .transition()
             .duration(1000)
-            .attr("cy", function(d) {
+            .attr('cy', function(d) {
                 return chart.yScale(d.y);
             })
-            .attr("cx", function(d) {
+            .attr('cx', function(d) {
                 return chart.xScale(d.x);
             });
 

@@ -53,38 +53,32 @@
     // Line Chart
     //-------------------------------------------------------------------------
     var lineChartData = function () {
-        return [
+        var data = [
             {
                 name: 'series 1',
-                data: [
-                    {x: '1-May-12', y: random()},
-                    {x: '2-May-12', y: random()},
-                    {x: '3-May-12', y: random()},
-                    {x: '4-May-12', y: random()},
-                    {x: '5-May-12', y: random()}
-                ]
+                data: []
             },
             {
-                name: 'Series 2',
-                data: [
-                    {x: '1-May-12', y: random()},
-                    {x: '2-May-12', y: random()},
-                    {x: '3-May-12', y: random()},
-                    {x: '4-May-12', y: random()},
-                    {x: '5-May-12', y: random()}
-                ]
+                name: 'series 2',
+                data: []
             },
             {
                 name: 'series 3',
-                data: [
-                    {x: '1-May-12', y: random()},
-                    {x: '2-May-12', y: random()},
-                    {x: '3-May-12', y: random()},
-                    {x: '4-May-12', y: random()},
-                    {x: '5-May-12', y: random()}
-                ]
+                data: []
             }
         ];
+        var pointCount = 10;
+        data.forEach(function (series) {
+            var dateCounter = moment();
+            for (var i = 0 ; i < pointCount; i++) {
+                series.data.push({
+                    x: dateCounter.clone().toDate(),
+                    y: random()
+                });
+                dateCounter = dateCounter.add(1, 'day');
+            }
+        });
+        return data;
     };
     var lineChart = diagrammatica.line('#line-chart1', lineChartData());
     jQuery('#line-chart1-reload').click(function () {

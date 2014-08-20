@@ -7,7 +7,6 @@ var line = function (selection, data) {
     var config = chart.config;
     config.margin.bottom = 50;
 
-    var parseDate = d3.time.format('%d-%b-%y').parse;
     var formatTime = d3.time.format('%e %B');
 
     // ------------------------------------------------------------------------
@@ -44,13 +43,6 @@ var line = function (selection, data) {
         .y(function (d) {
             return chart.yScale(d.y);
         });
-
-    data.forEach(function (series) {
-        series.data.forEach(function (d) {
-            d.x = parseDate(d.x);
-            d.y = +d.y;
-        });
-    });
 
     chart.xScale.domain([
         d3.min(data, function (series) {
@@ -147,9 +139,10 @@ var line = function (selection, data) {
     config.tooltipHtml = function (points) {
         var html = '';
         html += '<div class="diagrammatica-tooltip-content">';
+        html += points.length > 0 ? '<div class="diagrammatica-tooltip-title">' + formatTime(points[0].x) + '</div>' : '';
         points.forEach(function (d) {
             html += '<svg height="10" width="10"><rect height="10" width="10" fill="' + chart.colors(d.name) + '"></rect></svg>';
-            html += '<span> ' + d.name + '</span> : ' + formatTime(d.x) + ' : ' + d.y + '<br>';
+            html += '<span> ' + d.name + '</span> : ' + d.y + '<br>';
         });
         html += '</div>';
         return html;
@@ -185,7 +178,7 @@ var line = function (selection, data) {
                 xPosition += d === data[0].data[data[0].data.length - 1] ? -Math.abs(tooltipBox.width + 10) : 10;
                 var points = data.map(function (series) {
                     var point = series.data.filter(function (datum) {
-                        return datum.x.getTime() === d.x.getTime();
+                        return datum.x.getDate() === d.x.getDate();
                     });
                     var seriesPoint = point.length === 1 ? point[0] : {};
                     seriesPoint.name = series.name;
@@ -297,13 +290,6 @@ var line = function (selection, data) {
     // Update/re-render
     // ------------------------------------------------------------------------
     function update(data) {
-        data.forEach(function (series) {
-            series.data.forEach(function (d) {
-                d.x = parseDate(d.x);
-                d.y = +d.y;
-            });
-        });
-
         chart.xScale.domain([
             d3.min(data, function (series) {
                 return d3.min(series.data, function (d) {

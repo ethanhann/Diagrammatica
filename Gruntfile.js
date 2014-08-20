@@ -11,6 +11,13 @@ module.exports = function (grunt) {
             libName: 'diagrammatica',
             angularModuleName: 'diagrammatica-angular-module'
         },
+        exec: {
+            generateChangelog: {
+                cmd: function() {
+                    return 'git log --oneline --decorate --no-merges > changelog.txt';
+                }
+            }
+        },
         jshint: {
             options: {
                 jshintrc: '.jshintrc',
@@ -110,6 +117,11 @@ module.exports = function (grunt) {
     grunt.registerTask('test', [
         'jshint:src',
         'karma:unit'
+    ]);
+
+    grunt.registerTask('release', [
+        'build',
+        'exec:generateChangelog'
     ]);
 
     grunt.registerTask('default', [

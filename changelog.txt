@@ -1,0 +1,62 @@
+dcce500 (HEAD, origin/master, origin/HEAD, master) Fix CS issues, add jsHint task to test task in Gruntfile
+0a600fc Remove unneeded data param
+330175e Added dots to line chart
+d45c1e0 Store a separate copy of heat map data for different date resolutions
+c117cbb Add date filter to heat map
+1b9a289 Automatically set date (year/month) granularity in heat map
+41dc3b7 Bump version post release
+f3fb14a (tag: 0.0.3) Build before release
+15b6b7d Auto generate some demo data
+bb649c1 Make heat map x labels truly centered
+0898f26 Bump version post release
+ff9ad76 (tag: 0.0.2) Bump version
+9cf9305 Build dist for release
+ad592ac Fix type in Grunt build task
+be949ba Fix Grunt build task
+2d595c0 Automatically set heat map's left margin, based on label width
+75ed6f3 Tie heat map categories color to number of colors
+81f7e12 Center heat maps x labels
+a34bf39 (tag: 0.0.1) Remove hard dependence on colorbrewer2
+a4267fd Fix typo
+91f0d75 Fix CS issue
+b2847bd Fix some CS issues
+561a4e2 Use angular from bower repo
+911e57b Add css file to bower main
+aba05b9 (tag: 0.0.0) Move Angular module into src/
+b9126aa Fix typo
+f7eb28d Add AngularJS compatibility
+4bd5f4e Make heat map values updatable
+4022f22 Remove comment
+d360701 Move decomposed update functions to BarBase
+dfe3ef2 Decompose bar's update function
+1251749 Break up heat map implementation
+626b5e6 Add dist
+e1598cf DRYout axis render
+9e4e6b1 Refactor bar
+4fd3971 Refactor and make orientation settable
+871d392 Combine column and bar chart
+e6bbc6c Re-expose a few bar chart properties for unit tests
+ffdbd96 Refactor bar chart
+17b4da6 Refactor column scale/axis creation/update
+d4b40be Decompose column render method
+d03afa7 Move column's svg creation to prototype function
+b536991 Separate column chart's implementation from its API
+7a38a76 Refactor chart base
+1cb5187 Add some bar tests
+4095ce6 Tests do not rely on dist/
+4f405d1 Add grunt-cli as dev dep
+4fc0ce8 Update .travis.yml
+2db8e56 Update .travis.yml
+f65c64b Update README.md
+449284d Add Travis config
+ad23e57 Ignore Sass cache
+8c9e096 Rework tooltip, class prefix, and Sass build
+7aa7262 Reset line opacity on mouseout
+4cd4317 Update README.md
+32a0545 Update README.md
+90a6750 Update README.md
+ef6cfa1 Rename library internally to diagrammatica, fix minor CS issues
+1e47de4 Update dev deps
+8f8ed77 Update license
+51c599c Initial commit
+e870c36 Initial commit

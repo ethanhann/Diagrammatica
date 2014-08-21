@@ -151,23 +151,32 @@ var line = function (selection, data) {
     function renderTooltip(data) {
         hoverLine.attr('y2', config.paddedHeight());
         tooltipRectangleGroup.selectAll('.tooltip-rect').remove();
-        var tooltipRectangleWidth = config.paddedWidth() / data.length;
-        var tooltipRectangleOffset = tooltipRectangleWidth / 2;
+        var xValueSet = d3.set(data.map(function(d) {
+            return d.data;
+        }).reduce(function (a, b) {
+            return a.concat(b);
+        }).map(function (d) {
+            return d.x;
+        })).values().map(function(x) {
+            return new Date(x);
+        });
 
+        var tooltipRectangleWidth = config.paddedWidth() / xValueSet.length;
+        var tooltipRectangleOffset = tooltipRectangleWidth / 2;
         tooltipRectangleGroup.selectAll('.tooltip-rect')
-            .data(data[0].data)
+            .data(xValueSet)
             .enter().append('rect')
             .attr('height', config.paddedHeight())
             .attr('width', tooltipRectangleWidth)
             .attr('opacity', 0)
             .classed('tooltip-rect', true)
             .classed('diagrammatica-tooltip-target', true)
-            .attr('x', function (d) {
-                return chart.xScale(d.x) - tooltipRectangleOffset;
+            .attr('x', function (x) {
+                return chart.xScale(x) - tooltipRectangleOffset;
             })
-            .on('mouseover', function (d) {
-                hoverLine.attr('x1', chart.xScale(d.x))
-                    .attr('x2', chart.xScale(d.x))
+            .on('mouseover', function (x) {
+                hoverLine.attr('x1', chart.xScale(x))
+                    .attr('x2', chart.xScale(x))
                     .style('opacity', 1);
                 tooltip.transition()
                     .style('opacity', 1);
@@ -175,10 +184,10 @@ var line = function (selection, data) {
                 var tooltipBox = tooltip.node().getBoundingClientRect();
                 var xPosition = rectBox.left + (rectBox.width / 2);
                 // Shift tooltip left if hovering over last element, or right if it is over the first n - 1 elements
-                xPosition += d === data[0].data[data[0].data.length - 1] ? -Math.abs(tooltipBox.width + 10) : 10;
+                xPosition += x === xValueSet.length[xValueSet.length - 1] ? -Math.abs(tooltipBox.width + 10) : 10;
                 var points = data.map(function (series) {
                     var point = series.data.filter(function (datum) {
-                        return datum.x.getDate() === d.x.getDate();
+                        return datum.x.toString() === x.toString();
                     });
                     var seriesPoint = point.length === 1 ? point[0] : {};
                     seriesPoint.name = series.name;

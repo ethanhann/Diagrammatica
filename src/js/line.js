@@ -104,8 +104,12 @@ var line = function (selection, data) {
         .style('stroke', function (d) {
             return chart.colors(d.name);
         });
-    series.selectAll('dots')
-        .data(function(d) { return d.data; })
+    var dots = series.selectAll('dots')
+        .data(function(d) {
+            d.data.map(function (p) {
+                p.name = d.name;
+            });
+            return d.data; })
         .enter().append('circle')
         .classed('dots', true)
         .attr('r', 3)
@@ -115,8 +119,8 @@ var line = function (selection, data) {
         .attr('cx', function(d) {
             return chart.xScale(d.x);
         })
-        .attr('fill', function (d, i, j) {
-            return chart.colors(data[j].name);
+        .attr('fill', function (d) {
+            return chart.colors(d.name);
         });
 
     // ------------------------------------------------------------------------
@@ -234,6 +238,10 @@ var line = function (selection, data) {
                     .attr('opacity', function (t) {
                         return d.name === t.name ? 1 : 0;
                     });
+                dots.transition()
+                    .attr('opacity', function (t) {
+                        return d.name === t.name ? 1 : 0;
+                    });
             })
             .on('mouseout', function () {
                 if (check.object(selectedLegendItem)) {
@@ -244,9 +252,13 @@ var line = function (selection, data) {
                     lines.transition().attr('opacity', function (t) {
                         return check.object(selectedLegendItem) && t.name === selectedLegendItem.name ? 1 : 0;
                     });
+                    dots.transition().attr('opacity', function (t) {
+                        return check.object(selectedLegendItem) && t.name === selectedLegendItem.name ? 1 : 0;
+                    });
                 } else {
                     legendItems.transition().attr('opacity', 1);
                     lines.transition().attr('opacity', 1);
+                    dots.transition().attr('opacity', 1);
                 }
             })
             .on('click', function (d) {
@@ -255,8 +267,12 @@ var line = function (selection, data) {
                     lines.attr('opacity', function (t) {
                         return check.object(selectedLegendItem) && t.name === selectedLegendItem.name ? 1 : 0;
                     });
+                    dots.attr('opacity', function (t) {
+                        return check.object(selectedLegendItem) && t.name === selectedLegendItem.name ? 1 : 0;
+                    });
                 } else {
                     lines.attr('opacity', 1);
+                    dots.attr('opacity', 1);
                 }
             });
 
@@ -359,7 +375,11 @@ var line = function (selection, data) {
             .call(chart.yAxis);
 
         series.selectAll('.dots')
-            .data(function(d) { return d.data; })
+            .data(function(d) {
+                d.data.map(function (p) {
+                    p.name = d.name;
+                });
+                return d.data; })
             .transition()
             .duration(1000)
             .attr('cy', function(d) {

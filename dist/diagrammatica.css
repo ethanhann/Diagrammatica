@@ -32,6 +32,13 @@
   background-color: white;
   border: solid 1px #EFEFEF; }
 
+.diagrammatica-tooltip-title {
+  font-weight: bold;
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+  border-bottom: solid 1px #EFEFEF;
+  text-align: center; }
+
 .diagrammatica-tooltip > .left-arrow:before {
   color: #EFEFEF;
   content: "\3008";

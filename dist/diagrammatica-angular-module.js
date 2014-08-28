@@ -2,7 +2,7 @@ angular.module("diagrammatica", []);
 
 angular.module("diagrammatica").factory("diagrammatica", [ function() {
     "use strict";
-    if (window.diagrammatica === undefined) {
+    if (angular.isUndefined(window.diagrammatica)) {
         console.log("The Diagrammatica library is required.");
     }
     return window.diagrammatica;
@@ -11,6 +11,7 @@ angular.module("diagrammatica").factory("diagrammatica", [ function() {
 angular.module("diagrammatica").directive("dmaHeatMap", [ "$window", "diagrammatica", function($window, diagrammatica) {
     "use strict";
     return {
+        restrict: "A",
         scope: {
             data: "=dmaHeatMap",
             from: "=?dmaHeatMapFrom",

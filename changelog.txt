@@ -1,4 +1,11 @@
-dcce500 (HEAD, origin/master, origin/HEAD, master) Fix CS issues, add jsHint task to test task in Gruntfile
+bf33925 (HEAD, origin/master, origin/HEAD, master) Finish implementing heat map date range feature
+f4ba42e Bugfix: dots now disappear when mousing in/out or by clicking the series
+9556907 Update demo style
+3c286f9 Create hover rectangles based on complete set of X values
+32e0eae Remove unimplemented chart files
+fe8f136 Expect a JS date in line chart data instead of a string
+92891a5 (tag: 0.0.4) Generate a changelog with Git/Grunt
+dcce500 Fix CS issues, add jsHint task to test task in Gruntfile
 0a600fc Remove unneeded data param
 330175e Added dots to line chart
 d45c1e0 Store a separate copy of heat map data for different date resolutions

@@ -308,22 +308,24 @@
         config.margin.bottom = 40;
         config.margin.right = 0;
         chart.updateDimensions();
+        this.dateUnit = "month";
         var dateRange = d3.extent(data.map(function(d) {
             return d.date;
         }));
-        var fromX = this.fromX = dateRange[0];
-        var toX = this.toX = dateRange[1];
+        this.fromX = dateRange[0];
+        this.toX = dateRange[1];
+        var self = this;
         this.getDates = function(data) {
             var dates = d3.set(data.map(function(d) {
                 return d.date;
             })).values();
             dates = dates.filter(function(d) {
                 var fromMoment = moment(new Date(d));
-                return fromMoment.isAfter(fromX, "day") || fromMoment.isSame(fromX, "day");
+                return fromMoment.isAfter(self.fromX, self.dateUnit) || fromMoment.isSame(self.fromX, self.dateUnit);
             });
             dates = dates.filter(function(d) {
                 var toMoment = moment(new Date(d));
-                return toMoment.isBefore(toX, "day") || toMoment.isSame(toX, "day");
+                return toMoment.isBefore(self.toX, self.dateUnit) || toMoment.isSame(self.toX, self.dateUnit);
             });
             return dates;
         };
@@ -331,7 +333,7 @@
     HeatMapBase.prototype.prepareDisplayData = function() {
         var dateThreshold = 24;
         var monthDates = this.getDates(this.data);
-        this.dateResultion = monthDates.length >= dateThreshold ? "year" : "month";
+        this.dateUnit = monthDates.length >= dateThreshold ? "year" : "month";
         this.displayData = {
             year: {
                 data: [],
@@ -344,7 +346,7 @@
                 dates: monthDates
             }
         };
-        if (this.dateResultion === "year") {
+        if (this.dateUnit === "year") {
             var x = d3.nest().key(function(d) {
                 return d.category;
             }).key(function(d) {
@@ -363,11 +365,11 @@
                     });
                 });
             });
-            this.displayData[this.dateResultion].data = yearData;
-            this.displayData[this.dateResultion].dates = this.getDates(yearData);
+            this.displayData[this.dateUnit].data = yearData;
+            this.displayData[this.dateUnit].dates = this.getDates(yearData);
         }
         this.getDisplayData = function() {
-            return this.displayData[this.dateResultion];
+            return this.displayData[this.dateUnit];
         };
     };
     HeatMapBase.prototype.preRender = function() {
@@ -540,7 +542,6 @@
         var chart = new ChartBase(selection, "line");
         var config = chart.config;
         config.margin.bottom = 50;
-        var parseDate = d3.time.format("%d-%b-%y").parse;
         var formatTime = d3.time.format("%e %B");
         function updateX() {
             chart.xScale = d3.time.scale().range([ 0, config.paddedWidth() ]);
@@ -556,12 +557,6 @@
             return chart.xScale(d.x);
         }).y(function(d) {
             return chart.yScale(d.y);
-        });
-        data.forEach(function(series) {
-            series.data.forEach(function(d) {
-                d.x = parseDate(d.x);
-                d.y = +d.y;
-            });
         });
         chart.xScale.domain([ d3.min(data, function(series) {
             return d3.min(series.data, function(d) {
@@ -589,14 +584,17 @@
         }).style("stroke", function(d) {
             return chart.colors(d.name);
         });
-        series.selectAll("dots").data(function(d) {
+        var dots = series.selectAll("dots").data(function(d) {
+            d.data.map(function(p) {
+                p.name = d.name;
+            });
             return d.data;
         }).enter().append("circle").classed("dots", true).attr("r", 3).attr("cy", function(d) {
             return chart.yScale(d.y);
         }).attr("cx", function(d) {
             return chart.xScale(d.x);
-        }).attr("fill", function(d, i, j) {
-            return chart.colors(data[j].name);
+        }).attr("fill", function(d) {
+            return chart.colors(d.name);
         });
         var hoverLineGroup = chart.renderArea.append("g").attr("class", "hover-line");
         var hoverLine = hoverLineGroup.append("line").attr("x1", 0).attr("x2", 0).attr("y1", 0).attr("y2", config.paddedHeight());
@@ -605,9 +603,10 @@
         config.tooltipHtml = function(points) {
             var html = "";
             html += '<div class="diagrammatica-tooltip-content">';
+            html += points.length > 0 ? '<div class="diagrammatica-tooltip-title">' + formatTime(points[0].x) + "</div>" : "";
             points.forEach(function(d) {
                 html += '<svg height="10" width="10"><rect height="10" width="10" fill="' + chart.colors(d.name) + '"></rect></svg>';
-                html += "<span> " + d.name + "</span> : " + formatTime(d.x) + " : " + d.y + "<br>";
+                html += "<span> " + d.name + "</span> : " + d.y + "<br>";
             });
             html += "</div>";
             return html;
@@ -615,20 +614,29 @@
         function renderTooltip(data) {
             hoverLine.attr("y2", config.paddedHeight());
             tooltipRectangleGroup.selectAll(".tooltip-rect").remove();
-            var tooltipRectangleWidth = config.paddedWidth() / data.length;
+            var xValueSet = d3.set(data.map(function(d) {
+                return d.data;
+            }).reduce(function(a, b) {
+                return a.concat(b);
+            }).map(function(d) {
+                return d.x;
+            })).values().map(function(x) {
+                return new Date(x);
+            });
+            var tooltipRectangleWidth = config.paddedWidth() / xValueSet.length;
             var tooltipRectangleOffset = tooltipRectangleWidth / 2;
-            tooltipRectangleGroup.selectAll(".tooltip-rect").data(data[0].data).enter().append("rect").attr("height", config.paddedHeight()).attr("width", tooltipRectangleWidth).attr("opacity", 0).classed("tooltip-rect", true).classed("diagrammatica-tooltip-target", true).attr("x", function(d) {
-                return chart.xScale(d.x) - tooltipRectangleOffset;
-            }).on("mouseover", function(d) {
-                hoverLine.attr("x1", chart.xScale(d.x)).attr("x2", chart.xScale(d.x)).style("opacity", 1);
+            tooltipRectangleGroup.selectAll(".tooltip-rect").data(xValueSet).enter().append("rect").attr("height", config.paddedHeight()).attr("width", tooltipRectangleWidth).attr("opacity", 0).classed("tooltip-rect", true).classed("diagrammatica-tooltip-target", true).attr("x", function(x) {
+                return chart.xScale(x) - tooltipRectangleOffset;
+            }).on("mouseover", function(x) {
+                hoverLine.attr("x1", chart.xScale(x)).attr("x2", chart.xScale(x)).style("opacity", 1);
                 tooltip.transition().style("opacity", 1);
                 var rectBox = this.getBoundingClientRect();
                 var tooltipBox = tooltip.node().getBoundingClientRect();
                 var xPosition = rectBox.left + rectBox.width / 2;
-                xPosition += d === data[0].data[data[0].data.length - 1] ? -Math.abs(tooltipBox.width + 10) : 10;
+                xPosition += x === xValueSet.length[xValueSet.length - 1] ? -Math.abs(tooltipBox.width + 10) : 10;
                 var points = data.map(function(series) {
                     var point = series.data.filter(function(datum) {
-                        return datum.x.getTime() === d.x.getTime();
+                        return datum.x.toString() === x.toString();
                     });
                     var seriesPoint = point.length === 1 ? point[0] : {};
                     seriesPoint.name = series.name;
@@ -658,6 +666,9 @@
                 lines.transition().attr("opacity", function(t) {
                     return d.name === t.name ? 1 : 0;
                 });
+                dots.transition().attr("opacity", function(t) {
+                    return d.name === t.name ? 1 : 0;
+                });
             }).on("mouseout", function() {
                 if (check.object(selectedLegendItem)) {
                     legendItems.transition().attr("opacity", function(t) {
@@ -666,9 +677,13 @@
                     lines.transition().attr("opacity", function(t) {
                         return check.object(selectedLegendItem) && t.name === selectedLegendItem.name ? 1 : 0;
                     });
+                    dots.transition().attr("opacity", function(t) {
+                        return check.object(selectedLegendItem) && t.name === selectedLegendItem.name ? 1 : 0;
+                    });
                 } else {
                     legendItems.transition().attr("opacity", 1);
                     lines.transition().attr("opacity", 1);
+                    dots.transition().attr("opacity", 1);
                 }
             }).on("click", function(d) {
                 selectedLegendItem = selectedLegendItem === d ? null : d;
@@ -676,8 +691,12 @@
                     lines.attr("opacity", function(t) {
                         return check.object(selectedLegendItem) && t.name === selectedLegendItem.name ? 1 : 0;
                     });
+                    dots.attr("opacity", function(t) {
+                        return check.object(selectedLegendItem) && t.name === selectedLegendItem.name ? 1 : 0;
+                    });
                 } else {
                     lines.attr("opacity", 1);
+                    dots.attr("opacity", 1);
                 }
             });
             legendItems.append("text").text(function(d) {
@@ -701,12 +720,6 @@
         }
         renderLegend(data);
         function update(data) {
-            data.forEach(function(series) {
-                series.data.forEach(function(d) {
-                    d.x = parseDate(d.x);
-                    d.y = +d.y;
-                });
-            });
             chart.xScale.domain([ d3.min(data, function(series) {
                 return d3.min(series.data, function(d) {
                     return d.x;
@@ -740,6 +753,9 @@
             chart.renderArea.select(".x.axis").transition().duration(1e3).call(chart.xAxis).attr("transform", "translate(0," + config.paddedHeight() + ")");
             chart.renderArea.select(".y.axis").transition().duration(1e3).call(chart.yAxis);
             series.selectAll(".dots").data(function(d) {
+                d.data.map(function(p) {
+                    p.name = d.name;
+                });
                 return d.data;
             }).transition().duration(1e3).attr("cy", function(d) {
                 return chart.yScale(d.y);

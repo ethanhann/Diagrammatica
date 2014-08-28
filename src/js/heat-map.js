@@ -10,31 +10,25 @@ var HeatMapBase = function (selection, data) {
     config.margin.bottom = 40;
     config.margin.right = 0;
     chart.updateDimensions();
-
+    this.dateUnit = 'month';
     var dateRange = d3.extent(data.map(function (d) {
         return d.date;
     }));
-    var fromX = this.fromX = dateRange[0];
-    var toX = this.toX = dateRange[1];
+    this.fromX = dateRange[0];
+    this.toX = dateRange[1];
+    var self = this;
     this.getDates = function (data) {
         var dates = d3.set(data.map(function (d) {
             return d.date;
         })).values();
         dates = dates.filter(function (d) {
             var fromMoment = moment(new Date(d));
-            //console.log('date from compare');
-            //console.log(fromMoment.toDate());
-            //console.log(fromX);
-            //console.log(fromMoment.isAfter(fromX, 'day'));
-            return fromMoment.isAfter(fromX, 'day') || fromMoment.isSame(fromX, 'day');
+            return fromMoment.isAfter(self.fromX, self.dateUnit) || fromMoment.isSame(self.fromX, self.dateUnit);
         });
-        //console.log('dates: ');
-        //console.log(dates.length);
         dates = dates.filter(function (d) {
             var toMoment = moment(new Date(d));
-            return toMoment.isBefore(toX, 'day') || toMoment.isSame(toX, 'day');
+            return toMoment.isBefore(self.toX, self.dateUnit) || toMoment.isSame(self.toX, self.dateUnit);
         });
-        //console.log(dates.length);
         return dates;
     };
 };
@@ -42,7 +36,8 @@ var HeatMapBase = function (selection, data) {
 HeatMapBase.prototype.prepareDisplayData = function () {
     var dateThreshold = 24;
     var monthDates = this.getDates(this.data);
-    this.dateResultion = monthDates.length >= dateThreshold ? 'year' : 'month';
+
+    this.dateUnit = monthDates.length >= dateThreshold ? 'year' : 'month';
     this.displayData = {
         year: {
             data: [],
@@ -55,7 +50,7 @@ HeatMapBase.prototype.prepareDisplayData = function () {
             dates: monthDates
         }
     };
-    if (this.dateResultion === 'year') {
+    if (this.dateUnit === 'year') {
         var x = d3.nest()
             .key(function (d) { return d.category; })
             .key(function (d) { return (new Date(d.date)).getFullYear(); })
@@ -73,12 +68,12 @@ HeatMapBase.prototype.prepareDisplayData = function () {
                 });
             });
         });
-        this.displayData[this.dateResultion].data = yearData;
-        this.displayData[this.dateResultion].dates = this.getDates(yearData);
+        this.displayData[this.dateUnit].data = yearData;
+        this.displayData[this.dateUnit].dates = this.getDates(yearData);
     }
 
     this.getDisplayData = function () {
-        return this.displayData[this.dateResultion];
+        return this.displayData[this.dateUnit];
     };
 };
 

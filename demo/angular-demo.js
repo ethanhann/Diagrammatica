@@ -2,11 +2,11 @@ angular.module('demo', ['diagrammatica']).controller('MainCtrl', ['$scope', func
     var random = function () {
         return Math.floor(Math.random() * 100);
     };
+
     $scope.refresh = function () {
         $scope.data = [];
-
         angular.forEach(['Alpha', 'Beta', 'Gamma', 'Delta'], function (category) {
-            for (var i = 1; i <= 36; i++) {
+            for (var i = 1; i <= 24; i++) {
                 $scope.data.push({
                     category: category,
                     date: moment().add(i, 'month').toDate(),

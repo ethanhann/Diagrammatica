@@ -12,7 +12,9 @@ var toCSV = function (json, reportTitle, showHeader) {
         var row = '';
         //2nd loop will extract each column and convert it in string comma-separated
         for (var j in arrData[i]) {
-            row += '"' + arrData[i][j] + '",';
+            if (arrData[i].hasOwnProperty(j)) {
+                row += '"' + arrData[i][j] + '",';
+            }
         }
         row.slice(0, row.length - 1);
         //add a line break after each row

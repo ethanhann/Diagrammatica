@@ -1,4 +1,6 @@
-9f78339 (HEAD, origin/master, origin/HEAD, master) Do not export inherited properties
+bdfc947 (HEAD, origin/master, origin/HEAD, master) Update deps
+c6af81d (tag: 0.2.0) Prepare for release
+9f78339 Do not export inherited properties
 b362e6f Add download button for heat map
 43e698a Set default filename for exported data
 b970726 Wrap angular module in a closure and use $window

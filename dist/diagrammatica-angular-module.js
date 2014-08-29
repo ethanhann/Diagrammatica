@@ -25,14 +25,23 @@
                 }, function() {
                     chart.width(element.width())();
                 });
-                scope.$watch("data", function() {
-                    chart(scope.data);
+                var isValidValue = function(newValue, oldValue) {
+                    return angular.isDefined(newValue) && newValue !== oldValue;
+                };
+                scope.$watch("data", function(newValue, oldValue) {
+                    if (isValidValue(newValue, oldValue)) {
+                        chart(newValue);
+                    }
                 });
-                scope.$watch("from", function() {
-                    chart.fromX(scope.from)();
+                scope.$watch("from", function(newValue, oldValue) {
+                    if (isValidValue(newValue, oldValue)) {
+                        chart.fromX(newValue)();
+                    }
                 });
-                scope.$watch("to", function() {
-                    chart.toX(scope.to)();
+                scope.$watch("to", function(newValue, oldValue) {
+                    if (isValidValue(newValue, oldValue)) {
+                        chart.toX(newValue)();
+                    }
                 });
             }
         };

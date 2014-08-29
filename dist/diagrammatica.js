@@ -277,7 +277,7 @@
         return value instanceof d3.selection || check.array(value) && typeof value[0] !== "string";
     }
     "use strict";
-    var toCommaSeparatedList = function(json, reportTitle, showHeader) {
+    var toCSV = function(json, reportTitle, showHeader) {
         var arrData = check.object(json) ? JSON.parse(json) : json;
         var csv = showHeader ? Object.keys(arrData[0]).join() + "\r\n" : "";
         for (var i = 0; i < arrData.length; i++) {
@@ -288,7 +288,10 @@
             row.slice(0, row.length - 1);
             csv += row + "\r\n";
         }
-        var fileName = reportTitle.replace(/ /g, "_");
+        var fileName = "export";
+        if (check.string(reportTitle)) {
+            fileName = reportTitle.replace(/ /g, "_");
+        }
         var uri = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
         var link = document.createElement("a");
         link.href = uri;
@@ -865,7 +868,7 @@
     exports["ChartBase"] = ChartBase;
     exports["scrollPosition"] = scrollPosition;
     exports["isD3Selection"] = isD3Selection;
-    exports["toCommaSeparatedList"] = toCommaSeparatedList;
+    exports["toCSV"] = toCSV;
     exports["HeatMapBase"] = HeatMapBase;
     exports["heatMap"] = heatMap;
     exports["line"] = line;

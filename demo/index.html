@@ -57,7 +57,6 @@
     </div>
     <div class="btn-toolbar">
         <button id="heat-map-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
-        <button id="heat-map-chart1-export" class="btn btn-default btn-sm"><span class="fa fa-download"></span></button>
     </div>
     <div id="heat-map-chart1"></div>
     <div class="section-header">
@@ -65,6 +64,7 @@
     </div>
     <div class="btn-toolbar">
         <button ng-click="refresh()" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
+        <button class="btn btn-default btn-sm" ng-click="downloadData()"><span class="fa fa-download"></span></button>
     </div>
     <div dma-heat-map="data" dma-heat-map-from="fromDate" dma-heat-map-to="toDate"></div>
 

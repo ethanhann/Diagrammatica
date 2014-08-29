@@ -1,7 +1,8 @@
 'use strict';
-/* exported toCommaSeparatedList */
-// Attribution: http://jsfiddle.net/hybrid13i/JXrwM/
-var toCommaSeparatedList = function (json, reportTitle, showHeader) {
+/* exported toCSV */
+/* global check */
+/* Attribution: http://jsfiddle.net/hybrid13i/JXrwM/ */
+var toCSV = function (json, reportTitle, showHeader) {
     //If json is not an object then JSON.parse will parse the JSON string in an Object
     var arrData = check.object(json) ? JSON.parse(json) : json;
     var csv = showHeader ? Object.keys(arrData[0]).join() + '\r\n' : '';
@@ -18,7 +19,10 @@ var toCommaSeparatedList = function (json, reportTitle, showHeader) {
         csv += row + '\r\n';
     }
 
-    var fileName = reportTitle.replace(/ /g, '_');
+    var fileName = 'export';
+    if (check.string(reportTitle)) {
+        fileName = reportTitle.replace(/ /g, '_');
+    }
     var uri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
 
     // Hack to allow the file to be downloaded...

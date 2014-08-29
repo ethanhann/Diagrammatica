@@ -283,7 +283,9 @@
         for (var i = 0; i < arrData.length; i++) {
             var row = "";
             for (var j in arrData[i]) {
-                row += '"' + arrData[i][j] + '",';
+                if (arrData[i].hasOwnProperty(j)) {
+                    row += '"' + arrData[i][j] + '",';
+                }
             }
             row.slice(0, row.length - 1);
             csv += row + "\r\n";

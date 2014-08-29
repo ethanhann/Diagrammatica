@@ -1,4 +1,10 @@
-bf33925 (HEAD, origin/master, origin/HEAD, master) Finish implementing heat map date range feature
+9f78339 (HEAD, origin/master, origin/HEAD, master) Do not export inherited properties
+b362e6f Add download button for heat map
+43e698a Set default filename for exported data
+b970726 Wrap angular module in a closure and use $window
+56df98a (tag: 0.1.0) Bump version
+4e78b08 Prepare for release
+bf33925 Finish implementing heat map date range feature
 f4ba42e Bugfix: dots now disappear when mousing in/out or by clicking the series
 9556907 Update demo style
 3c286f9 Create hover rectangles based on complete set of X values

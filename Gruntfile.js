@@ -98,11 +98,20 @@ module.exports = function (grunt) {
                     sourceMap: true
                 }
             }
+        },
+        versioncheck: {
+            options: {
+                hideUpToDate : true
+            }
         }
     });
 
     grunt.registerTask('dev', [
         'watch:src'
+    ]);
+
+    grunt.registerTask('health-check', [
+        'versioncheck'
     ]);
 
     grunt.registerTask('build', [

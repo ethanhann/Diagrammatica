@@ -9,7 +9,7 @@ module.exports = function (grunt) {
             src: 'src',
             dist: 'dist',
             libName: 'diagrammatica',
-            angularModuleName: 'diagrammatica-angular-module'
+            angularModuleName: 'diagrammatica-angular'
         },
         exec: {
             generateChangelog: {
@@ -82,7 +82,10 @@ module.exports = function (grunt) {
             },
             beautifyAngularModule: {
                 files: {
-                    '<%= settings.dist %>/<%= settings.angularModuleName %>.js': ['<%= settings.src %>/angular-module/*.js']
+                    '<%= settings.dist %>/<%= settings.angularModuleName %>.js': [
+                        '<%= settings.src %>/angular-module/module.js',
+                        '<%= settings.src %>/angular-module/*-directive.js'
+                    ]
                 },
                 options: {
                     compress: false,
@@ -92,7 +95,10 @@ module.exports = function (grunt) {
             },
             minifyAngularModule: {
                 files: {
-                    '<%= settings.dist %>/<%= settings.angularModuleName %>.min.js': ['<%= settings.src %>/angular-module/*.js']
+                    '<%= settings.dist %>/<%= settings.angularModuleName %>.min.js': [
+                        '<%= settings.src %>/angular-module/module.js',
+                        '<%= settings.src %>/angular-module/*-directive.js'
+                    ]
                 },
                 options: {
                     sourceMap: true

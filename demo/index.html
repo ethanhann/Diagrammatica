@@ -63,10 +63,10 @@
         <h4>With Angular Directive</h4>
     </div>
     <div class="btn-toolbar">
-        <button ng-click="refresh()" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
+        <button ng-click="refreshHeatMapData()" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
         <button class="btn btn-default btn-sm" ng-click="downloadData()"><span class="fa fa-download"></span></button>
     </div>
-    <div dma-heat-map="data" dma-heat-map-from="fromDate" dma-heat-map-to="toDate"></div>
+    <div dma-heat-map="heatMapData" dma-heat-map-from="fromDate" dma-heat-map-to="toDate"></div>
 
     <div class="section-header">
         <h2>Line Chart</h2>
@@ -75,6 +75,13 @@
         <button id="line-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
     </div>
     <div id="line-chart1"></div>
+    <div class="section-header">
+        <h4>With Angular Directive</h4>
+    </div>
+    <div class="btn-toolbar">
+        <button ng-click="refreshLineChartData()" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
+    </div>
+    <div dma-line-chart="lineChartData"></div>
 
     <div class="section-header">
         <h2>Pie Chart</h2>
@@ -116,7 +123,7 @@
 <script src="demo.js"></script>
 
 <script src="bower_components/angular/angular.min.js"></script>
-<script src="../dist/diagrammatica-angular-module.js"></script>
+<script src="../dist/diagrammatica-angular.js"></script>
 <script src="angular-demo.js"></script>
 </body>
 </html>

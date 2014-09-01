@@ -543,6 +543,8 @@
     };
     "use strict";
     var line = function(selection, data) {
+        var self = this;
+        self.data = data;
         selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);
         var chart = new ChartBase(selection, "line");
         var config = chart.config;
@@ -724,7 +726,8 @@
             }
         }
         renderLegend(data);
-        function update(data) {
+        function update(newData) {
+            data = self.data = check.defined(newData) ? newData : self.data;
             chart.xScale.domain([ d3.min(data, function(series) {
                 return d3.min(series.data, function(d) {
                     return d.x;

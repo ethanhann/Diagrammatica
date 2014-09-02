@@ -10,7 +10,9 @@ module.exports = function(config) {
       'demo/bower_components/d3/d3.js',
       'demo/bower_components/check-types/src/check-types.min.js',
       'demo/bower_components/angular/angular.js',
-      'src/**/*.js',
+      'src/js/*.js',
+      'src/angular-module/module.js',
+      'src/angular-module/*-directive.js',
       'test/unit/**/*.js'
     ],
     reporters: ['dots', 'progress'],

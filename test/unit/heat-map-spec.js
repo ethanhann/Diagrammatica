@@ -27,12 +27,12 @@ describe('diagrammatica.heatMap', function () {
 
     it('should show years instead of months if more than 24 months', function () {
         var expected = [
-            {category: 'Alpha', date: moment(2014, 'YYYY').toDate(), value: 4},
+            {category: 'Alpha', date: moment(2014, 'YYYY').toDate(), value: 3},
             {category: 'Alpha', date: moment(2015, 'YYYY').toDate(), value: 12},
-            {category: 'Alpha', date: moment(2016, 'YYYY').toDate(), value: 9},
-            {category: 'Beta', date: moment(2014, 'YYYY').toDate(), value: 4},
+            {category: 'Alpha', date: moment(2016, 'YYYY').toDate(), value: 10},
+            {category: 'Beta', date: moment(2014, 'YYYY').toDate(), value: 3},
             {category: 'Beta', date: moment(2015, 'YYYY').toDate(), value: 12},
-            {category: 'Beta', date: moment(2016, 'YYYY').toDate(), value: 9}
+            {category: 'Beta', date: moment(2016, 'YYYY').toDate(), value: 10}
         ];
 
         var displayData = chart.displayData();

@@ -3,7 +3,7 @@ angular.module('demo', ['diagrammatica'])
     var random = function () {
         return Math.floor(Math.random() * 100);
     };
-
+    $scope.heatMapHeight = 200;
     $scope.refreshHeatMapData = function () {
         $scope.heatMapData = [];
         angular.forEach(['Alpha', 'Beta', 'Gamma', 'Delta'], function (category) {

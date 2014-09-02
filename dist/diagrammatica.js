@@ -508,6 +508,11 @@
                 heatMapBase.updateY(heatMapBase.data);
             });
         };
+        update.height = function(value) {
+            return chart.height(value, function() {
+                heatMapBase.updateX(heatMapBase.data);
+            });
+        };
         update.margin = function(value) {
             if (!check.defined(value)) {
                 return chart.config.margin;

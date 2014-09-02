@@ -7,7 +7,8 @@ angular.module('diagrammatica')
         scope: {
             data: '=dmaHeatMap',
             from: '=?dmaHeatMapFrom',
-            to: '=?dmaHeatMapTo'
+            to: '=?dmaHeatMapTo',
+            height: '=?dmaHeatMapHeight'
         },
         link: function (scope, element) {
             var chart = diagrammatica.heatMap(element[0], scope.data).width(element.width());
@@ -18,6 +19,11 @@ angular.module('diagrammatica')
                 return angular.element($window)[0].innerWidth;
             }, function () {
                 chart.width(element.width())();
+            });
+            scope.$watch('height', function(newValue) {
+                if (angular.isNumber(newValue)) {
+                    chart.height(newValue)();
+                }
             });
             var isValidValue = function (newValue, oldValue) {
                 return angular.isDefined(newValue) && newValue !== oldValue;

@@ -20,7 +20,11 @@ var ChartBase = function (selection, chartClass) {
         return config.width - config.margin.left - config.margin.right;
     };
     this.config.paddedHeight = function () {
-        return config.height - config.margin.top - config.margin.bottom;
+        var paddedHeight = config.height - config.margin.top - config.margin.bottom;
+        if (paddedHeight <= 0) {
+            throw 'Padded height (' + paddedHeight + ') of chart should be greater than 0. Increase its height or decrease its top/bottom margin.';
+        }
+        return paddedHeight;
     };
     this.config.tooltipHtml = function () {
         return 'tooltip content';

@@ -19,12 +19,15 @@
     "./demo/bower_components"
   ],
   "dependencies": {
-    "d3": "~3.4.8",
-    "check-types": "~1.3.1",
-    "moment": "~2.8.1"
+    "d3": ">=3.4.0",
+    "check-types": ">=1.3.0",
+    "moment": ">=2.8.0"
   },
   "devDependencies": {
-    "jasmine": "~2.0.0",
-    "angular": "~1.2.21"
+    "angular": ">=1.2.0",
+    "bootstrap": ">=3.0.0",
+    "jasmine": ">=2.0.0",
+    "jquery": "~1.11.0",
+    "font-awesome": "~4.2.0"
   }
 }

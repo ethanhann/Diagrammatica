@@ -1,0 +1,23 @@
+.jumbotron {
+    background-color: rgb(33, 113, 181);
+    color: #FFFFFF;
+}
+
+.section-header {
+    border-bottom: solid 1px #EEEEEE;
+    margin: 30px 0 20px 0;
+}
+
+.section-header > h2,
+.section-header > h4 {
+    padding-bottom: 9px;
+    border-bottom: solid 3px #EEEEEE;
+    display: inline-block;
+    margin-bottom: 0;
+}
+
+.footer {
+    border-top: solid 1px #EEEEEE;
+    padding: 4em 0 4em 0;
+    margin: 4em 0 4em 0;
+}

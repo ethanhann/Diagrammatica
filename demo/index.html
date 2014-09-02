@@ -3,51 +3,17 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title>Diagrammatica</title>
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css" rel="stylesheet">
-    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="../bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../bower_components/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="../bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     <link href="../dist/diagrammatica.css" rel="stylesheet">
-    <style>
-        .jumbotron {
-            background-color: rgb(33, 113, 181);
-            color: #FFFFFF;
-        }
-
-        .section-header {
-            border-bottom: solid 1px #EEEEEE;
-            margin: 30px 0 20px 0;
-        }
-
-        .section-header > h2,
-        .section-header > h4 {
-            padding-bottom: 9px;
-            border-bottom: solid 3px #EEEEEE;
-            display: inline-block;
-            margin-bottom: 0;
-        }
-
-        .footer {
-            border-top: solid 1px #EEEEEE;
-            padding: 4em 0 4em 0;
-            margin: 4em 0 4em 0;
-        }
-    </style>
+    <link href="demo.css" rel="stylesheet">
 </head>
 <body>
 <div class="jumbotron text-center">
     <h1>Diagrammatica</h1>
     <p class="lead">
         D3 chart library.
-    </p>
-    <p class="btn-group">
-        <a class="btn btn-primary" href="https://github.com/ethanhann/Diagrammatica">
-            <i class="fa fa-code fa-fw"></i>Code on GitHub
-        </a>
-        <a class="btn btn-primary" href="https://github.com/ethanhann/Diagrammatica/zipball/master">
-            <i class="fa fa-download fa-fw"></i>Download ZIP</a>
-        <a class="btn btn-primary" href="https://github.com/ethanhann/Diagrammatica/tarball/master">
-            <i class="fa fa-download fa-fw"></i>Download TAR
-        </a>
     </p>
 </div>
 
@@ -115,15 +81,15 @@
 </div>
 
 <!--Scripts-->
-<script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
-<script src="bower_components/moment/moment.js"></script>
-<script src="bower_components/d3/d3.js"></script>
-<script src="bower_components/check-types/src/check-types.min.js"></script>
+<script src="../bower_components/jquery/dist/jquery.min.js"></script>
+<script src="../bower_components/moment/moment.js"></script>
+<script src="../bower_components/d3/d3.js"></script>
+<script src="../bower_components/check-types/src/check-types.min.js"></script>
 <script src="../dist/diagrammatica.js"></script>
-<script src="demo.js"></script>
+<script src="../demo/demo.js"></script>
 
-<script src="bower_components/angular/angular.min.js"></script>
+<script src="../bower_components/angular/angular.min.js"></script>
 <script src="../dist/diagrammatica-angular.js"></script>
-<script src="angular-demo.js"></script>
+<script src="../demo/angular-demo.js"></script>
 </body>
 </html>

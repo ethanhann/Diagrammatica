@@ -137,13 +137,19 @@ HeatMapBase.prototype.renderRectangles = function () {
         .text(function (d) {
             return d;
         })
-        .attr('x', 0)
-        .attr('y', function (d, i) {
-            return i * cellHeight;
-        })
+        .attr('x', -labelPadding / 2)
         .style('text-anchor', 'end')
-        .attr('transform', 'translate(' + -labelPadding + ',' + cellHeight / 2 + ')')
         .attr('class', 'axis yLabel');
+
+    var maxYLabelHeight = 0;
+    this.yLabels.each(function () {
+        if (this.getBBox().height > maxYLabelHeight) {
+            maxYLabelHeight = this.getBBox().height;
+        }
+    });
+    this.yLabels.attr('y', function (d) {
+        return chart.yScale(d) + (cellHeight / 2) + (maxYLabelHeight / 4);
+    });
 
     var maxYLabelWidth = 0;
     this.yLabels.each(function () {
@@ -165,13 +171,13 @@ HeatMapBase.prototype.renderRectangles = function () {
         .attr('transform', 'rotate(-90) translate(30, 0)')
         .attr('class', 'axis xLabel');
 
+    // Center x label in rect
     var maxXLabelHeight = 0;
     this.xLabels.each(function () {
         if (this.getBBox().height > maxXLabelHeight) {
             maxXLabelHeight = this.getBBox().height;
         }
     });
-
     this.xLabels.attr('y', function (d, i) {
         return chart.xScale(i % displayData.dates.length) + (cellWidth / 2) + (maxXLabelHeight / 4);
     });

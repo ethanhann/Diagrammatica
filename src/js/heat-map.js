@@ -141,23 +141,17 @@ HeatMapBase.prototype.renderRectangles = function () {
         .style('text-anchor', 'end')
         .attr('class', 'axis yLabel');
 
-    var maxYLabelHeight = 0;
-    this.yLabels.each(function () {
-        if (this.getBBox().height > maxYLabelHeight) {
-            maxYLabelHeight = this.getBBox().height;
-        }
+    // Center y label based
+    var maxYLabelHeight = d3.max(this.yLabels[0], function (d) {
+        return d.getBoundingClientRect().height;
     });
     this.yLabels.attr('y', function (d) {
         return chart.yScale(d) + (cellHeight / 2) + (maxYLabelHeight / 4);
     });
-
-    var maxYLabelWidth = 0;
-    this.yLabels.each(function () {
-        if (this.getBBox().width > maxYLabelWidth) {
-            maxYLabelWidth = this.getBBox().width + labelPadding;
-        }
+    // Set left padding based on y max label width
+    chart.config.margin.left = labelPadding + d3.max(this.yLabels[0], function (d) {
+        return d.getBoundingClientRect().width;
     });
-    chart.config.margin.left = maxYLabelWidth;
     chart.updateDimensions();
 
     this.xLabels = chart.renderArea.selectAll('.xLabel')
@@ -172,14 +166,11 @@ HeatMapBase.prototype.renderRectangles = function () {
         .attr('class', 'axis xLabel');
 
     // Center x label in rect
-    var maxXLabelHeight = 0;
-    this.xLabels.each(function () {
-        if (this.getBBox().height > maxXLabelHeight) {
-            maxXLabelHeight = this.getBBox().height;
-        }
+    var maxXLabelHeight = d3.max(this.xLabels[0], function (d) {
+        return d.getBoundingClientRect().height;
     });
     this.xLabels.attr('y', function (d, i) {
-        return chart.xScale(i % displayData.dates.length) + (cellWidth / 2) + (maxXLabelHeight / 4);
+        return chart.xScale(i % displayData.dates.length) + (cellWidth / 2) + (maxXLabelHeight / 8);
     });
 
     this.rectangles = chart.renderArea.selectAll('rect')

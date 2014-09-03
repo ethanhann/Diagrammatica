@@ -427,25 +427,29 @@
         this.yLabels = chart.renderArea.selectAll(".yLabel").data(categories).enter().append("text").text(function(d) {
             return d;
         }).attr("x", -labelPadding / 2).style("text-anchor", "end").attr("class", "axis yLabel");
-        var maxYLabelHeight = d3.max(this.yLabels[0], function(d) {
-            return d.getBoundingClientRect().height;
-        });
-        this.yLabels.attr("y", function(d) {
-            return chart.yScale(d) + cellHeight / 2 + maxYLabelHeight / 4;
-        });
-        chart.config.margin.left = labelPadding + d3.max(this.yLabels[0], function(d) {
-            return d.getBoundingClientRect().width;
-        });
-        chart.updateDimensions();
+        if (this.yLabels.length > 0) {
+            var maxYLabelHeight = d3.max(this.yLabels[0], function(d) {
+                return d.getBoundingClientRect().height;
+            });
+            this.yLabels.attr("y", function(d) {
+                return chart.yScale(d) + cellHeight / 2 + maxYLabelHeight / 4;
+            });
+            chart.config.margin.left = labelPadding + d3.max(this.yLabels[0], function(d) {
+                return d.getBoundingClientRect().width;
+            });
+            chart.updateDimensions();
+        }
         this.xLabels = chart.renderArea.selectAll(".xLabel").data(displayData.dates).enter().append("text").text(function(d) {
             return displayData.dateFormat(new Date(d));
         }).attr("x", 0).style("text-anchor", "middle").attr("transform", "rotate(-90) translate(30, 0)").attr("class", "axis xLabel");
-        var maxXLabelHeight = d3.max(this.xLabels[0], function(d) {
-            return d.getBoundingClientRect().height;
-        });
-        this.xLabels.attr("y", function(d, i) {
-            return chart.xScale(i % displayData.dates.length) + cellWidth / 2 + maxXLabelHeight / 8;
-        });
+        if (this.xLabels.length > 0) {
+            var maxXLabelHeight = d3.max(this.xLabels[0], function(d) {
+                return d.getBoundingClientRect().height;
+            });
+            this.xLabels.attr("y", function(d, i) {
+                return chart.xScale(i % displayData.dates.length) + cellWidth / 2 + maxXLabelHeight / 8;
+            });
+        }
         this.rectangles = chart.renderArea.selectAll("rect").data(displayData.data).enter().append("rect").attr("x", function(d, i) {
             return chart.xScale(i % displayData.dates.length);
         }).attr("y", function(d) {

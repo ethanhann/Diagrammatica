@@ -141,19 +141,20 @@ HeatMapBase.prototype.renderRectangles = function () {
         .style('text-anchor', 'end')
         .attr('class', 'axis yLabel');
 
-    // Center y label based
-    var maxYLabelHeight = d3.max(this.yLabels[0], function (d) {
-        return d.getBoundingClientRect().height;
-    });
-    this.yLabels.attr('y', function (d) {
-        return chart.yScale(d) + (cellHeight / 2) + (maxYLabelHeight / 4);
-    });
-    // Set left padding based on y max label width
-    chart.config.margin.left = labelPadding + d3.max(this.yLabels[0], function (d) {
-        return d.getBoundingClientRect().width;
-    });
-    chart.updateDimensions();
-
+    if (this.yLabels.length > 0) {
+        // Center y label based
+        var maxYLabelHeight = d3.max(this.yLabels[0], function (d) {
+            return d.getBoundingClientRect().height;
+        });
+        this.yLabels.attr('y', function (d) {
+            return chart.yScale(d) + (cellHeight / 2) + (maxYLabelHeight / 4);
+        });
+        // Set left padding based on y max label width
+        chart.config.margin.left = labelPadding + d3.max(this.yLabels[0], function (d) {
+            return d.getBoundingClientRect().width;
+        });
+        chart.updateDimensions();
+    }
     this.xLabels = chart.renderArea.selectAll('.xLabel')
         .data(displayData.dates)
         .enter().append('text')
@@ -165,13 +166,15 @@ HeatMapBase.prototype.renderRectangles = function () {
         .attr('transform', 'rotate(-90) translate(30, 0)')
         .attr('class', 'axis xLabel');
 
-    // Center x label in rect
-    var maxXLabelHeight = d3.max(this.xLabels[0], function (d) {
-        return d.getBoundingClientRect().height;
-    });
-    this.xLabels.attr('y', function (d, i) {
-        return chart.xScale(i % displayData.dates.length) + (cellWidth / 2) + (maxXLabelHeight / 8);
-    });
+    if (this.xLabels.length > 0) {
+        // Center x label in rect
+        var maxXLabelHeight = d3.max(this.xLabels[0], function (d) {
+            return d.getBoundingClientRect().height;
+        });
+        this.xLabels.attr('y', function (d, i) {
+            return chart.xScale(i % displayData.dates.length) + (cellWidth / 2) + (maxXLabelHeight / 8);
+        });
+    }
 
     this.rectangles = chart.renderArea.selectAll('rect')
         .data(displayData.data)

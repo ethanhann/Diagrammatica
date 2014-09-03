@@ -1,4 +1,15 @@
-bdfc947 (HEAD, origin/master, origin/HEAD, master) Update deps
+f723582 (HEAD, origin/master, origin/HEAD, master) Check that labels exist before positioning them
+54da855 Refactor heat map label positioning
+b277b87 Center the y labels of heat map
+f4aea96 Throw exception if padded height is negative.
+a9bf2a6 Make heat map height configurable
+675d27a Add an info page
+6b02570 Fix test and reorder src loading in karma conf
+634c696 Bump version
+c11c5c9 Build dist
+da4a9d8 Add line chart directive
+b00b57f Do not set date range if values are undefined or haven't changed
+bdfc947 Update deps
 c6af81d (tag: 0.2.0) Prepare for release
 9f78339 Do not export inherited properties
 b362e6f Add download button for heat map

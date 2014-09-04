@@ -52,8 +52,12 @@ HeatMapBase.prototype.prepareDisplayData = function () {
     };
     if (this.dateUnit === 'year') {
         var x = d3.nest()
-            .key(function (d) { return d.category; })
-            .key(function (d) { return (new Date(d.date)).getFullYear(); })
+            .key(function (d) {
+                return d.category;
+            })
+            .key(function (d) {
+                return (new Date(d.date)).getFullYear();
+            })
             .entries(this.data);
         var yearData = [];
         x.forEach(function (c) {
@@ -91,7 +95,7 @@ HeatMapBase.prototype.preRender = function () {
     };
     this.updateCellPrimitives(displayData.data);
 
-    this.colors = ['#f7fbff', '#deebf7', '#c6dbef', '#9ecae1', '#6baed6', '#4292c6', '#2171b5', '#08519c', '#08306b'];
+    this.colors = ['#F7F9F5', '#F0F4EC', '#E1E9DA', '#D2DEC7', '#C3D4B5', '#B4C9A2', '#A5BE90', '#96B37D', '#87A96B'];
     this.buckets = this.colors.length;
 
     chart.xScale = d3.scale.linear();
@@ -141,7 +145,7 @@ HeatMapBase.prototype.renderRectangles = function () {
         .style('text-anchor', 'end')
         .attr('class', 'axis yLabel');
 
-    if (this.yLabels.length > 0) {
+    if (!this.yLabels.empty()) {
         // Center y label based
         var maxYLabelHeight = d3.max(this.yLabels[0], function (d) {
             return d.getBoundingClientRect().height;
@@ -166,7 +170,7 @@ HeatMapBase.prototype.renderRectangles = function () {
         .attr('transform', 'rotate(-90) translate(30, 0)')
         .attr('class', 'axis xLabel');
 
-    if (this.xLabels.length > 0) {
+    if (!this.xLabels.empty()) {
         // Center x label in rect
         var maxXLabelHeight = d3.max(this.xLabels[0], function (d) {
             return d.getBoundingClientRect().height;
@@ -176,24 +180,31 @@ HeatMapBase.prototype.renderRectangles = function () {
         });
     }
 
-    this.rectangles = chart.renderArea.selectAll('rect')
+    this.rectGroups = chart.renderArea.selectAll('g')
         .data(displayData.data)
-        .enter().append('rect')
-        .attr('x', function (d, i) {
-            return chart.xScale(i % displayData.dates.length);
-        })
-        .attr('y', function (d) {
-            return chart.yScale(d.category);
-        })
+        .enter()
+        .append('g')
+        .attr('transform', function (d, i) {
+            var x = chart.xScale(i % displayData.dates.length);
+            var y = chart.yScale(d.category);
+            return 'translate(' + x + ',' + y + ')';
+        });
+
+    this.rectGroups.append('rect')
         .attr('width', cellWidth)
         .attr('height', cellHeight)
         .style('fill', function (d) {
             return chart.colorScale(d.value);
         });
 
-    this.rectangles.append('title').text(function (d) {
-        return d.value;
-    });
+    this.rectGroups
+        .append('text')
+        .text(function (d) { return d.value; })
+
+        .attr('x', cellWidth / 2)
+        .attr('y', cellHeight / 2)
+        .attr('alignment-baseline', 'middle')
+        .attr('text-anchor', 'middle');
 
     return this;
 };
@@ -257,7 +268,7 @@ var heatMap = function (selection, data) {
         heatMapBase.updateY(displayData.data);
         heatMapBase.xLabels.remove();
         heatMapBase.yLabels.remove();
-        heatMapBase.rectangles.remove();
+        heatMapBase.rectGroups.remove();
         heatMapBase.legend.remove();
         heatMapBase.render();
     };

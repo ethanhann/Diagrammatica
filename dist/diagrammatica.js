@@ -213,7 +213,8 @@
         this.xAxis = function() {};
         this.yScale = function() {};
         this.yAxis = function() {};
-        this.colors = d3.scale.category10();
+        var standardColors = [ "#FD7C6E", "#87A96B", "#78DBE2", "#1F75FE", "#A2A2D0", "#6699CC", "#0D98BA", "#7366BD", "#CD9575", "#FFA474", "#FAE7B5", "#9F8170", "#ACE5EE", "#DE5D83", "#CB4154", "#B4674D", "#FF7F49", "#EA7E5D", "#B0B7C6", "#FFFF99", "#00CC99", "#FFAACC", "#DD4492", "#1DACD6", "#BC5D58", "#DD9475", "#9ACEEB", "#FFBCD9", "#FDDB6D", "#2B6CC4", "#EFCDB8", "#6E5160", "#CEFF1D", "#71BC78", "#6DAE81", "#C364C5", "#CC6666", "#E7C697", "#FCD975", "#A8E4A0", "#95918C", "#1CAC78", "#1164B4", "#F0E891", "#FF1DCE", "#B2EC5D", "#5D76CB", "#CA3767", "#3BB08F", "#FEFE22", "#FCB4D5", "#FFF44F", "#FFBD88", "#F664AF", "#AAF0D1", "#CD4A4C", "#EDD19C", "#979AAA", "#FF8243", "#C8385A", "#EF98AA", "#FDBCB4", "#1A4876", "#30BA8F", "#C54B8C", "#1974D2", "#FFA343", "#BAB86C", "#FF7538", "#FF2B2B", "#F8D568", "#E6A8D7", "#414A4C", "#FF6E4A", "#1CA9C9", "#FFCFAB", "#C5D0E6", "#FDDDE6", "#158078", "#FC74FD", "#F78FA7", "#8E4585", "#7442C8", "#9D81BA", "#FE4EDA", "#FF496C", "#D68A59", "#714B23", "#FF48D0", "#E3256B", "#EE204D", "#FF5349", "#C0448F", "#1FCECB", "#7851A9", "#FF9BAA", "#FC2847", "#76FF7A", "#93DFB8", "#A5694F", "#8A795D", "#45CEA2", "#FB7EFD", "#CDC5C2", "#80DAEB", "#ECEABE", "#FFCF48", "#FD5E53", "#FAA76C", "#18A7B5", "#EBC7DF", "#FC89AC", "#DBD7D2", "#17806D", "#DEAA88", "#77DDE7", "#FFFF66", "#926EAE", "#324AB2", "#F75394", "#FFA089", "#8F509D", "#FFFFFF", "#A2ADD0", "#FF43A4", "#FC6C85", "#CDA4DE", "#FCE883", "#C5E384", "#FFAE42", "#EFDECD", "#000000" ];
+        this.colors = d3.scale.ordinal().range(standardColors);
     };
     ChartBase.prototype.axisLabelText = function(axisLetter, value) {
         var label = this.selection.select("." + axisLetter + ".axis .label");
@@ -394,7 +395,7 @@
             this.cellHeight = Math.floor(config.paddedHeight() / this.categories.length);
         };
         this.updateCellPrimitives(displayData.data);
-        this.colors = [ "#f7fbff", "#deebf7", "#c6dbef", "#9ecae1", "#6baed6", "#4292c6", "#2171b5", "#08519c", "#08306b" ];
+        this.colors = [ "#F7F9F5", "#F0F4EC", "#E1E9DA", "#D2DEC7", "#C3D4B5", "#B4C9A2", "#A5BE90", "#96B37D", "#87A96B" ];
         this.buckets = this.colors.length;
         chart.xScale = d3.scale.linear();
         chart.yScale = d3.scale.ordinal();
@@ -427,7 +428,7 @@
         this.yLabels = chart.renderArea.selectAll(".yLabel").data(categories).enter().append("text").text(function(d) {
             return d;
         }).attr("x", -labelPadding / 2).style("text-anchor", "end").attr("class", "axis yLabel");
-        if (this.yLabels.length > 0) {
+        if (!this.yLabels.empty()) {
             var maxYLabelHeight = d3.max(this.yLabels[0], function(d) {
                 return d.getBoundingClientRect().height;
             });
@@ -442,7 +443,7 @@
         this.xLabels = chart.renderArea.selectAll(".xLabel").data(displayData.dates).enter().append("text").text(function(d) {
             return displayData.dateFormat(new Date(d));
         }).attr("x", 0).style("text-anchor", "middle").attr("transform", "rotate(-90) translate(30, 0)").attr("class", "axis xLabel");
-        if (this.xLabels.length > 0) {
+        if (!this.xLabels.empty()) {
             var maxXLabelHeight = d3.max(this.xLabels[0], function(d) {
                 return d.getBoundingClientRect().height;
             });
@@ -450,16 +451,17 @@
                 return chart.xScale(i % displayData.dates.length) + cellWidth / 2 + maxXLabelHeight / 8;
             });
         }
-        this.rectangles = chart.renderArea.selectAll("rect").data(displayData.data).enter().append("rect").attr("x", function(d, i) {
-            return chart.xScale(i % displayData.dates.length);
-        }).attr("y", function(d) {
-            return chart.yScale(d.category);
-        }).attr("width", cellWidth).attr("height", cellHeight).style("fill", function(d) {
+        this.rectGroups = chart.renderArea.selectAll("g").data(displayData.data).enter().append("g").attr("transform", function(d, i) {
+            var x = chart.xScale(i % displayData.dates.length);
+            var y = chart.yScale(d.category);
+            return "translate(" + x + "," + y + ")";
+        });
+        this.rectGroups.append("rect").attr("width", cellWidth).attr("height", cellHeight).style("fill", function(d) {
             return chart.colorScale(d.value);
         });
-        this.rectangles.append("title").text(function(d) {
+        this.rectGroups.append("text").text(function(d) {
             return d.value;
-        });
+        }).attr("x", cellWidth / 2).attr("y", cellHeight / 2).attr("alignment-baseline", "middle").attr("text-anchor", "middle");
         return this;
     };
     HeatMapBase.prototype.renderLegend = function() {
@@ -504,7 +506,7 @@
             heatMapBase.updateY(displayData.data);
             heatMapBase.xLabels.remove();
             heatMapBase.yLabels.remove();
-            heatMapBase.rectangles.remove();
+            heatMapBase.rectGroups.remove();
             heatMapBase.legend.remove();
             heatMapBase.render();
         };

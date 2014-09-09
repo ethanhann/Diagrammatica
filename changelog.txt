@@ -1,11 +1,14 @@
-f723582 (HEAD, origin/master, origin/HEAD, master) Check that labels exist before positioning them
+ddb7620 Revise color schemes
+5ba07cc Add angular module as main file
+c568411 (tag: 0.4.0) Prepare for release
+f723582 Check that labels exist before positioning them
 54da855 Refactor heat map label positioning
 b277b87 Center the y labels of heat map
 f4aea96 Throw exception if padded height is negative.
 a9bf2a6 Make heat map height configurable
 675d27a Add an info page
 6b02570 Fix test and reorder src loading in karma conf
-634c696 Bump version
+634c696 (tag: 0.3.0) Bump version
 c11c5c9 Build dist
 da4a9d8 Add line chart directive
 b00b57f Do not set date range if values are undefined or haven't changed

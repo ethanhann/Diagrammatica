@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html ng-app="demo">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Diagrammatica</title>
+    <link href="../bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../bower_components/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="../bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="../dist/diagrammatica.css" rel="stylesheet">
+    <link href="demo.css" rel="stylesheet">
+</head>
+<body>
+<div class="jumbotron text-center">
+    <h1><a href="http://ethanhann.github.io/Diagrammatica/">Diagrammatica</a></h1>
+</div>
+
+<div class="container" ng-controller="MainCtrl">
+    <h2>AngularJS Chart Directives</h2>
+    <div class="section-header">
+        <h3>Heat Map Directive</h3>
+    </div>
+    <div class="btn-toolbar">
+        <button ng-click="refreshHeatMapData()" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
+        <button class="btn btn-default btn-sm" ng-click="downloadData()"><span class="fa fa-download"></span></button>
+    </div>
+    <div dma-heat-map="heatMapData" dma-heat-map-from="fromDate" dma-heat-map-to="toDate" dma-heat-map-height="heatMapHeight"></div>
+    <div class="section-header">
+        <h3>Line Chart Directive</h3>
+    </div>
+    <div class="btn-toolbar">
+        <button ng-click="refreshLineChartData()" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
+    </div>
+    <div dma-line-chart="lineChartData"></div>
+</div>
+
+<div class="footer text-center">
+    <p>
+        Created by <a href="https://github.com/ethanhann">Ethan Hann</a>
+    </p>
+</div>
+
+<!--Scripts-->
+<script src="../bower_components/jquery/dist/jquery.min.js"></script>
+<script src="../bower_components/moment/moment.js"></script>
+<script src="../bower_components/d3/d3.js"></script>
+<script src="../bower_components/check-types/src/check-types.min.js"></script>
+<script src="../dist/diagrammatica.js"></script>
+
+<script src="../bower_components/angular/angular.min.js"></script>
+<script src="../dist/diagrammatica-angular.js"></script>
+<script src="../demo/angular-demo.js"></script>
+</body>
+</html>

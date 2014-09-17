@@ -99,23 +99,36 @@
                 });
             }
         });
-        //var fromDate = heatMapData[0].date;
-        //var toDate = heatMapData[$scope.heatMapData.length - 1].date;
         return heatMapData;
     }
-    //var fromDate = heatMapData[0].date;
-    //var toDate = heatMapData[$scope.heatMapData.length - 1].date;
     var heatMapData = refreshHeatMapData();
     var heatMap = diagrammatica.heatMap('#heat-map-chart1', heatMapData);
-    jQuery('#heat-map-slider').slider({
+    function setDateRange(monthDifferences) {
+        var fromMoment = moment(heatMapData[0].date);
+        var toMoment = fromMoment.clone();
+        var dateRange = {
+            from: fromMoment.add(monthDifferences[0], 'month').toDate(),
+            to: toMoment.add(monthDifferences[1], 'month').toDate()
+        };
+        var format = 'MMM YYYY';
+        var monthDiff = monthDifferences[1] - monthDifferences[0];
+        jQuery('#heat-map-slider-time-span').html(monthDiff + ' months');
+        jQuery('#heat-map-slider-from').html(fromMoment.format(format));
+        jQuery('#heat-map-slider-to').html(toMoment.format(format));
+        heatMap.fromX(dateRange.from).toX(dateRange.to)();
+    }
+
+    var heatMapSliderConfig = {
         range: true,
-        values: [1, heatMapData.length],
-        max: heatMapData.length,
-        min: 1,
-        change: function(event, ui) {
-            
+        values: [0, 23],
+        max: 23,
+        min: 0,
+        slide: function(event, ui) {
+            setDateRange(ui.values);
         }
-    });
+    };
+    jQuery('#heat-map-slider').slider(heatMapSliderConfig);
+    setDateRange([heatMapSliderConfig.min, heatMapSliderConfig.max]);
 
     //jQuery('#heat-map-chart1-reload').click(function () {
     //    heatMap(refreshHeatMapData());

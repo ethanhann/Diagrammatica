@@ -26,3 +26,7 @@
     padding: 4em 0 4em 0;
     margin: 4em 0 4em 0;
 }
+
+.slider-control {
+    max-width: 480px;
+}

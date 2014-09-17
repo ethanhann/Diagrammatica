@@ -17,14 +17,32 @@
 
 <div class="container">
     <h2>Charts</h2>
+
     <div class="section-header">
         <h2>Heat Map Chart</h2>
     </div>
-    <div class="btn-toolbar">
-        <button id="heat-map-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="btn-toolbar">
+                <button id="heat-map-chart1-reload" class="btn btn-default btn-sm"><span class="fa fa-refresh"></span></button>
+            </div>
+            <div id="heat-map-chart1"></div>
+            <div class="slider-control">
+                <div id="heat-map-slider"></div>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <span id="heat-map-slider-from" class="pull-left"></span>
+                    </div>
+                    <div class="col-lg-4 text-center">
+                        <span id="heat-map-slider-time-span">asd</span>
+                    </div>
+                    <div class="col-lg-4">
+                        <span id="heat-map-slider-to" class="pull-right"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="heat-map-chart1"></div>
-    <div id="heat-map-slider"></div>
 
     <div class="section-header">
         <h2>Line Chart</h2>

@@ -1,3 +1,11 @@
+6a97d09 (origin/range-slider-demo, range-slider-demo) Update dist
+706ae06 Re-enable reload
+2113e64 Refactor heat map
+8f5d3f4 Flesh out heat map slider demo
+3582182 WIP range slider demo
+100a8af (origin/master, origin/HEAD) Rework demo
+3788f24 Rework demo
+44a6747 (tag: 0.5.0) Prepare for release
 ddb7620 Revise color schemes
 5ba07cc Add angular module as main file
 c568411 (tag: 0.4.0) Prepare for release

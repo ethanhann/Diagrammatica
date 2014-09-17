@@ -322,16 +322,22 @@
         this.fromX = moment(dateRange.from).toDate();
         this.toX = moment(dateRange.to).toDate();
     };
+    HeatMapBase.prototype.filterDataByDateRange = function(data, unit) {
+        var self = this;
+        return data.filter(function(d) {
+            var m = moment(new Date(d.date));
+            return (m.isAfter(self.fromX, unit) || m.isSame(self.fromX, unit)) && m.isBefore(self.toX, unit) || m.isSame(self.toX, unit);
+        });
+    };
     HeatMapBase.prototype.getDates = function(data, unit) {
         var self = this;
-        var dateSet = d3.set(data.map(function(d) {
+        var dates = data.map(function(d) {
             return d.date;
-        })).values();
-        dateSet = dateSet.filter(function(d) {
+        });
+        return d3.set(dates).values().filter(function(d) {
             var m = moment(new Date(d));
             return (m.isAfter(self.fromX, unit) || m.isSame(self.fromX, unit)) && m.isBefore(self.toX, unit) || m.isSame(self.toX, unit);
         });
-        return dateSet;
     };
     HeatMapBase.prototype.dateRange = function() {
         var r = d3.extent(this.data.map(function(d) {
@@ -347,7 +353,7 @@
     };
     HeatMapBase.prototype.prepareDisplayData = function() {
         this.displayData = {
-            data: this.data,
+            data: this.filterDataByDateRange(this.data, "month"),
             dateFormat: d3.time.format("%b %Y"),
             dates: this.getDates(this.data, "month")
         };
@@ -371,7 +377,7 @@
                     });
                 });
             });
-            this.displayData.data = yearData;
+            this.displayData.data = this.filterDataByDateRange(yearData, "year");
             this.displayData.dates = this.getDates(yearData, "year");
             this.displayData.dateFormat = d3.time.format("%Y");
         }

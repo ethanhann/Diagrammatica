@@ -15,18 +15,30 @@ var HeatMapBase = function (selection, data) {
     this.toX = moment(dateRange.to).toDate();
 };
 
+
+HeatMapBase.prototype.filterDataByDateRange = function (data, unit) {
+    var self = this;
+    // Filter data by fromX and toX.
+    return data.filter(function (d) {
+        var m = moment(new Date(d.date));
+        return (m.isAfter(self.fromX, unit) || m.isSame(self.fromX, unit)) &&
+        m.isBefore(self.toX, unit) || m.isSame(self.toX, unit);
+    });
+};
+
 HeatMapBase.prototype.getDates = function (data, unit) {
     var self = this;
-    var dateSet = d3.set(data.map(function (d) {
+    // Compute the set of dates that are equal to or after fromX and equal to or before toX.
+    var dates = data.map(function (d) {
         return d.date;
-    })).values();
-    // Get dates equal to or after fromX and equal to or before toX.
-    dateSet = dateSet.filter(function (d) {
-        var m = moment(new Date(d));
-        return (m.isAfter(self.fromX, unit) || m.isSame(self.fromX, unit)) &&
-                m.isBefore(self.toX, unit) || m.isSame(self.toX, unit);
     });
-    return dateSet;
+    return d3.set(dates)
+        .values()
+        .filter(function (d) {
+            var m = moment(new Date(d));
+            return (m.isAfter(self.fromX, unit) || m.isSame(self.fromX, unit)) &&
+            m.isBefore(self.toX, unit) || m.isSame(self.toX, unit);
+        });
 };
 
 HeatMapBase.prototype.dateRange = function () {
@@ -44,8 +56,9 @@ HeatMapBase.prototype.displayDateUnit = function () {
 };
 
 HeatMapBase.prototype.prepareDisplayData = function () {
+
     this.displayData = {
-        data: this.data,
+        data: this.filterDataByDateRange(this.data, 'month'),
         dateFormat: d3.time.format('%b %Y'),
         dates: this.getDates(this.data, 'month')
     };
@@ -72,7 +85,7 @@ HeatMapBase.prototype.prepareDisplayData = function () {
                 });
             });
         });
-        this.displayData.data = yearData;
+        this.displayData.data = this.filterDataByDateRange(yearData, 'year');
         this.displayData.dates = this.getDates(yearData, 'year');
         this.displayData.dateFormat = d3.time.format('%Y');
     }

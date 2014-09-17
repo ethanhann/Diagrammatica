@@ -1,4 +1,6 @@
-307504f (HEAD, origin/master, origin/HEAD, master) Bump version
+f6a7f0a (HEAD, origin/master, origin/HEAD, master) Properly filter date series in heat map
+bff0dc2 (tag: 0.5.1) Prepare for release
+307504f Bump version
 8f92a5b Fix heat map API
 a69f8a4 Build after merging slider demo
 6a97d09 (origin/range-slider-demo, range-slider-demo) Update dist

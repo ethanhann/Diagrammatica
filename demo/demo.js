@@ -1,4 +1,5 @@
-(function (diagrammatica, jQuery) {
+/* global diagrammatica, jQuery, moment */
+(function (diagrammatica, jQuery, moment) {
     'use strict';
 
     var random = function () {
@@ -70,7 +71,7 @@
         var pointCount = 10;
         data.forEach(function (series) {
             var dateCounter = moment();
-            for (var i = 0 ; i < pointCount; i++) {
+            for (var i = 0; i < pointCount; i++) {
                 series.data.push({
                     x: dateCounter.clone().toDate(),
                     y: random()
@@ -88,29 +89,50 @@
     //-------------------------------------------------------------------------
     // Heat Map Chart
     //-------------------------------------------------------------------------
-    var heatMapData = function () {
-        return [
-            {category: 'alpha', date: new Date(2014, 1, 1), value: random()},
-            {category: 'alpha', date: new Date(2014, 2, 2), value: random()},
-            {category: 'alpha', date: new Date(2014, 3, 3), value: random()},
-            {category: 'alpha', date: new Date(2014, 4, 3), value: random()},
-            {category: 'beta', date: new Date(2014, 1, 1), value: random()},
-            {category: 'beta', date: new Date(2014, 2, 2), value: random()},
-            {category: 'beta', date: new Date(2014, 3, 3), value: random()},
-            {category: 'beta', date: new Date(2014, 4, 3), value: random()},
-            {category: 'gamma', date: new Date(2014, 1, 1), value: random()},
-            {category: 'gamma', date: new Date(2014, 2, 2), value: random()},
-            {category: 'gamma', date: new Date(2014, 3, 3), value: random()},
-            {category: 'gamma', date: new Date(2014, 4, 3), value: random()},
-            {category: 'delta', date: new Date(2014, 1, 1), value: random()},
-            {category: 'delta', date: new Date(2014, 2, 2), value: random()},
-            {category: 'delta', date: new Date(2014, 3, 3), value: random()},
-            {category: 'delta', date: new Date(2014, 4, 3), value: random()}
-        ];
-    };
-    var heatMap = diagrammatica.heatMap('#heat-map-chart1', heatMapData());
-    jQuery('#heat-map-chart1-reload').click(function () {
-        heatMap(heatMapData());
-    });
+    var heatMapMonths = 25;
+    function refreshHeatMapData () {
+        var heatMapData = [];
+        jQuery.each(['Alpha', 'Beta', 'Gamma', 'Delta'], function (index, category) {
+            for (var i = 1; i <= heatMapMonths; i++) {
+                heatMapData.push({
+                    category: category,
+                    date: moment().add(i, 'month').toDate(),
+                    value: random()
+                });
+            }
+        });
+        return heatMapData;
+    }
+    var heatMapData = refreshHeatMapData();
+    var heatMap = diagrammatica.heatMap('#heat-map-chart1', heatMapData);
+    function setDateRange(monthDifferences) {
+        var fromMoment = moment(heatMapData[0].date);
+        var toMoment = fromMoment.clone();
+        var dateRange = {
+            from: fromMoment.add(monthDifferences[0], 'month').toDate(),
+            to: toMoment.add(monthDifferences[1], 'month').toDate()
+        };
+        var format = 'MMM YYYY';
+        var monthDiff = monthDifferences[1] - monthDifferences[0];
+        jQuery('#heat-map-slider-time-span').html(monthDiff + ' months');
+        jQuery('#heat-map-slider-from').html(fromMoment.format(format));
+        jQuery('#heat-map-slider-to').html(toMoment.format(format));
+        heatMap.fromX(dateRange.from).toX(dateRange.to)();
+    }
 
-})(diagrammatica, jQuery);
+    var heatMapSliderConfig = {
+        range: true,
+        values: [0, heatMapMonths - 1],
+        max: heatMapMonths - 1,
+        min: 0,
+        slide: function(event, ui) {
+            setDateRange(ui.values);
+        }
+    };
+    jQuery('#heat-map-slider').slider(heatMapSliderConfig);
+    setDateRange([heatMapSliderConfig.min, heatMapSliderConfig.max]);
+
+    jQuery('#heat-map-chart1-reload').click(function () {
+        heatMap(refreshHeatMapData());
+    });
+})(diagrammatica, jQuery, moment);

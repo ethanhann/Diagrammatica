@@ -318,45 +318,41 @@
         config.margin.bottom = 40;
         config.margin.right = 0;
         chart.updateDimensions();
-        this.dateUnit = "month";
-        var dateRange = d3.extent(data.map(function(d) {
+        var dateRange = this.dateRange();
+        this.fromX = moment(dateRange.from).toDate();
+        this.toX = moment(dateRange.to).toDate();
+    };
+    HeatMapBase.prototype.getDates = function(data, unit) {
+        var self = this;
+        var dateSet = d3.set(data.map(function(d) {
+            return d.date;
+        })).values();
+        dateSet = dateSet.filter(function(d) {
+            var m = moment(new Date(d));
+            return (m.isAfter(self.fromX, unit) || m.isSame(self.fromX, unit)) && m.isBefore(self.toX, unit) || m.isSame(self.toX, unit);
+        });
+        return dateSet;
+    };
+    HeatMapBase.prototype.dateRange = function() {
+        var r = d3.extent(this.data.map(function(d) {
             return d.date;
         }));
-        this.fromX = dateRange[0];
-        this.toX = dateRange[1];
-        var self = this;
-        this.getDates = function(data) {
-            var dates = d3.set(data.map(function(d) {
-                return d.date;
-            })).values();
-            dates = dates.filter(function(d) {
-                var fromMoment = moment(new Date(d));
-                return fromMoment.isAfter(self.fromX, self.dateUnit) || fromMoment.isSame(self.fromX, self.dateUnit);
-            });
-            dates = dates.filter(function(d) {
-                var toMoment = moment(new Date(d));
-                return toMoment.isBefore(self.toX, self.dateUnit) || toMoment.isSame(self.toX, self.dateUnit);
-            });
-            return dates;
+        return {
+            from: r[0],
+            to: r[1]
         };
     };
+    HeatMapBase.prototype.displayDateUnit = function() {
+        return moment(this.toX).diff(this.fromX, "months") >= 24 ? "year" : "month";
+    };
     HeatMapBase.prototype.prepareDisplayData = function() {
-        var dateThreshold = 24;
-        var monthDates = this.getDates(this.data);
-        this.dateUnit = monthDates.length >= dateThreshold ? "year" : "month";
         this.displayData = {
-            year: {
-                data: [],
-                dateFormat: d3.time.format("%Y"),
-                dates: []
-            },
-            month: {
-                data: this.data,
-                dateFormat: d3.time.format("%b %Y"),
-                dates: monthDates
-            }
+            data: this.data,
+            dateFormat: d3.time.format("%b %Y"),
+            dates: this.getDates(this.data, "month")
         };
-        if (this.dateUnit === "year") {
+        var dateUnit = this.displayDateUnit();
+        if (dateUnit === "year") {
             var x = d3.nest().key(function(d) {
                 return d.category;
             }).key(function(d) {
@@ -375,19 +371,16 @@
                     });
                 });
             });
-            this.displayData[this.dateUnit].data = yearData;
-            this.displayData[this.dateUnit].dates = this.getDates(yearData);
+            this.displayData.data = yearData;
+            this.displayData.dates = this.getDates(yearData, "year");
+            this.displayData.dateFormat = d3.time.format("%Y");
         }
-        this.getDisplayData = function() {
-            return this.displayData[this.dateUnit];
-        };
     };
     HeatMapBase.prototype.preRender = function() {
-        var displayData = this.getDisplayData();
+        var displayData = this.displayData;
         var chart = this.chart;
         var config = this.chart.config;
         this.updateCellPrimitives = function(data) {
-            displayData.dates = this.getDates(data);
             this.cellWidth = Math.floor(config.paddedWidth() / displayData.dates.length);
             this.categories = d3.set(data.map(function(d) {
                 return d.category;
@@ -423,7 +416,7 @@
         var cellHeight = this.cellHeight;
         var cellWidth = this.cellWidth;
         var categories = this.categories;
-        var displayData = this.getDisplayData();
+        var displayData = this.displayData;
         var labelPadding = 6;
         this.yLabels = chart.renderArea.selectAll(".yLabel").data(categories).enter().append("text").text(function(d) {
             return d;
@@ -500,10 +493,9 @@
         var update = heatMapBase.chart.update = function(newData) {
             data = heatMapBase.data = check.defined(newData) ? newData : heatMapBase.data;
             heatMapBase.prepareDisplayData();
-            var displayData = heatMapBase.getDisplayData();
-            heatMapBase.updateColors(displayData.data);
-            heatMapBase.updateX(displayData.data);
-            heatMapBase.updateY(displayData.data);
+            heatMapBase.updateColors(heatMapBase.displayData.data);
+            heatMapBase.updateX(heatMapBase.displayData.data);
+            heatMapBase.updateY(heatMapBase.displayData.data);
             heatMapBase.xLabels.remove();
             heatMapBase.yLabels.remove();
             heatMapBase.rectGroups.remove();

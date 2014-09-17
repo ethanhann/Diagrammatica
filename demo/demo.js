@@ -1,4 +1,5 @@
-(function (diagrammatica, jQuery) {
+/* global diagrammatica, jQuery, moment */
+(function (diagrammatica, jQuery, moment) {
     'use strict';
 
     var random = function () {
@@ -88,10 +89,11 @@
     //-------------------------------------------------------------------------
     // Heat Map Chart
     //-------------------------------------------------------------------------
+    var heatMapMonths = 25;
     function refreshHeatMapData () {
         var heatMapData = [];
         jQuery.each(['Alpha', 'Beta', 'Gamma', 'Delta'], function (index, category) {
-            for (var i = 1; i <= 24; i++) {
+            for (var i = 1; i <= heatMapMonths; i++) {
                 heatMapData.push({
                     category: category,
                     date: moment().add(i, 'month').toDate(),
@@ -120,8 +122,8 @@
 
     var heatMapSliderConfig = {
         range: true,
-        values: [0, 23],
-        max: 23,
+        values: [0, heatMapMonths - 1],
+        max: heatMapMonths - 1,
         min: 0,
         slide: function(event, ui) {
             setDateRange(ui.values);
@@ -130,7 +132,7 @@
     jQuery('#heat-map-slider').slider(heatMapSliderConfig);
     setDateRange([heatMapSliderConfig.min, heatMapSliderConfig.max]);
 
-    //jQuery('#heat-map-chart1-reload').click(function () {
-    //    heatMap(refreshHeatMapData());
-    //});
-})(diagrammatica, jQuery);
+    jQuery('#heat-map-chart1-reload').click(function () {
+        heatMap(refreshHeatMapData());
+    });
+})(diagrammatica, jQuery, moment);

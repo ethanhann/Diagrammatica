@@ -527,7 +527,7 @@
             return update;
         };
         update.displayData = function() {
-            return heatMapBase.getDisplayData();
+            return heatMapBase.displayData;
         };
         update.fromX = function(value) {
             if (!check.defined(value)) {

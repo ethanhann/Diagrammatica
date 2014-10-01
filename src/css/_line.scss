@@ -4,4 +4,11 @@
         stroke: steelblue;
         stroke-width: 1.5px;
     }
+
+    .extent {
+        stroke: #EFEFEF;
+        fill-opacity: .125;
+        shape-rendering: crispEdges;
+        stroke-width: 2px;
+    }
 }

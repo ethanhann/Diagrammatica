@@ -53,11 +53,10 @@
   fill: none;
   stroke: steelblue;
   stroke-width: 1.5px; }
-
 .diagrammatica-line .extent {
-    stroke: #EFEFEF;
-    fill-opacity: .125;
-    shape-rendering: crispEdges;
-    stroke-width: 2px;
-}
+  stroke: #EFEFEF;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+  stroke-width: 2px; }
+
 /*# sourceMappingURL=diagrammatica.css.map */

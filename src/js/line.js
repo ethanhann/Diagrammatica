@@ -117,10 +117,10 @@ var line = function (selection, data) {
                 });
             })
         ]);
-    chart.renderArea.append('defs').append('clipPath')
+    var clipping = chart.renderArea.append('defs').append('clipPath')
         .attr('id', 'clip')
         .append('rect')
-        .attr('width', config.width - config.margin.right - config.margin.left)
+        .attr('width', config.paddedWidth())
         .attr('height', config.height - config.height2());
     var focus = chart.renderArea.append('g')
         .attr('class', 'focus');
@@ -445,13 +445,13 @@ var line = function (selection, data) {
                 return chart.colors(d.name);
             });
 
-        chart.renderArea.select('.x.axis')
+        focus.select('.x.axis')
             .transition()
             .duration(1000)
             .call(chart.xAxis)
             .attr('transform', 'translate(0,' + config.paddedHeight() + ')');
 
-        chart.renderArea.select('.y.axis')
+        focus.select('.y.axis')
             .transition()
             .duration(1000)
             .call(chart.yAxis);
@@ -472,7 +472,6 @@ var line = function (selection, data) {
             });
 
         series2 = series2.data(data);
-        series2.exit().remove();
         series2.enter().append('g')
             .attr('class', 'series')
             .append('path')
@@ -492,7 +491,10 @@ var line = function (selection, data) {
             .style('stroke', function (d) {
                 return chart.colors(d.name);
             });
-        brush
+
+        chart.x2Scale.domain(chart.xScale.domain());
+        chart.y2Scale.domain(chart.yScale.domain());
+        brush.x(chart.x2Scale)
             .extent([d3.min(data, function (series) {
                 return d3.min(series.data, function (d) {
                     return d.x;
@@ -504,17 +506,24 @@ var line = function (selection, data) {
                     });
                 })
             ]);
+        context.select('.x.brush')
+            .transition()
+            .duration(1000)
+            .call(brush);
         context.select('.extent')
             .transition()
             .duration(1000)
             .attr('x', 0)
             .attr('width', config.paddedWidth());
         context.select('.resize.e')
-            .attr('style', 'cursor: ew-resize;')
             .attr('transform', 'translate(' + config.paddedWidth() + ',0)');
         context.select('.resize.w')
-            .attr('transform', 'translate(0,0)')
-            .attr('style', 'cursor: ew-resize;');
+            .attr('transform', 'translate(0,0)');
+        context.select('.x.axis')
+            .transition()
+            .duration(1000)
+            .call(chart.x2Axis)
+            .attr('transform', 'translate(0,' + config.margin.top  + ')');
 
         renderTooltip(data);
         renderLegend(data);
@@ -528,6 +537,7 @@ var line = function (selection, data) {
     update.width = function (value) {
         return chart.width(value, function () {
             updateX();
+            clipping.attr('width', config.paddedWidth());
             selection.select('.x.axis .label')
                 .transition()
                 .duration(1000)
@@ -539,6 +549,8 @@ var line = function (selection, data) {
     update.height = function (value) {
         return chart.height(value, function () {
             updateY();
+            clipping.attr('width', config.height - config.height2());
+
             selection.select('.y.axis .label')
                 .transition()
                 .duration(1000)

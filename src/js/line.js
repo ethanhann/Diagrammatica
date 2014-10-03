@@ -7,11 +7,12 @@ var line = function (selection, data) {
     selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);
     var chart = new ChartBase(selection, 'line');
     var config = chart.config;
-    config.margin.bottom = 90;
+    config.margin.bottom = 70;
     config.margin2 = {top: 100, right: config.margin.right, bottom: 50, left: config.margin.left};
     config.height2 = function () {
         return config.height - config.margin2.top - config.margin2.bottom;
     };
+    config.dotSize = 3;
     var formatTime = d3.time.format('%e %B');
 
     // ------------------------------------------------------------------------
@@ -120,13 +121,34 @@ var line = function (selection, data) {
     var clipping = chart.renderArea.append('defs').append('clipPath')
         .attr('id', 'clip')
         .append('rect')
-        .attr('width', config.paddedWidth())
-        .attr('height', config.height - config.height2());
+        .attr('transform', 'translate(' + config.dotSize * -1 + ',' + config.dotSize * -1 + ')')
+        .attr('width', config.paddedWidth() + config.dotSize * 2)
+        .attr('height', config.paddedHeight() + config.dotSize * 2);
     var focus = chart.renderArea.append('g')
         .attr('class', 'focus');
-    var context = chart.renderArea.append('g')
+    focus.append('g')
+        .attr('class', 'x axis')
+        .attr('transform', 'translate(0,' + config.paddedHeight() + ')')
+        .call(chart.xAxis)
+        .append('text')
+        .attr('class', 'x label')
+        .attr('text-anchor', 'middle')
+        .attr('x', config.paddedWidth() / 2)
+        .attr('y', 28)
+        .text('');
+    focus.append('g')
+        .attr('class', 'y axis')
+        .call(chart.yAxis)
+        .append('text')
+        .attr('class', 'y label')
+        .attr('transform', 'rotate(-90)')
+        .attr('y', config.margin.left * -1)
+        .attr('x', (config.paddedHeight() / 2) * -1)
+        .attr('dy', '1em')
+        .style('text-anchor', 'middle')
+        .text('');    var context = chart.renderArea.append('g')
         .attr('class', 'context')
-        .attr('transform', 'translate(0,' + (config.height2() + config.margin.top + config.margin2.bottom) + ')');
+        .attr('transform', 'translate(0,' + (config.height2() + config.margin.top + config.margin.bottom) + ')');
     var series = focus.selectAll('series')
         .data(data)
         .enter().append('g')
@@ -148,7 +170,7 @@ var line = function (selection, data) {
             return d.data; })
         .enter().append('circle')
         .classed('dots', true)
-        .attr('r', 3)
+        .attr('r', config.dotSize)
         .attr('clip-path', 'url(#clip)')
         .attr('cy', function(d) {
             return chart.yScale(d.y);
@@ -171,28 +193,6 @@ var line = function (selection, data) {
         .style('stroke', function (d) {
             return chart.colors(d.name);
         });
-
-    focus.append('g')
-        .attr('class', 'x axis')
-        .attr('transform', 'translate(0,' + config.paddedHeight() + ')')
-        .call(chart.xAxis)
-        .append('text')
-        .attr('class', 'x label')
-        .attr('text-anchor', 'middle')
-        .attr('x', config.paddedWidth() / 2)
-        .attr('y', 28)
-        .text('');
-    focus.append('g')
-        .attr('class', 'y axis')
-        .call(chart.yAxis)
-        .append('text')
-        .attr('class', 'y label')
-        .attr('transform', 'rotate(-90)')
-        .attr('y', config.margin.left * -1)
-        .attr('x', (config.paddedHeight() / 2) * -1)
-        .attr('dy', '1em')
-        .style('text-anchor', 'middle')
-        .text('');
     context.append('g')
         .attr('class', 'x axis')
         .attr('transform', 'translate(0,' + config.margin.top  + ')')
@@ -361,6 +361,7 @@ var line = function (selection, data) {
             .text(function (d) {
                 return d.name;
             })
+            .attr('transform', function(d, i) { return 'translate(0,' + i * 15 + ')'; })
             .each(function (d) {
                 d.width = this.getBBox().width;
             });
@@ -371,22 +372,17 @@ var line = function (selection, data) {
             .attr('width', 10)
             .attr('x', -12)
             .attr('y', -10)
+            .attr('transform', function(d, i) { return 'translate(0,' + i * 15 + ')'; })
             .attr('fill', function (d) {
                 return chart.colors(d.name);
             });
 
-        var xOffset = 0;
-        legendItems.attr('transform', function (d, i) {
-            xOffset += i > 0 ? legendItemData[i - 1].width + 20 : 0;
-            return 'translate(' + xOffset + ',0)';
-        });
-
         if (!chart.hasRenderedOnce) {
-            legendGroup.attr('transform', 'translate(' + [(config.paddedWidth() - legendGroup.node().getBBox().width) / 2, config.height - 25].join() + ')');
+            legendGroup.attr('transform', 'translate('+ (config.paddedWidth() + 30) + ',0)');
         } else {
             legendGroup.transition()
                 .duration(1000)
-                .attr('transform', 'translate(' + [(config.paddedWidth() - legendGroup.node().getBBox().width) / 2, config.height - 25].join() + ')');
+                .attr('transform', 'translate('+ (config.paddedWidth() + 30 ) + ',0)');
         }
     }
 
@@ -537,7 +533,7 @@ var line = function (selection, data) {
     update.width = function (value) {
         return chart.width(value, function () {
             updateX();
-            clipping.attr('width', config.paddedWidth());
+            clipping.attr('width', config.paddedWidth() + config.dotSize * 2);
             selection.select('.x.axis .label')
                 .transition()
                 .duration(1000)
@@ -549,7 +545,7 @@ var line = function (selection, data) {
     update.height = function (value) {
         return chart.height(value, function () {
             updateY();
-            clipping.attr('width', config.height - config.height2());
+            clipping.attr('width', config.paddedHeight() );
 
             selection.select('.y.axis .label')
                 .transition()
@@ -558,6 +554,17 @@ var line = function (selection, data) {
                 .attr('x', (config.paddedHeight() / 2) * -1);
         });
     };
+
+    update.rightMargin = function (value) {
+        if (!arguments.length) {
+            return chart.config.margin.right;
+        }
+        chart.config.margin.right = value;
+        updateX();
+        clipping.attr('width', config.paddedWidth() + config.dotSize * 2);
+        return update;
+    };
+
 
     update.yAxisLabelText = function (value) {
         return chart.yAxisLabelText(value);

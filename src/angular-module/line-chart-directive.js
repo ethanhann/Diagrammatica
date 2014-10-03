@@ -5,7 +5,8 @@ angular.module('diagrammatica')
     return {
         restrict: 'A',
         scope: {
-            data: '=dmaLineChart'
+            data: '=dmaLineChart',
+            legendWidth: '=dmaLegendWidth'
         },
         link: function (scope, element) {
             var chart = diagrammatica.line(element[0], scope.data).width(element.width());
@@ -21,6 +22,9 @@ angular.module('diagrammatica')
                 if (angular.isDefined(newValue) && newValue !== oldValue) {
                     chart(newValue);
                 }
+            });
+            scope.$watch('legendWidth', function (newValue) {
+                chart.rightMargin(newValue)();
             });
         }
     };

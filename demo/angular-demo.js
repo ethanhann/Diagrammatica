@@ -33,6 +33,7 @@ angular.module('demo', ['diagrammatica'])
         var pointCount = 20;
         $scope.lineChartData.forEach(function (series) {
             var dateCounter = moment();
+            dateCounter.startOf('day');
             for (var i = 0 ; i < pointCount; i++) {
                 series.data.push({
                     x: dateCounter.clone().toDate(),

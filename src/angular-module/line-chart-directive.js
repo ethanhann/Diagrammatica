@@ -9,7 +9,7 @@ angular.module('diagrammatica')
             legendWidth: '=dmaLegendWidth'
         },
         link: function (scope, element) {
-            var chart = diagrammatica.line(element[0], scope.data).width(element.width());
+            var chart = new diagrammatica.line(element[0], scope.data).width(element.width());
             $window.onresize = function () {
                 scope.$apply();
             };

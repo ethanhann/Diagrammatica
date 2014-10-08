@@ -37,7 +37,7 @@ var line = function (selection, data) {
         chart.yScale = d3.scale.linear()
             .range([config.paddedHeight(), 0]);
         chart.y2Scale = d3.scale.linear()
-            .range([config.height2(), 0]);
+            .range([config.margin.top, 0]);
         chart.yAxis = d3.svg.axis()
             .scale(chart.yScale)
             .orient('left');
@@ -73,7 +73,7 @@ var line = function (selection, data) {
             return chart.xScale(d.x);
         })
         .y(function (d) {
-            return (chart.yScale(d.y) / 10);
+            return chart.y2Scale(d.y / ( config.margin.bottom + config.margin.top ));
         });
 
     chart.xScale.domain([
@@ -156,8 +156,8 @@ var line = function (selection, data) {
     var lines = series.append('path')
         .attr('class', 'line')
         .attr('clip-path', 'url(#clip)')
-         .attr('d', function (d) {
-           return lineGenerator(d.data);
+        .attr('d', function (d) {
+            return lineGenerator(d.data);
         })
         .style('stroke', function (d) {
             return chart.colors(d.name);
@@ -255,6 +255,7 @@ var line = function (selection, data) {
             .attr('height', config.paddedHeight())
             .attr('width', tooltipRectangleWidth)
             .attr('opacity', 0)
+            .attr('clip-path', 'url(#clip)')
             .classed('tooltip-rect', true)
             .classed('diagrammatica-tooltip-target', true)
             .attr('x', function (x) {
@@ -263,6 +264,7 @@ var line = function (selection, data) {
             .on('mouseover', function (x) {
                 hoverLine.attr('x1', chart.xScale(x))
                     .attr('x2', chart.xScale(x))
+                    .attr('clip-path', 'url(#clip)')
                     .style('opacity', 1);
                 tooltip.transition()
                     .style('opacity', 1);
@@ -545,13 +547,14 @@ var line = function (selection, data) {
     update.height = function (value) {
         return chart.height(value, function () {
             updateY();
-            clipping.attr('width', config.paddedHeight() );
-
+            clipping.attr('height', config.paddedHeight() + config.dotSize * 2);
+            context.attr('transform', 'translate(0,' + (config.height2() + config.margin.top + config.margin.bottom) + ')');
             selection.select('.y.axis .label')
                 .transition()
                 .duration(1000)
                 .attr('y', config.margin.left * -1)
                 .attr('x', (config.paddedHeight() / 2) * -1);
+            return update();
         });
     };
 
@@ -562,6 +565,7 @@ var line = function (selection, data) {
         chart.config.margin.right = value;
         updateX();
         clipping.attr('width', config.paddedWidth() + config.dotSize * 2);
+        renderTooltip(data);
         return update;
     };
 

@@ -6,6 +6,7 @@ angular.module('diagrammatica')
         restrict: 'A',
         scope: {
             data: '=dmaLineChart',
+            chartHeight: '=dmaChartHeight',
             legendWidth: '=dmaLegendWidth'
         },
         link: function (scope, element) {
@@ -25,6 +26,9 @@ angular.module('diagrammatica')
             });
             scope.$watch('legendWidth', function (newValue) {
                 chart.rightMargin(newValue)();
+            });
+            scope.$watch('chartHeight', function (newValue) {
+                chart.height(newValue);
             });
         }
     };

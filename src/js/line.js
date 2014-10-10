@@ -37,7 +37,7 @@ var line = function (selection, data) {
         chart.yScale = d3.scale.linear()
             .range([config.paddedHeight(), 0]);
         chart.y2Scale = d3.scale.linear()
-            .range([config.margin.top, 0]);
+            .range([config.margin.bottom - config.margin2.bottom, 0 ]);
         chart.yAxis = d3.svg.axis()
             .scale(chart.yScale)
             .orient('left');
@@ -146,9 +146,10 @@ var line = function (selection, data) {
         .attr('x', (config.paddedHeight() / 2) * -1)
         .attr('dy', '1em')
         .style('text-anchor', 'middle')
-        .text('');    var context = chart.renderArea.append('g')
+        .text('');
+    var context = chart.renderArea.append('g')
         .attr('class', 'context')
-        .attr('transform', 'translate(0,' + (config.height2() + config.margin.top + config.margin.bottom) + ')');
+        .attr('transform', 'translate(0,' + (config.height2() + config.margin.top + config.margin.bottom + 4) + ')');
     var series = focus.selectAll('series')
         .data(data)
         .enter().append('g')
@@ -201,9 +202,8 @@ var line = function (selection, data) {
         .attr('class', 'x brush')
         .call(brush)
         .selectAll('rect')
-        .attr('y', -6)
-        .attr('height', config.margin.top  + 7);
-
+        .attr('y', -15)
+        .attr('height', config.margin2.bottom - config.margin.top + 10);
 
     // ------------------------------------------------------------------------
     // Tooltip
@@ -491,7 +491,6 @@ var line = function (selection, data) {
             });
 
         chart.x2Scale.domain(chart.xScale.domain());
-        chart.y2Scale.domain(chart.yScale.domain());
         brush.x(chart.x2Scale)
             .extent([d3.min(data, function (series) {
                 return d3.min(series.data, function (d) {
@@ -504,6 +503,7 @@ var line = function (selection, data) {
                     });
                 })
             ]);
+        context.attr('transform', 'translate(0,' + (config.height2() + config.margin.top + config.margin.bottom + 4) + ')');
         context.select('.x.brush')
             .transition()
             .duration(1000)

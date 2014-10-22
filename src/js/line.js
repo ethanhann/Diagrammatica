@@ -1,5 +1,5 @@
 'use strict';
-/* global d3: false, ChartBase, tooltip, isD3Selection: false */
+/* global d3: false, ChartBase, tooltip, isD3Selection: false, moment: false */
 /* exported line */
 var line = function (selection, data) {
     var self = this;
@@ -7,13 +7,14 @@ var line = function (selection, data) {
     selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);
     var chart = new ChartBase(selection, 'line');
     var config = chart.config;
-    config.margin.bottom = 70;
-    config.margin2 = {top: 100, right: config.margin.right, bottom: 50, left: config.margin.left};
+    config.margin.bottom = 100;
+    config.margin.top = 25;
+    config.margin2 = {top: function() {return config.paddedHeight() + 45;}, right: config.margin.right, bottom: 10, left: config.margin.left};
     config.height2 = function () {
-        return config.height - config.margin2.top - config.margin2.bottom;
+        return config.height - config.margin2.top() - config.margin2.bottom;
     };
     config.dotSize = 3;
-    var formatTime = d3.time.format('%e %B');
+    var formatTextTime = d3.time.format('%B %Y');
 
     // ------------------------------------------------------------------------
     // Scales and axes
@@ -37,7 +38,12 @@ var line = function (selection, data) {
         chart.yScale = d3.scale.linear()
             .range([config.paddedHeight(), 0]);
         chart.y2Scale = d3.scale.linear()
-            .range([config.margin.bottom - config.margin2.bottom, 0 ]);
+            .range([config.height2(), 0])
+            .domain([0,d3.max(data, function (series) {
+                return d3.max(series.data, function (d) {
+                    return d.y;
+                });
+            })]);
         chart.yAxis = d3.svg.axis()
             .scale(chart.yScale)
             .orient('left');
@@ -56,6 +62,36 @@ var line = function (selection, data) {
                 return chart.xScale(d.x);
             });
         renderTooltip(data);
+        sendBrushData();
+    }
+
+    function dateRange() {
+        var from =  moment(westDate);
+        var to =  moment(eastDate);
+        var dateDiff = moment(to.diff(from));
+        var numOfYears = dateDiff.diff(moment(0), 'years');
+        var numOfYMonths = dateDiff.diff(moment(0), 'months') - (numOfYears * 12);
+        return numOfYears + ' year(s), ' + numOfYMonths + ' month(s)';
+    }
+
+    function sendBrushData() {
+        var evt = document.createEvent('CustomEvent');
+        westDate = brush.extent()[0];
+        eastDate = brush.extent()[1];
+        brushDateInfo.select('#fromDate').text(formatTextTime(westDate))
+            .transition()
+            .duration(1000);
+        brushDateInfo.select('#toDate').text(formatTextTime(eastDate))
+            .transition()
+            .duration(1000)
+            .attr('transform', 'translate(' + (config.paddedWidth())+ ',-5)');
+        brushDateInfo.select('#range')
+            .transition()
+            .duration(1000)
+            .text(dateRange())
+            .attr('transform', 'translate(' + (config.paddedWidth() / 2) +',-5)');
+        evt.initCustomEvent('brushEvent', true, true, { 'fromDate': westDate, 'toDate': eastDate, 'data' : data});
+        document.dispatchEvent(evt);
     }
 
     // ------------------------------------------------------------------------
@@ -73,7 +109,7 @@ var line = function (selection, data) {
             return chart.xScale(d.x);
         })
         .y(function (d) {
-            return chart.y2Scale(d.y / ( config.margin.bottom + config.margin.top ));
+            return chart.y2Scale(d.y * 0.9);
         });
 
     chart.xScale.domain([
@@ -102,8 +138,10 @@ var line = function (selection, data) {
     ]);
 
     chart.x2Scale.domain(chart.xScale.domain());
-    chart.y2Scale.domain(chart.yScale.domain());
 
+    // ------------------------------------------------------------------------
+    // Brush
+    // ------------------------------------------------------------------------
     var brush = d3.svg.brush()
         .x(chart.x2Scale)
         .on('brush', brushed)
@@ -118,8 +156,30 @@ var line = function (selection, data) {
                 });
             })
         ]);
+    var westDate = brush.extent()[0];
+    var eastDate = brush.extent()[1];
+    var uniqueClipId = 'clip' + (eastDate-westDate);
+    var brushDateInfo = chart.renderArea.append('g');
+    brushDateInfo.append('text')
+        .attr('id', 'fromDate')
+        .text(formatTextTime(westDate))
+        .attr('transform', 'translate(0,-5)')
+        .style('text-anchor', 'start')
+        .style('font-weight', 'bold');
+    brushDateInfo.append('text')
+        .attr('id', 'toDate')
+        .text(formatTextTime(eastDate))
+        .attr('transform', 'translate(0,-5)')
+        .style('text-anchor', 'end')
+        .style('font-weight', 'bold');
+    brushDateInfo.append('text')
+        .attr('id', 'range')
+        .text(dateRange())
+        .attr('transform', 'translate(0,-5)')
+        .style('text-anchor', 'middle')
+        .style('font-weight', 'bold');
     var clipping = chart.renderArea.append('defs').append('clipPath')
-        .attr('id', 'clip')
+        .attr('id', uniqueClipId)
         .append('rect')
         .attr('transform', 'translate(' + config.dotSize * -1 + ',' + config.dotSize * -1 + ')')
         .attr('width', config.paddedWidth() + config.dotSize * 2)
@@ -149,14 +209,14 @@ var line = function (selection, data) {
         .text('');
     var context = chart.renderArea.append('g')
         .attr('class', 'context')
-        .attr('transform', 'translate(0,' + (config.height2() + config.margin.top + config.margin.bottom + 4) + ')');
+        .attr('transform', 'translate(0,' + config.height2() + ')');
     var series = focus.selectAll('series')
         .data(data)
         .enter().append('g')
         .attr('class', 'series');
     var lines = series.append('path')
         .attr('class', 'line')
-        .attr('clip-path', 'url(#clip)')
+        .attr('clip-path', 'url(#'+uniqueClipId+')')
         .attr('d', function (d) {
             return lineGenerator(d.data);
         })
@@ -172,7 +232,7 @@ var line = function (selection, data) {
         .enter().append('circle')
         .classed('dots', true)
         .attr('r', config.dotSize)
-        .attr('clip-path', 'url(#clip)')
+        .attr('clip-path', 'url(#'+uniqueClipId+')')
         .attr('cy', function(d) {
             return chart.yScale(d.y);
         })
@@ -196,14 +256,19 @@ var line = function (selection, data) {
         });
     context.append('g')
         .attr('class', 'x axis')
-        .attr('transform', 'translate(0,' + config.margin.top  + ')')
+        .attr('transform', 'translate('+(config.paddedWidth() * -1) + ',' + config.height2()+ ')')
         .call(chart.x2Axis);
     context.append('g')
         .attr('class', 'x brush')
         .call(brush)
         .selectAll('rect')
-        .attr('y', -15)
-        .attr('height', config.margin2.bottom - config.margin.top + 10);
+        .attr('height', config.height2());
+    context.selectAll('.resize')
+        .append('rect')
+        .attr('x', -3)
+        .attr('y', 0)
+        .attr('width', 6)
+        .attr('class', 'handle');
 
     // ------------------------------------------------------------------------
     // Tooltip
@@ -225,7 +290,7 @@ var line = function (selection, data) {
     config.tooltipHtml = function (points) {
         var html = '';
         html += '<div class="diagrammatica-tooltip-content">';
-        html += points.length > 0 ? '<div class="diagrammatica-tooltip-title">' + formatTime(points[0].x) + '</div>' : '';
+        html += points.length > 0 ? '<div class="diagrammatica-tooltip-title">' + formatTextTime(points[0].x) + '</div>' : '';
         points.forEach(function (d) {
             html += '<svg height="10" width="10"><rect height="10" width="10" fill="' + chart.colors(d.name) + '"></rect></svg>';
             html += '<span> ' + d.name + '</span> : ' + d.y + '<br>';
@@ -255,7 +320,7 @@ var line = function (selection, data) {
             .attr('height', config.paddedHeight())
             .attr('width', tooltipRectangleWidth)
             .attr('opacity', 0)
-            .attr('clip-path', 'url(#clip)')
+            .attr('clip-path', 'url(#'+uniqueClipId+')')
             .classed('tooltip-rect', true)
             .classed('diagrammatica-tooltip-target', true)
             .attr('x', function (x) {
@@ -264,7 +329,7 @@ var line = function (selection, data) {
             .on('mouseover', function (x) {
                 hoverLine.attr('x1', chart.xScale(x))
                     .attr('x2', chart.xScale(x))
-                    .attr('clip-path', 'url(#clip)')
+                    .attr('clip-path', 'url(#'+uniqueClipId+')')
                     .style('opacity', 1);
                 tooltip.transition()
                     .style('opacity', 1);
@@ -353,9 +418,13 @@ var line = function (selection, data) {
                     dots.attr('opacity', function (t) {
                         return check.object(selectedLegendItem) && t.name === selectedLegendItem.name ? 1 : 0;
                     });
+                    renderTooltip(data.filter(function(l){
+                        return l.name === selectedLegendItem.name;
+                    }));
                 } else {
                     lines.attr('opacity', 1);
                     dots.attr('opacity', 1);
+                    renderTooltip(data);
                 }
             });
 
@@ -431,7 +500,7 @@ var line = function (selection, data) {
             .style('stroke', function (d) {
                 return chart.colors(d.name);
             })
-            .attr('class', 'line');
+        ;
 
         series.select('path')
             .transition()
@@ -502,8 +571,9 @@ var line = function (selection, data) {
                         return d.x;
                     });
                 })
-            ]);
-        context.attr('transform', 'translate(0,' + (config.height2() + config.margin.top + config.margin.bottom + 4) + ')');
+            ])
+        ;
+        context.attr('transform', 'translate(0,' + (config.paddedHeight() + config.margin2.bottom + 4) + ')');
         context.select('.x.brush')
             .transition()
             .duration(1000)
@@ -514,17 +584,22 @@ var line = function (selection, data) {
             .attr('x', 0)
             .attr('width', config.paddedWidth());
         context.select('.resize.e')
+            .transition()
+            .duration(1000)
             .attr('transform', 'translate(' + config.paddedWidth() + ',0)');
         context.select('.resize.w')
+            .transition()
+            .duration(1000)
             .attr('transform', 'translate(0,0)');
         context.select('.x.axis')
             .transition()
             .duration(1000)
             .call(chart.x2Axis)
-            .attr('transform', 'translate(0,' + config.margin.top  + ')');
+            .attr('transform', 'translate(0,' + config.height2() + ')');
 
         renderTooltip(data);
         renderLegend(data);
+        sendBrushData();
     }
 
     chart.update = update;
@@ -548,7 +623,11 @@ var line = function (selection, data) {
         return chart.height(value, function () {
             updateY();
             clipping.attr('height', config.paddedHeight() + config.dotSize * 2);
-            context.attr('transform', 'translate(0,' + (config.height2() + config.margin.top + config.margin.bottom) + ')');
+            context.attr('transform', 'translate(0,' + config.height2() + ')');
+            context.select('.x.brush')
+                .selectAll('rect')
+                .attr('height', (config.height2() - 5))
+                .attr('transform', 'translate(0,' + 5 + ')');
             selection.select('.y.axis .label')
                 .transition()
                 .duration(1000)

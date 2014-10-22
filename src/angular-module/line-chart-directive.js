@@ -1,12 +1,14 @@
 'use strict';
 
 angular.module('diagrammatica')
-.directive('dmaLineChart', ['$window', 'diagrammatica', function ($window, diagrammatica) {
+.directive('dmaLineChart', ['$window', '$document', '$timeout', 'diagrammatica', function ($window, $document, $timeout, diagrammatica) {
     return {
         restrict: 'A',
         scope: {
             data: '=dmaLineChart',
             chartHeight: '=dmaChartHeight',
+            fromDate: '=dmaFromDate',
+            toDate: '=dmaToDate',
             legendWidth: '=dmaLegendWidth'
         },
         link: function (scope, element) {
@@ -14,6 +16,16 @@ angular.module('diagrammatica')
             $window.onresize = function () {
                 scope.$apply();
             };
+            $document.bind('brushEvent', function(e) {
+                var data = e.originalEvent.detail;
+                if (data.data === scope.data) {
+                    $timeout(function () {
+                        scope.fromDate = data.fromDate;
+                        scope.toDate = data.toDate;
+                        scope.$apply();
+                    });
+                }
+            });
             scope.$watch(function () {
                 return angular.element($window)[0].innerWidth;
             }, function () {

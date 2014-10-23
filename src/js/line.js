@@ -9,9 +9,21 @@ var line = function (selection, data) {
     var config = chart.config;
     config.margin.bottom = 100;
     config.margin.top = 25;
-    config.margin2 = {top: function() {return config.paddedHeight() + 45;}, right: config.margin.right, bottom: 10, left: config.margin.left};
-    config.height2 = function () {
-        return config.height - config.margin2.top() - config.margin2.bottom;
+    var brushData = {
+        chart: {}
+    };
+    brushData.config = {
+        margin : {
+            top: function() {
+                return config.paddedHeight() + 45;
+            },
+            right: config.margin.right,
+            bottom: 10,
+            left: config.margin.left
+        },
+        height: function () {
+            return config.height - brushData.config.margin.top() - brushData.config.margin.bottom;
+        }
     };
     config.dotSize = 3;
     var formatTextTime = d3.time.format('%B %Y');
@@ -25,10 +37,10 @@ var line = function (selection, data) {
         chart.xAxis = d3.svg.axis()
             .scale(chart.xScale)
             .orient('bottom');
-        chart.x2Scale = d3.time.scale()
+        brushData.chart.xScale = d3.time.scale()
             .range([0, config.paddedWidth()]);
-        chart.x2Axis = d3.svg.axis()
-            .scale(chart.x2Scale)
+        brushData.chart.xAxis = d3.svg.axis()
+            .scale(brushData.chart.xScale)
             .orient('bottom');
     }
 
@@ -37,8 +49,8 @@ var line = function (selection, data) {
     function updateY() {
         chart.yScale = d3.scale.linear()
             .range([config.paddedHeight(), 0]);
-        chart.y2Scale = d3.scale.linear()
-            .range([config.height2(), 0])
+        brushData.chart.yScale = d3.scale.linear()
+            .range([brushData.config.height(), 0])
             .domain([0,d3.max(data, function (series) {
                 return d3.max(series.data, function (d) {
                     return d.y;
@@ -52,7 +64,7 @@ var line = function (selection, data) {
     updateY();
 
     function brushed() {
-        chart.xScale.domain(brush.empty() ? chart.x2Scale.domain() : brush.extent());
+        chart.xScale.domain(brushData.brush.empty() ? brushData.chart.xScale.domain() : brushData.brush.extent());
         series.selectAll('path').attr('d', function (d1) {
             return lineGenerator(d1.data);
         });
@@ -66,8 +78,8 @@ var line = function (selection, data) {
     }
 
     function dateRange() {
-        var from =  moment(westDate);
-        var to =  moment(eastDate);
+        var from =  moment(brushData.westDate);
+        var to =  moment(brushData.eastDate);
         var dateDiff = moment(to.diff(from));
         var numOfYears = dateDiff.diff(moment(0), 'years');
         var numOfYMonths = dateDiff.diff(moment(0), 'months') - (numOfYears * 12);
@@ -76,21 +88,21 @@ var line = function (selection, data) {
 
     function sendBrushData() {
         var evt = document.createEvent('CustomEvent');
-        westDate = brush.extent()[0];
-        eastDate = brush.extent()[1];
-        brushDateInfo.select('#fromDate').text(formatTextTime(westDate))
+        brushData.westDate = brushData.brush.extent()[0];
+        brushData.eastDate = brushData.brush.extent()[1];
+        brushData.range.select('#fromDate').text(formatTextTime(brushData.westDate))
             .transition()
             .duration(1000);
-        brushDateInfo.select('#toDate').text(formatTextTime(eastDate))
+        brushData.range.select('#toDate').text(formatTextTime(brushData.eastDate))
             .transition()
             .duration(1000)
             .attr('transform', 'translate(' + (config.paddedWidth())+ ',-5)');
-        brushDateInfo.select('#range')
+        brushData.range.select('#range')
             .transition()
             .duration(1000)
             .text(dateRange())
             .attr('transform', 'translate(' + (config.paddedWidth() / 2) +',-5)');
-        evt.initCustomEvent('brushEvent', true, true, { 'fromDate': westDate, 'toDate': eastDate, 'data' : data});
+        evt.initCustomEvent('brushEvent', true, true, { 'fromDate': brushData.westDate, 'toDate': brushData.eastDate, 'data' : data});
         document.dispatchEvent(evt);
     }
 
@@ -109,7 +121,7 @@ var line = function (selection, data) {
             return chart.xScale(d.x);
         })
         .y(function (d) {
-            return chart.y2Scale(d.y * 0.9);
+            return brushData.chart.yScale(d.y * 0.9);
         });
 
     chart.xScale.domain([
@@ -137,13 +149,13 @@ var line = function (selection, data) {
         })
     ]);
 
-    chart.x2Scale.domain(chart.xScale.domain());
+    brushData.chart.xScale.domain(chart.xScale.domain());
 
     // ------------------------------------------------------------------------
     // Brush
     // ------------------------------------------------------------------------
-    var brush = d3.svg.brush()
-        .x(chart.x2Scale)
+    brushData.brush = d3.svg.brush()
+        .x(brushData.chart.xScale)
         .on('brush', brushed)
         .extent([d3.min(data, function (series) {
             return d3.min(series.data, function (d) {
@@ -156,30 +168,30 @@ var line = function (selection, data) {
                 });
             })
         ]);
-    var westDate = brush.extent()[0];
-    var eastDate = brush.extent()[1];
-    var uniqueClipId = 'clip' + (eastDate-westDate);
-    var brushDateInfo = chart.renderArea.append('g');
-    brushDateInfo.append('text')
+    brushData.westDate = brushData.brush.extent()[0];
+    brushData.eastDate = brushData.brush.extent()[1];
+    brushData.uniqueClipId = 'clip' + (brushData.eastDate-brushData.westDate);
+    brushData.range = chart.renderArea.append('g');
+    brushData.range.append('text')
         .attr('id', 'fromDate')
-        .text(formatTextTime(westDate))
+        .text(formatTextTime(brushData.westDate))
         .attr('transform', 'translate(0,-5)')
         .style('text-anchor', 'start')
         .style('font-weight', 'bold');
-    brushDateInfo.append('text')
+    brushData.range.append('text')
         .attr('id', 'toDate')
-        .text(formatTextTime(eastDate))
+        .text(formatTextTime(brushData.eastDate))
         .attr('transform', 'translate(0,-5)')
         .style('text-anchor', 'end')
         .style('font-weight', 'bold');
-    brushDateInfo.append('text')
+    brushData.range.append('text')
         .attr('id', 'range')
         .text(dateRange())
         .attr('transform', 'translate(0,-5)')
         .style('text-anchor', 'middle')
         .style('font-weight', 'bold');
-    var clipping = chart.renderArea.append('defs').append('clipPath')
-        .attr('id', uniqueClipId)
+    brushData.clipping = chart.renderArea.append('defs').append('clipPath')
+        .attr('id', brushData.uniqueClipId)
         .append('rect')
         .attr('transform', 'translate(' + config.dotSize * -1 + ',' + config.dotSize * -1 + ')')
         .attr('width', config.paddedWidth() + config.dotSize * 2)
@@ -209,14 +221,14 @@ var line = function (selection, data) {
         .text('');
     var context = chart.renderArea.append('g')
         .attr('class', 'context')
-        .attr('transform', 'translate(0,' + config.height2() + ')');
+        .attr('transform', 'translate(0,' + brushData.config.height() + ')');
     var series = focus.selectAll('series')
         .data(data)
         .enter().append('g')
         .attr('class', 'series');
     var lines = series.append('path')
         .attr('class', 'line')
-        .attr('clip-path', 'url(#'+uniqueClipId+')')
+        .attr('clip-path', 'url(#'+brushData.uniqueClipId+')')
         .attr('d', function (d) {
             return lineGenerator(d.data);
         })
@@ -232,7 +244,7 @@ var line = function (selection, data) {
         .enter().append('circle')
         .classed('dots', true)
         .attr('r', config.dotSize)
-        .attr('clip-path', 'url(#'+uniqueClipId+')')
+        .attr('clip-path', 'url(#'+brushData.uniqueClipId+')')
         .attr('cy', function(d) {
             return chart.yScale(d.y);
         })
@@ -242,11 +254,11 @@ var line = function (selection, data) {
         .attr('fill', function (d) {
             return chart.colors(d.name);
         });
-    var series2 = context.selectAll('series')
+    brushData.series = context.selectAll('series')
         .data(data)
         .enter().append('g')
         .attr('class', 'series');
-    series2.append('path')
+    brushData.series.append('path')
         .attr('class', 'line')
         .attr('d', function (d) {
             return brushLineGenerator(d.data);
@@ -256,13 +268,13 @@ var line = function (selection, data) {
         });
     context.append('g')
         .attr('class', 'x axis')
-        .attr('transform', 'translate('+(config.paddedWidth() * -1) + ',' + config.height2()+ ')')
-        .call(chart.x2Axis);
+        .attr('transform', 'translate('+(config.paddedWidth() * -1) + ',' + brushData.config.height()+ ')')
+        .call(brushData.chart.xAxis);
     context.append('g')
         .attr('class', 'x brush')
-        .call(brush)
+        .call(brushData.brush)
         .selectAll('rect')
-        .attr('height', config.height2());
+        .attr('height', brushData.config.height());
     context.selectAll('.resize')
         .append('rect')
         .attr('x', -3)
@@ -320,7 +332,7 @@ var line = function (selection, data) {
             .attr('height', config.paddedHeight())
             .attr('width', tooltipRectangleWidth)
             .attr('opacity', 0)
-            .attr('clip-path', 'url(#'+uniqueClipId+')')
+            .attr('clip-path', 'url(#'+brushData.uniqueClipId+')')
             .classed('tooltip-rect', true)
             .classed('diagrammatica-tooltip-target', true)
             .attr('x', function (x) {
@@ -329,7 +341,7 @@ var line = function (selection, data) {
             .on('mouseover', function (x) {
                 hoverLine.attr('x1', chart.xScale(x))
                     .attr('x2', chart.xScale(x))
-                    .attr('clip-path', 'url(#'+uniqueClipId+')')
+                    .attr('clip-path', 'url(#'+brushData.uniqueClipId+')')
                     .style('opacity', 1);
                 tooltip.transition()
                     .style('opacity', 1);
@@ -346,6 +358,20 @@ var line = function (selection, data) {
                     seriesPoint.name = series.name;
                     return seriesPoint;
                 });
+
+                dots.transition()
+                    .attr('cy', function(d) {
+                        return chart.yScale(d.y);
+                    })
+                    .attr('cx', function(d) {
+                        return chart.xScale(d.x);
+                    })
+                    .attr('r', function (t) {
+                        var grow = points.filter(function(d){
+                            return t === d;
+                        });
+                        return grow.length > 0 ? config.dotSize * 2 : config.dotSize;
+                    });
                 tooltip.html(config.tooltipHtml(points))
                     .style('left', xPosition + 'px')
                     .style('top', (d3.event.pageY) + 'px');
@@ -356,6 +382,14 @@ var line = function (selection, data) {
             .on('mouseout', function () {
                 hoverLine.style('opacity', 0);
                 tooltip.style('opacity', 0);
+                dots.transition()
+                    .attr('cy', function(d) {
+                        return chart.yScale(d.y);
+                    })
+                    .attr('cx', function(d) {
+                        return chart.xScale(d.x);
+                    })
+                    .attr('r', config.dotSize);
             });
     }
 
@@ -449,11 +483,11 @@ var line = function (selection, data) {
             });
 
         if (!chart.hasRenderedOnce) {
-            legendGroup.attr('transform', 'translate('+ (config.paddedWidth() + 30) + ',0)');
+            legendGroup.attr('transform', 'translate('+ (config.paddedWidth() + 35) + ',0)');
         } else {
             legendGroup.transition()
                 .duration(1000)
-                .attr('transform', 'translate('+ (config.paddedWidth() + 30 ) + ',0)');
+                .attr('transform', 'translate('+ (config.paddedWidth() + 35 ) + ',0)');
         }
     }
 
@@ -538,8 +572,8 @@ var line = function (selection, data) {
                 return chart.xScale(d.x);
             });
 
-        series2 = series2.data(data);
-        series2.enter().append('g')
+        brushData.series = brushData.series.data(data);
+        brushData.series.enter().append('g')
             .attr('class', 'series')
             .append('path')
             .attr('d', function (d) {
@@ -549,7 +583,7 @@ var line = function (selection, data) {
                 return chart.colors(d.name);
             })
             .attr('class', 'line');
-        series2.select('path')
+        brushData.series.select('path')
             .transition()
             .duration(1000)
             .attr('d', function (d) {
@@ -559,8 +593,8 @@ var line = function (selection, data) {
                 return chart.colors(d.name);
             });
 
-        chart.x2Scale.domain(chart.xScale.domain());
-        brush.x(chart.x2Scale)
+        brushData.chart.xScale.domain(chart.xScale.domain());
+        brushData.brush.x(brushData.chart.xScale)
             .extent([d3.min(data, function (series) {
                 return d3.min(series.data, function (d) {
                     return d.x;
@@ -573,11 +607,11 @@ var line = function (selection, data) {
                 })
             ])
         ;
-        context.attr('transform', 'translate(0,' + (config.paddedHeight() + config.margin2.bottom + 4) + ')');
+        context.attr('transform', 'translate(0,' + (config.paddedHeight() + brushData.config.margin.bottom + 4) + ')');
         context.select('.x.brush')
             .transition()
             .duration(1000)
-            .call(brush);
+            .call(brushData.brush);
         context.select('.extent')
             .transition()
             .duration(1000)
@@ -594,8 +628,8 @@ var line = function (selection, data) {
         context.select('.x.axis')
             .transition()
             .duration(1000)
-            .call(chart.x2Axis)
-            .attr('transform', 'translate(0,' + config.height2() + ')');
+            .call(brushData.chart.xAxis)
+            .attr('transform', 'translate(0,' + brushData.config.height() + ')');
 
         renderTooltip(data);
         renderLegend(data);
@@ -610,7 +644,7 @@ var line = function (selection, data) {
     update.width = function (value) {
         return chart.width(value, function () {
             updateX();
-            clipping.attr('width', config.paddedWidth() + config.dotSize * 2);
+            brushData.clipping.attr('width', config.paddedWidth() + config.dotSize * 2);
             selection.select('.x.axis .label')
                 .transition()
                 .duration(1000)
@@ -622,11 +656,11 @@ var line = function (selection, data) {
     update.height = function (value) {
         return chart.height(value, function () {
             updateY();
-            clipping.attr('height', config.paddedHeight() + config.dotSize * 2);
-            context.attr('transform', 'translate(0,' + config.height2() + ')');
+            brushData.clipping.attr('height', config.paddedHeight() + config.dotSize * 2);
+            context.attr('transform', 'translate(0,' + brushData.config.height() + ')');
             context.select('.x.brush')
                 .selectAll('rect')
-                .attr('height', (config.height2() - 5))
+                .attr('height', (brushData.config.height() - 5))
                 .attr('transform', 'translate(0,' + 5 + ')');
             selection.select('.y.axis .label')
                 .transition()
@@ -643,7 +677,7 @@ var line = function (selection, data) {
         }
         chart.config.margin.right = value;
         updateX();
-        clipping.attr('width', config.paddedWidth() + config.dotSize * 2);
+        brushData.clipping.attr('width', config.paddedWidth() + config.dotSize * 2);
         renderTooltip(data);
         return update;
     };

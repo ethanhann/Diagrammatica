@@ -360,6 +360,12 @@ var line = function (selection, data) {
                 });
 
                 dots.transition()
+                    .attr('cy', function(d) {
+                        return chart.yScale(d.y);
+                    })
+                    .attr('cx', function(d) {
+                        return chart.xScale(d.x);
+                    })
                     .attr('r', function (t) {
                         var grow = points.filter(function(d){
                             return t === d;
@@ -377,6 +383,12 @@ var line = function (selection, data) {
                 hoverLine.style('opacity', 0);
                 tooltip.style('opacity', 0);
                 dots.transition()
+                    .attr('cy', function(d) {
+                        return chart.yScale(d.y);
+                    })
+                    .attr('cx', function(d) {
+                        return chart.xScale(d.x);
+                    })
                     .attr('r', config.dotSize);
             });
     }

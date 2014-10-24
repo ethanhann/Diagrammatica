@@ -58,5 +58,7 @@
   fill-opacity: .125;
   shape-rendering: crispEdges;
   stroke-width: 2px; }
+.diagrammatica-line .handle {
+  fill: #EFEFEF; }
 
 /*# sourceMappingURL=diagrammatica.css.map */

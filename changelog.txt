@@ -1,4 +1,19 @@
-f6a7f0a (HEAD, origin/master, origin/HEAD, master) Properly filter date series in heat map
+d342299 (HEAD, origin/master, origin/HEAD, master) Update dev deps
+5e56a57 Bugfix: Dots now transition to their correct position if mouse is hovering while chart is being rendered
+0a380a7 Grow/Shrink dots as mouse hovers over them Encapsulated all brush related types to brushData
+f45ca5b Tooltip only displays series that are highlighted Tooltip is using Month Year format Brush height linked to chart height From/To handles thickness is increased and is exposed Brush handle info is displayed on the top of the chart Fixed clipping bug when multiple charts are used with ng-repeat
+fdf1309 Re-adjusted brush height to utilize a majority of the space allotted for it
+b13f75b Bugfix: Chart's height is now adjustable and hover over unclipped areas no longer show tooltip
+cf59afc Bugfix/Workaround: Multiple line in the line directive charts no longer generates the last chart
+2a4a6e8 Moved legend to upper right side
+28188ea Rounded to the nearest day so tick marks aligned with the data in demo
+d55c494 Simplify test
+07f9909 Bugfix: Brushing now correctly works with angular-demo
+25ca485 Add Sass for brush
+80ac5b7 Added brush to line chart
+49cd456 (tag: 0.5.2) Bump version
+a6d3c96 Prepare for release
+f6a7f0a Properly filter date series in heat map
 bff0dc2 (tag: 0.5.1) Prepare for release
 307504f Bump version
 8f92a5b Fix heat map API

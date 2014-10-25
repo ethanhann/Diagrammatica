@@ -68,7 +68,7 @@ angular.module("diagrammatica").directive("dmaLineChart", [ "$window", "$documen
             legendWidth: "=dmaLegendWidth"
         },
         link: function(scope, element) {
-            var chart = new diagrammatica.line(element[0], scope.data).width(element.width());
+            var chart = diagrammatica.line(element[0], scope.data).width(element.width());
             $window.onresize = function() {
                 scope.$apply();
             };

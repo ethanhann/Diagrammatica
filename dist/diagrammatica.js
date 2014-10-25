@@ -552,15 +552,15 @@
         return update;
     };
     "use strict";
-    var line = function(selection, data) {
+    function LineBase(selection, data) {
         var self = this;
         self.data = data;
         selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);
-        var chart = new ChartBase(selection, "line");
+        var chart = this.chart = new ChartBase(selection, "line");
         var config = chart.config;
         config.margin.bottom = 100;
         config.margin.top = 25;
-        var brushData = {
+        var brushData = this.brushData = {
             chart: {}
         };
         brushData.config = {
@@ -578,14 +578,14 @@
         };
         config.dotSize = 3;
         var formatTextTime = d3.time.format("%B %Y");
-        function updateX() {
+        var updateX = this.updateX = function() {
             chart.xScale = d3.time.scale().range([ 0, config.paddedWidth() ]);
             chart.xAxis = d3.svg.axis().scale(chart.xScale).orient("bottom");
             brushData.chart.xScale = d3.time.scale().range([ 0, config.paddedWidth() ]);
             brushData.chart.xAxis = d3.svg.axis().scale(brushData.chart.xScale).orient("bottom");
-        }
+        };
         updateX();
-        function updateY() {
+        var updateY = this.updateY = function() {
             chart.yScale = d3.scale.linear().range([ config.paddedHeight(), 0 ]);
             brushData.chart.yScale = d3.scale.linear().range([ brushData.config.height(), 0 ]).domain([ 0, d3.max(data, function(series) {
                 return d3.max(series.data, function(d) {
@@ -593,7 +593,7 @@
                 });
             }) ]);
             chart.yAxis = d3.svg.axis().scale(chart.yScale).orient("left");
-        }
+        };
         updateY();
         function brushed() {
             chart.xScale.domain(brushData.brush.empty() ? brushData.chart.xScale.domain() : brushData.brush.extent());
@@ -607,15 +607,15 @@
             renderTooltip(data);
             sendBrushData();
         }
-        function dateRange() {
+        var dateRange = this.dateRange = function() {
             var from = moment(brushData.westDate);
             var to = moment(brushData.eastDate);
             var dateDiff = moment(to.diff(from));
             var numOfYears = dateDiff.diff(moment(0), "years");
             var numOfYMonths = dateDiff.diff(moment(0), "months") - numOfYears * 12;
             return numOfYears + " year(s), " + numOfYMonths + " month(s)";
-        }
-        function sendBrushData() {
+        };
+        var sendBrushData = this.sendBrushData = function() {
             var evt = document.createEvent("CustomEvent");
             brushData.westDate = brushData.brush.extent()[0];
             brushData.eastDate = brushData.brush.extent()[1];
@@ -628,13 +628,13 @@
                 data: data
             });
             document.dispatchEvent(evt);
-        }
-        var lineGenerator = d3.svg.line().x(function(d) {
+        };
+        var lineGenerator = this.lineGenerator = d3.svg.line().x(function(d) {
             return chart.xScale(d.x);
         }).y(function(d) {
             return chart.yScale(d.y);
         });
-        var brushLineGenerator = d3.svg.line().x(function(d) {
+        var brushLineGenerator = this.brushLineGenerator = d3.svg.line().x(function(d) {
             return chart.xScale(d.x);
         }).y(function(d) {
             return brushData.chart.yScale(d.y * .9);
@@ -675,11 +675,11 @@
         brushData.range.append("text").attr("id", "toDate").text(formatTextTime(brushData.eastDate)).attr("transform", "translate(0,-5)").style("text-anchor", "end").style("font-weight", "bold");
         brushData.range.append("text").attr("id", "range").text(dateRange()).attr("transform", "translate(0,-5)").style("text-anchor", "middle").style("font-weight", "bold");
         brushData.clipping = chart.renderArea.append("defs").append("clipPath").attr("id", brushData.uniqueClipId).append("rect").attr("transform", "translate(" + config.dotSize * -1 + "," + config.dotSize * -1 + ")").attr("width", config.paddedWidth() + config.dotSize * 2).attr("height", config.paddedHeight() + config.dotSize * 2);
-        var focus = chart.renderArea.append("g").attr("class", "focus");
+        var focus = this.focus = chart.renderArea.append("g").attr("class", "focus");
         focus.append("g").attr("class", "x axis").attr("transform", "translate(0," + config.paddedHeight() + ")").call(chart.xAxis).append("text").attr("class", "x label").attr("text-anchor", "middle").attr("x", config.paddedWidth() / 2).attr("y", 28).text("");
         focus.append("g").attr("class", "y axis").call(chart.yAxis).append("text").attr("class", "y label").attr("transform", "rotate(-90)").attr("y", config.margin.left * -1).attr("x", config.paddedHeight() / 2 * -1).attr("dy", "1em").style("text-anchor", "middle").text("");
-        var context = chart.renderArea.append("g").attr("class", "context").attr("transform", "translate(0," + brushData.config.height() + ")");
-        var series = focus.selectAll("series").data(data).enter().append("g").attr("class", "series");
+        var context = this.context = chart.renderArea.append("g").attr("class", "context").attr("transform", "translate(0," + brushData.config.height() + ")");
+        var series = this.series = focus.selectAll("series").data(data).enter().append("g").attr("class", "series");
         var lines = series.append("path").attr("class", "line").attr("clip-path", "url(#" + brushData.uniqueClipId + ")").attr("d", function(d) {
             return lineGenerator(d.data);
         }).style("stroke", function(d) {
@@ -721,7 +721,7 @@
             html += "</div>";
             return html;
         };
-        function renderTooltip(data) {
+        var renderTooltip = this.renderTooltip = function(data) {
             hoverLine.attr("y2", config.paddedHeight());
             tooltipRectangleGroup.selectAll(".tooltip-rect").remove();
             var xValueSet = d3.set(data.map(function(d) {
@@ -774,10 +774,10 @@
                     return chart.xScale(d.x);
                 }).attr("r", config.dotSize);
             });
-        }
+        };
         renderTooltip(data);
         var legendGroup = chart.renderArea.append("g").attr("class", "legend");
-        function renderLegend(data) {
+        var renderLegend = this.renderLegend = function(data) {
             var legendItemData = data.map(function(d) {
                 return {
                     name: d.name
@@ -845,10 +845,27 @@
             } else {
                 legendGroup.transition().duration(1e3).attr("transform", "translate(" + (config.paddedWidth() + 35) + ",0)");
             }
-        }
+        };
         renderLegend(data);
+        sendBrushData();
+    }
+    var line = function(selection, data) {
+        var lineBase = new LineBase(selection, data);
+        var chart = lineBase.chart;
+        var config = chart.config;
+        var brushData = lineBase.brushData;
+        var lineGenerator = lineBase.lineGenerator;
+        var brushLineGenerator = lineBase.brushLineGenerator;
+        var series = lineBase.series;
+        var focus = lineBase.focus;
+        var context = lineBase.context;
+        var updateX = lineBase.updateX;
+        var updateY = lineBase.updateY;
+        var renderTooltip = lineBase.renderTooltip;
+        var renderLegend = lineBase.renderLegend;
+        var sendBrushData = lineBase.sendBrushData;
         function update(newData) {
-            data = self.data = check.defined(newData) ? newData : self.data;
+            data = check.defined(newData) ? newData : data;
             chart.xScale.domain([ d3.min(data, function(series) {
                 return d3.min(series.data, function(d) {
                     return d.x;
@@ -923,11 +940,12 @@
             sendBrushData();
         }
         chart.update = update;
+        update();
         update.width = function(value) {
             return chart.width(value, function() {
                 updateX();
                 brushData.clipping.attr("width", config.paddedWidth() + config.dotSize * 2);
-                selection.select(".x.axis .label").transition().duration(1e3).attr("x", config.paddedWidth() / 2).attr("y", 28);
+                lineBase.selection.select(".x.axis .label").transition().duration(1e3).attr("x", config.paddedWidth() / 2).attr("y", 28);
             });
         };
         update.height = function(value) {
@@ -936,7 +954,7 @@
                 brushData.clipping.attr("height", config.paddedHeight() + config.dotSize * 2);
                 context.attr("transform", "translate(0," + brushData.config.height() + ")");
                 context.select(".x.brush").selectAll("rect").attr("height", brushData.config.height() - 5).attr("transform", "translate(0," + 5 + ")");
-                selection.select(".y.axis .label").transition().duration(1e3).attr("y", config.margin.left * -1).attr("x", config.paddedHeight() / 2 * -1);
+                lineBase.selection.select(".y.axis .label").transition().duration(1e3).attr("y", config.margin.left * -1).attr("x", config.paddedHeight() / 2 * -1);
                 return update();
             });
         };
@@ -1040,6 +1058,7 @@
     exports["toCSV"] = toCSV;
     exports["HeatMapBase"] = HeatMapBase;
     exports["heatMap"] = heatMap;
+    exports["LineBase"] = LineBase;
     exports["line"] = line;
     exports["pie"] = pie;
     exports["tooltip"] = tooltip;

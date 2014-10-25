@@ -134,10 +134,12 @@ BarBase.prototype.updateAxes = function (data) {
     this.updateY(data);
     var yAxisSelection = chart.renderArea.select('.y.axis')
         .transition()
+        .duration(config.transitionDuration)
         .call(chart.yAxis);
     this.updateX(data);
     var xAxisSelection = chart.renderArea.select('.x.axis')
         .transition()
+        .duration(config.transitionDuration)
         .call(chart.xAxis);
     var axisToTranslate = this.isHorizontal() ? yAxisSelection : xAxisSelection;
     axisToTranslate.attr('transform', 'translate(0,' + config.paddedHeight() + ')');
@@ -149,7 +151,8 @@ BarBase.prototype.updateBars = function (data) {
     var bars = this.bars;
     var config = this.config;
     var barTransition = bars.data(data)
-        .transition();
+        .transition()
+        .duration(config.transitionDuration);
     if (this.isHorizontal()) {
         barTransition
             .attr('y', function (d) {
@@ -194,6 +197,7 @@ var bar = function (selection, data, orientation) {
             updateX();
             barBase.selection.select('.' + axis + '.axis .label')
                 .transition()
+                .duration(config.transitionDuration)
                 .attr('y', config.margin.left * -1)
                 .attr('x', (config.paddedHeight() / 2) * -1);
         });
@@ -205,6 +209,7 @@ var bar = function (selection, data, orientation) {
             updateY();
             barBase.selection.select('.' + axis + '.axis .label')
                 .transition()
+                .duration(config.transitionDuration)
                 .attr('x', config.paddedWidth() / 2)
                 .attr('y', 28);
         });

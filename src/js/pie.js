@@ -78,12 +78,12 @@ var pie = function (selection, data) {
         });
         paths.data(pie(data))
             .transition()
-            .duration(500)
+            .duration(config.transitionDuration)
             .attrTween('d', arcTween);
 
         labels.data(pie(data))
             .transition()
-            .duration(500)
+            .duration(config.transitionDuration)
             .attr('transform', function (d) {
                 return 'translate(' + arc.centroid(d) + ')';
             })

@@ -100,9 +100,9 @@
         var chart = this.chart;
         var config = this.config;
         this.updateY(data);
-        var yAxisSelection = chart.renderArea.select(".y.axis").transition().call(chart.yAxis);
+        var yAxisSelection = chart.renderArea.select(".y.axis").transition().duration(config.transitionDuration).call(chart.yAxis);
         this.updateX(data);
-        var xAxisSelection = chart.renderArea.select(".x.axis").transition().call(chart.xAxis);
+        var xAxisSelection = chart.renderArea.select(".x.axis").transition().duration(config.transitionDuration).call(chart.xAxis);
         var axisToTranslate = this.isHorizontal() ? yAxisSelection : xAxisSelection;
         axisToTranslate.attr("transform", "translate(0," + config.paddedHeight() + ")");
         return this;
@@ -111,7 +111,7 @@
         var chart = this.chart;
         var bars = this.bars;
         var config = this.config;
-        var barTransition = bars.data(data).transition();
+        var barTransition = bars.data(data).transition().duration(config.transitionDuration);
         if (this.isHorizontal()) {
             barTransition.attr("y", function(d) {
                 return chart.xScale(d.name);
@@ -144,14 +144,14 @@
             var axis = barBase.isHorizontal() ? "x" : "y";
             return chart.height(value, function() {
                 updateX();
-                barBase.selection.select("." + axis + ".axis .label").transition().attr("y", config.margin.left * -1).attr("x", config.paddedHeight() / 2 * -1);
+                barBase.selection.select("." + axis + ".axis .label").transition().duration(config.transitionDuration).attr("y", config.margin.left * -1).attr("x", config.paddedHeight() / 2 * -1);
             });
         };
         update.width = function(value) {
             var axis = barBase.isHorizontal() ? "y" : "x";
             return chart.width(value, function() {
                 updateY();
-                barBase.selection.select("." + axis + ".axis .label").transition().attr("x", config.paddedWidth() / 2).attr("y", 28);
+                barBase.selection.select("." + axis + ".axis .label").transition().duration(config.transitionDuration).attr("x", config.paddedWidth() / 2).attr("y", 28);
             });
         };
         update.yAxisLabelText = function(value) {
@@ -187,7 +187,8 @@
                 left: 40
             },
             width: 480,
-            height: 250
+            height: 250,
+            transitionDuration: 500
         };
         this.config = config;
         this.config.paddedWidth = function() {
@@ -619,9 +620,9 @@
             var evt = document.createEvent("CustomEvent");
             brushData.westDate = brushData.brush.extent()[0];
             brushData.eastDate = brushData.brush.extent()[1];
-            brushData.range.select("#fromDate").text(formatTextTime(brushData.westDate)).transition().duration(1e3);
-            brushData.range.select("#toDate").text(formatTextTime(brushData.eastDate)).transition().duration(1e3).attr("transform", "translate(" + config.paddedWidth() + ",-5)");
-            brushData.range.select("#range").transition().duration(1e3).text(dateRange()).attr("transform", "translate(" + config.paddedWidth() / 2 + ",-5)");
+            brushData.range.select("#fromDate").text(formatTextTime(brushData.westDate)).transition().duration(config.transitionDuration);
+            brushData.range.select("#toDate").text(formatTextTime(brushData.eastDate)).transition().duration(config.transitionDuration).attr("transform", "translate(" + config.paddedWidth() + ",-5)");
+            brushData.range.select("#range").transition().duration(config.transitionDuration).text(dateRange()).attr("transform", "translate(" + config.paddedWidth() / 2 + ",-5)");
             evt.initCustomEvent("brushEvent", true, true, {
                 fromDate: brushData.westDate,
                 toDate: brushData.eastDate,
@@ -843,7 +844,7 @@
             if (!chart.hasRenderedOnce) {
                 legendGroup.attr("transform", "translate(" + (config.paddedWidth() + 35) + ",0)");
             } else {
-                legendGroup.transition().duration(1e3).attr("transform", "translate(" + (config.paddedWidth() + 35) + ",0)");
+                legendGroup.transition().duration(config.transitionDuration).attr("transform", "translate(" + (config.paddedWidth() + 35) + ",0)");
             }
         };
         renderLegend(data);
@@ -891,19 +892,19 @@
             }).style("stroke", function(d) {
                 return chart.colors(d.name);
             });
-            series.select("path").transition().duration(1e3).attr("d", function(d) {
+            series.select("path").transition().duration(config.transitionDuration).attr("d", function(d) {
                 return lineGenerator(d.data);
             }).style("stroke", function(d) {
                 return chart.colors(d.name);
             });
-            focus.select(".x.axis").transition().duration(1e3).call(chart.xAxis).attr("transform", "translate(0," + config.paddedHeight() + ")");
-            focus.select(".y.axis").transition().duration(1e3).call(chart.yAxis);
+            focus.select(".x.axis").transition().duration(config.transitionDuration).call(chart.xAxis).attr("transform", "translate(0," + config.paddedHeight() + ")");
+            focus.select(".y.axis").transition().duration(config.transitionDuration).call(chart.yAxis);
             series.selectAll(".dots").data(function(d) {
                 d.data.map(function(p) {
                     p.name = d.name;
                 });
                 return d.data;
-            }).transition().duration(1e3).attr("cy", function(d) {
+            }).transition().duration(config.transitionDuration).attr("cy", function(d) {
                 return chart.yScale(d.y);
             }).attr("cx", function(d) {
                 return chart.xScale(d.x);
@@ -914,7 +915,7 @@
             }).style("stroke", function(d) {
                 return chart.colors(d.name);
             }).attr("class", "line");
-            brushData.series.select("path").transition().duration(1e3).attr("d", function(d) {
+            brushData.series.select("path").transition().duration(config.transitionDuration).attr("d", function(d) {
                 return brushLineGenerator(d.data);
             }).style("stroke", function(d) {
                 return chart.colors(d.name);
@@ -930,22 +931,21 @@
                 });
             }) ]);
             context.attr("transform", "translate(0," + (config.paddedHeight() + brushData.config.margin.bottom + 4) + ")");
-            context.select(".x.brush").transition().duration(1e3).call(brushData.brush);
-            context.select(".extent").transition().duration(1e3).attr("x", 0).attr("width", config.paddedWidth());
-            context.select(".resize.e").transition().duration(1e3).attr("transform", "translate(" + config.paddedWidth() + ",0)");
-            context.select(".resize.w").transition().duration(1e3).attr("transform", "translate(0,0)");
-            context.select(".x.axis").transition().duration(1e3).call(brushData.chart.xAxis).attr("transform", "translate(0," + brushData.config.height() + ")");
+            context.select(".x.brush").transition().duration(config.transitionDuration).call(brushData.brush);
+            context.select(".extent").transition().duration(config.transitionDuration).attr("x", 0).attr("width", config.paddedWidth());
+            context.select(".resize.e").transition().duration(config.transitionDuration).attr("transform", "translate(" + config.paddedWidth() + ",0)");
+            context.select(".resize.w").transition().duration(config.transitionDuration).attr("transform", "translate(0,0)");
+            context.select(".x.axis").transition().duration(config.transitionDuration).call(brushData.chart.xAxis).attr("transform", "translate(0," + brushData.config.height() + ")");
             renderTooltip(data);
             renderLegend(data);
             sendBrushData();
         }
         chart.update = update;
-        update();
         update.width = function(value) {
             return chart.width(value, function() {
                 updateX();
                 brushData.clipping.attr("width", config.paddedWidth() + config.dotSize * 2);
-                lineBase.selection.select(".x.axis .label").transition().duration(1e3).attr("x", config.paddedWidth() / 2).attr("y", 28);
+                lineBase.selection.select(".x.axis .label").transition().duration(config.transitionDuration).attr("x", config.paddedWidth() / 2).attr("y", 28);
             });
         };
         update.height = function(value) {
@@ -954,7 +954,7 @@
                 brushData.clipping.attr("height", config.paddedHeight() + config.dotSize * 2);
                 context.attr("transform", "translate(0," + brushData.config.height() + ")");
                 context.select(".x.brush").selectAll("rect").attr("height", brushData.config.height() - 5).attr("transform", "translate(0," + 5 + ")");
-                lineBase.selection.select(".y.axis .label").transition().duration(1e3).attr("y", config.margin.left * -1).attr("x", config.paddedHeight() / 2 * -1);
+                lineBase.selection.select(".y.axis .label").transition().duration(config.transitionDuration).attr("y", config.margin.left * -1).attr("x", config.paddedHeight() / 2 * -1);
                 return update();
             });
         };
@@ -1027,8 +1027,8 @@
             data.forEach(function(d) {
                 d.population = +d.population;
             });
-            paths.data(pie(data)).transition().duration(500).attrTween("d", arcTween);
-            labels.data(pie(data)).transition().duration(500).attr("transform", function(d) {
+            paths.data(pie(data)).transition().duration(config.transitionDuration).attrTween("d", arcTween);
+            labels.data(pie(data)).transition().duration(config.transitionDuration).attr("transform", function(d) {
                 return "translate(" + arc.centroid(d) + ")";
             }).attr("dy", ".35em").style("text-anchor", "middle").text(function(d) {
                 return d.data.age;

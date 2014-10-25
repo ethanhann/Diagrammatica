@@ -92,14 +92,14 @@ function LineBase(selection, data) {
         brushData.eastDate = brushData.brush.extent()[1];
         brushData.range.select('#fromDate').text(formatTextTime(brushData.westDate))
             .transition()
-            .duration(1000);
+            .duration(config.transitionDuration);
         brushData.range.select('#toDate').text(formatTextTime(brushData.eastDate))
             .transition()
-            .duration(1000)
+            .duration(config.transitionDuration)
             .attr('transform', 'translate(' + (config.paddedWidth()) + ',-5)');
         brushData.range.select('#range')
             .transition()
-            .duration(1000)
+            .duration(config.transitionDuration)
             .text(dateRange())
             .attr('transform', 'translate(' + (config.paddedWidth() / 2) + ',-5)');
         evt.initCustomEvent('brushEvent', true, true, {
@@ -495,7 +495,7 @@ function LineBase(selection, data) {
             legendGroup.attr('transform', 'translate(' + (config.paddedWidth() + 35) + ',0)');
         } else {
             legendGroup.transition()
-                .duration(1000)
+                .duration(config.transitionDuration)
                 .attr('transform', 'translate(' + (config.paddedWidth() + 35 ) + ',0)');
         }
     };
@@ -562,7 +562,7 @@ var line = function (selection, data) {
             });
         series.select('path')
             .transition()
-            .duration(1000)
+            .duration(config.transitionDuration)
             .attr('d', function (d) {
                 return lineGenerator(d.data);
             })
@@ -572,13 +572,13 @@ var line = function (selection, data) {
 
         focus.select('.x.axis')
             .transition()
-            .duration(1000)
+            .duration(config.transitionDuration)
             .call(chart.xAxis)
             .attr('transform', 'translate(0,' + config.paddedHeight() + ')');
 
         focus.select('.y.axis')
             .transition()
-            .duration(1000)
+            .duration(config.transitionDuration)
             .call(chart.yAxis);
 
         series.selectAll('.dots')
@@ -589,7 +589,7 @@ var line = function (selection, data) {
                 return d.data;
             })
             .transition()
-            .duration(1000)
+            .duration(config.transitionDuration)
             .attr('cy', function (d) {
                 return chart.yScale(d.y);
             })
@@ -611,7 +611,7 @@ var line = function (selection, data) {
             .attr('class', 'line');
         brushData.series.select('path')
             .transition()
-            .duration(1000)
+            .duration(config.transitionDuration)
             .attr('d', function (d) {
                 return brushLineGenerator(d.data);
             })
@@ -636,24 +636,24 @@ var line = function (selection, data) {
         context.attr('transform', 'translate(0,' + (config.paddedHeight() + brushData.config.margin.bottom + 4) + ')');
         context.select('.x.brush')
             .transition()
-            .duration(1000)
+            .duration(config.transitionDuration)
             .call(brushData.brush);
         context.select('.extent')
             .transition()
-            .duration(1000)
+            .duration(config.transitionDuration)
             .attr('x', 0)
             .attr('width', config.paddedWidth());
         context.select('.resize.e')
             .transition()
-            .duration(1000)
+            .duration(config.transitionDuration)
             .attr('transform', 'translate(' + config.paddedWidth() + ',0)');
         context.select('.resize.w')
             .transition()
-            .duration(1000)
+            .duration(config.transitionDuration)
             .attr('transform', 'translate(0,0)');
         context.select('.x.axis')
             .transition()
-            .duration(1000)
+            .duration(config.transitionDuration)
             .call(brushData.chart.xAxis)
             .attr('transform', 'translate(0,' + brushData.config.height() + ')');
 
@@ -663,7 +663,7 @@ var line = function (selection, data) {
     }
 
     chart.update = update;
-update();
+    //update();
     // ------------------------------------------------------------------------
     // Properties
     // ------------------------------------------------------------------------
@@ -673,7 +673,7 @@ update();
             brushData.clipping.attr('width', config.paddedWidth() + config.dotSize * 2);
             lineBase.selection.select('.x.axis .label')
                 .transition()
-                .duration(1000)
+                .duration(config.transitionDuration)
                 .attr('x', config.paddedWidth() / 2)
                 .attr('y', 28);
         });
@@ -690,7 +690,7 @@ update();
                 .attr('transform', 'translate(0,' + 5 + ')');
             lineBase.selection.select('.y.axis .label')
                 .transition()
-                .duration(1000)
+                .duration(config.transitionDuration)
                 .attr('y', config.margin.left * -1)
                 .attr('x', (config.paddedHeight() / 2) * -1);
             return update();

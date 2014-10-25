@@ -13,7 +13,8 @@ var ChartBase = function (selection, chartClass) {
             left: 40
         },
         width: 480,
-        height: 250
+        height: 250,
+        transitionDuration: 500
     };
     this.config = config;
     this.config.paddedWidth = function () {

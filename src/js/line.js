@@ -1,15 +1,15 @@
 'use strict';
 /* global d3: false, ChartBase, tooltip, isD3Selection: false, moment: false */
 /* exported line */
-var line = function (selection, data) {
+function LineBase(selection, data) {
     var self = this;
     self.data = data;
     selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);
-    var chart = new ChartBase(selection, 'line');
+    var chart = this.chart = new ChartBase(selection, 'line');
     var config = chart.config;
     config.margin.bottom = 100;
     config.margin.top = 25;
-    var brushData = {
+    var brushData = this.brushData = {
         chart: {}
     };
     brushData.config = {
@@ -31,7 +31,7 @@ var line = function (selection, data) {
     // ------------------------------------------------------------------------
     // Scales and axes
     // ------------------------------------------------------------------------
-    function updateX() {
+    var updateX = this.updateX = function () {
         chart.xScale = d3.time.scale()
             .range([0, config.paddedWidth()]);
         chart.xAxis = d3.svg.axis()
@@ -42,11 +42,11 @@ var line = function (selection, data) {
         brushData.chart.xAxis = d3.svg.axis()
             .scale(brushData.chart.xScale)
             .orient('bottom');
-    }
+    };
 
     updateX();
 
-    function updateY() {
+    var updateY = this.updateY = function () {
         chart.yScale = d3.scale.linear()
             .range([config.paddedHeight(), 0]);
         brushData.chart.yScale = d3.scale.linear()
@@ -59,7 +59,7 @@ var line = function (selection, data) {
         chart.yAxis = d3.svg.axis()
             .scale(chart.yScale)
             .orient('left');
-    }
+    };
 
     updateY();
 
@@ -77,16 +77,16 @@ var line = function (selection, data) {
         sendBrushData();
     }
 
-    function dateRange() {
+    var dateRange = this.dateRange = function () {
         var from =  moment(brushData.westDate);
         var to =  moment(brushData.eastDate);
         var dateDiff = moment(to.diff(from));
         var numOfYears = dateDiff.diff(moment(0), 'years');
         var numOfYMonths = dateDiff.diff(moment(0), 'months') - (numOfYears * 12);
         return numOfYears + ' year(s), ' + numOfYMonths + ' month(s)';
-    }
+    };
 
-    function sendBrushData() {
+    var sendBrushData = this.sendBrushData = function () {
         var evt = document.createEvent('CustomEvent');
         brushData.westDate = brushData.brush.extent()[0];
         brushData.eastDate = brushData.brush.extent()[1];
@@ -104,19 +104,19 @@ var line = function (selection, data) {
             .attr('transform', 'translate(' + (config.paddedWidth() / 2) +',-5)');
         evt.initCustomEvent('brushEvent', true, true, { 'fromDate': brushData.westDate, 'toDate': brushData.eastDate, 'data' : data});
         document.dispatchEvent(evt);
-    }
+    };
 
     // ------------------------------------------------------------------------
     // SVG
     // ------------------------------------------------------------------------
-    var lineGenerator = d3.svg.line()
+    var lineGenerator = this.lineGenerator = d3.svg.line()
         .x(function (d) {
             return chart.xScale(d.x);
         })
         .y(function (d) {
             return chart.yScale(d.y);
         });
-    var brushLineGenerator = d3.svg.line()
+    var brushLineGenerator = this.brushLineGenerator = d3.svg.line()
         .x(function (d) {
             return chart.xScale(d.x);
         })
@@ -196,7 +196,7 @@ var line = function (selection, data) {
         .attr('transform', 'translate(' + config.dotSize * -1 + ',' + config.dotSize * -1 + ')')
         .attr('width', config.paddedWidth() + config.dotSize * 2)
         .attr('height', config.paddedHeight() + config.dotSize * 2);
-    var focus = chart.renderArea.append('g')
+    var focus = this.focus = chart.renderArea.append('g')
         .attr('class', 'focus');
     focus.append('g')
         .attr('class', 'x axis')
@@ -219,10 +219,10 @@ var line = function (selection, data) {
         .attr('dy', '1em')
         .style('text-anchor', 'middle')
         .text('');
-    var context = chart.renderArea.append('g')
+    var context = this.context = chart.renderArea.append('g')
         .attr('class', 'context')
         .attr('transform', 'translate(0,' + brushData.config.height() + ')');
-    var series = focus.selectAll('series')
+    var series = this.series = focus.selectAll('series')
         .data(data)
         .enter().append('g')
         .attr('class', 'series');
@@ -311,7 +311,7 @@ var line = function (selection, data) {
         return html;
     };
 
-    function renderTooltip(data) {
+    var renderTooltip = this.renderTooltip = function (data) {
         hoverLine.attr('y2', config.paddedHeight());
         tooltipRectangleGroup.selectAll('.tooltip-rect').remove();
         var xValueSet = d3.set(data.map(function(d) {
@@ -391,7 +391,7 @@ var line = function (selection, data) {
                     })
                     .attr('r', config.dotSize);
             });
-    }
+    };
 
     renderTooltip(data);
     // ------------------------------------------------------------------------
@@ -400,7 +400,7 @@ var line = function (selection, data) {
     var legendGroup = chart.renderArea.append('g')
         .attr('class', 'legend');
 
-    function renderLegend(data) {
+    var renderLegend = this.renderLegend = function (data) {
         var legendItemData = data.map(function (d) {
             return {name: d.name};
         });
@@ -489,15 +489,29 @@ var line = function (selection, data) {
                 .duration(1000)
                 .attr('transform', 'translate('+ (config.paddedWidth() + 35 ) + ',0)');
         }
-    }
+    };
 
     renderLegend(data);
+}
 
-    // ------------------------------------------------------------------------
-    // Update/re-render
-    // ------------------------------------------------------------------------
+var line = function (selection, data) {
+    var lineBase = new LineBase(selection, data);
+    var chart = lineBase.chart;
+    var config = chart.config;
+    var brushData = lineBase.brushData;
+    var lineGenerator = lineBase.lineGenerator;
+    var brushLineGenerator = lineBase.brushLineGenerator;
+    var series = lineBase.series;
+    var focus = lineBase.focus;
+    var context = lineBase.context;
+    var updateX = lineBase.updateX;
+    var updateY = lineBase.updateY;
+    var renderTooltip = lineBase.renderTooltip;
+    var renderLegend = lineBase.renderLegend;
+    var sendBrushData = lineBase.sendBrushData;
+
     function update(newData) {
-        data = self.data = check.defined(newData) ? newData : self.data;
+        data = check.defined(newData) ? newData : data;
         chart.xScale.domain([
             d3.min(data, function (series) {
                 return d3.min(series.data, function (d) {
@@ -645,7 +659,7 @@ var line = function (selection, data) {
         return chart.width(value, function () {
             updateX();
             brushData.clipping.attr('width', config.paddedWidth() + config.dotSize * 2);
-            selection.select('.x.axis .label')
+            lineBase.selection.select('.x.axis .label')
                 .transition()
                 .duration(1000)
                 .attr('x', config.paddedWidth() / 2)
@@ -662,7 +676,7 @@ var line = function (selection, data) {
                 .selectAll('rect')
                 .attr('height', (brushData.config.height() - 5))
                 .attr('transform', 'translate(0,' + 5 + ')');
-            selection.select('.y.axis .label')
+            lineBase.selection.select('.y.axis .label')
                 .transition()
                 .duration(1000)
                 .attr('y', config.margin.left * -1)

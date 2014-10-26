@@ -1,23 +1,59 @@
 'use strict';
 /* global d3: false, ChartBase, tooltip, isD3Selection: false, moment: false */
 /* exported line */
-function Preview(chartConfig) {
+function Preview(targetChart, data, textTimeFormat) {
     this.chart = {};
     this.config = {};
+    this.textTimeFormat = textTimeFormat;
+    this.data = data;
+    this.targetChartConfig = targetChart.config;
 
     this.config.margin = {
         top: function () {
-            return chartConfig.paddedHeight() + 45;
+            return targetChart.config.paddedHeight() + 45;
         },
-        right: chartConfig.margin.right,
+        right: targetChart.config.margin.right,
         bottom: 10,
-        left: chartConfig.margin.left
+        left: targetChart.config.margin.left
     };
     var self = this;
     this.config.height = function () {
-        return chartConfig.height - self.config.margin.top() - self.config.margin.bottom;
+        return targetChart.config.height - self.config.margin.top() - self.config.margin.bottom;
     };
 }
+
+Preview.prototype.sendPreview = function () {
+    var evt = document.createEvent('CustomEvent');
+    this.westDate = this.brush.extent()[0];
+    this.eastDate = this.brush.extent()[1];
+    this.range.select('#fromDate').text(this.textTimeFormat(this.westDate))
+        .transition()
+        .duration(this.targetChartConfig.transitionDuration);
+    this.range.select('#toDate').text(this.textTimeFormat(this.eastDate))
+        .transition()
+        .duration(this.targetChartConfig.transitionDuration)
+        .attr('transform', 'translate(' + (this.targetChartConfig.paddedWidth()) + ',-5)');
+    this.range.select('#range')
+        .transition()
+        .duration(this.targetChartConfig.transitionDuration)
+        .text(this.dateRange())
+        .attr('transform', 'translate(' + (this.targetChartConfig.paddedWidth() / 2) + ',-5)');
+    evt.initCustomEvent('brushEvent', true, true, {
+        'fromDate': this.westDate,
+        'toDate': this.eastDate,
+        'data': this.data
+    });
+    document.dispatchEvent(evt);
+};
+
+Preview.prototype.dateRange = function () {
+    var from = moment(this.westDate);
+    var to = moment(this.eastDate);
+    var dateDiff = moment(to.diff(from));
+    var numOfYears = dateDiff.diff(moment(0), 'years');
+    var numOfYMonths = dateDiff.diff(moment(0), 'months') - (numOfYears * 12);
+    return numOfYears + ' year(s), ' + numOfYMonths + ' month(s)';
+};
 
 function LineBase(selection, data) {
     var self = this;
@@ -29,92 +65,16 @@ function LineBase(selection, data) {
     config.margin.top = 25;
     config.margin.right = 80;
     config.dotSize = 3;
-    var formatTextTime = d3.time.format('%B %Y');
+    var textTimeFormat = this.textTimeFormat = d3.time.format('%B %Y');
 
-    var preview = this.preview = new Preview(config);
-    //var preview = this.preview = preview.preview;
+    var preview = this.preview = new Preview(chart, data, this.textTimeFormat);
 
     // ------------------------------------------------------------------------
     // Scales and axes
     // ------------------------------------------------------------------------
-    var updateX = this.updateX = function () {
-        chart.xScale = d3.time.scale()
-            .range([0, config.paddedWidth()]);
-        chart.xAxis = d3.svg.axis()
-            .scale(chart.xScale)
-            .orient('bottom');
-        preview.chart.xScale = d3.time.scale()
-            .range([0, config.paddedWidth()]);
-        preview.chart.xAxis = d3.svg.axis()
-            .scale(preview.chart.xScale)
-            .orient('bottom');
-    };
+    this.updateX();
+    this.updateY();
 
-    updateX();
-
-    var updateY = this.updateY = function () {
-        chart.yScale = d3.scale.linear()
-            .range([config.paddedHeight(), 0]);
-        preview.chart.yScale = d3.scale.linear()
-            .range([preview.config.height(), 0])
-            .domain([0, d3.max(data, function (series) {
-                return d3.max(series.data, function (d) {
-                    return d.y;
-                });
-            })]);
-        chart.yAxis = d3.svg.axis()
-            .scale(chart.yScale)
-            .orient('left');
-    };
-
-    updateY();
-
-    function brushed() {
-        chart.xScale.domain(preview.brush.empty() ? preview.chart.xScale.domain() : preview.brush.extent());
-        series.selectAll('path').attr('d', function (d1) {
-            return lineGenerator(d1.data);
-        });
-        chart.renderArea.select('.x.axis').call(chart.xAxis);
-        series.selectAll('.dots')
-            .attr('cx', function (d) {
-                return chart.xScale(d.x);
-            });
-        renderTooltip(data);
-        sendpreview();
-    }
-
-    var dateRange = this.dateRange = function () {
-        var from = moment(preview.westDate);
-        var to = moment(preview.eastDate);
-        var dateDiff = moment(to.diff(from));
-        var numOfYears = dateDiff.diff(moment(0), 'years');
-        var numOfYMonths = dateDiff.diff(moment(0), 'months') - (numOfYears * 12);
-        return numOfYears + ' year(s), ' + numOfYMonths + ' month(s)';
-    };
-
-    var sendpreview = this.sendpreview = function () {
-        var evt = document.createEvent('CustomEvent');
-        preview.westDate = preview.brush.extent()[0];
-        preview.eastDate = preview.brush.extent()[1];
-        preview.range.select('#fromDate').text(formatTextTime(preview.westDate))
-            .transition()
-            .duration(config.transitionDuration);
-        preview.range.select('#toDate').text(formatTextTime(preview.eastDate))
-            .transition()
-            .duration(config.transitionDuration)
-            .attr('transform', 'translate(' + (config.paddedWidth()) + ',-5)');
-        preview.range.select('#range')
-            .transition()
-            .duration(config.transitionDuration)
-            .text(dateRange())
-            .attr('transform', 'translate(' + (config.paddedWidth() / 2) + ',-5)');
-        evt.initCustomEvent('brushEvent', true, true, {
-            'fromDate': preview.westDate,
-            'toDate': preview.eastDate,
-            'data': data
-        });
-        document.dispatchEvent(evt);
-    };
 
     // ------------------------------------------------------------------------
     // SVG
@@ -165,8 +125,20 @@ function LineBase(selection, data) {
     // Brush
     // ------------------------------------------------------------------------
     preview.brush = d3.svg.brush()
-        .x(preview.chart.xScale)
-        .on('brush', brushed)
+        .x(this.chart.xScale)
+        .on('brush', function () {
+            chart.xScale.domain(preview.brush.empty() ? preview.chart.xScale.domain() : preview.brush.extent());
+            series.selectAll('path').attr('d', function (d1) {
+                return lineGenerator(d1.data);
+            });
+            chart.renderArea.select('.x.axis').call(chart.xAxis);
+            series.selectAll('.dots')
+                .attr('cx', function (d) {
+                    return chart.xScale(d.x);
+                });
+            renderTooltip(data);
+            preview.sendPreview();
+        })
         .extent([d3.min(data, function (series) {
             return d3.min(series.data, function (d) {
                 return d.x;
@@ -178,25 +150,26 @@ function LineBase(selection, data) {
                 });
             })
         ]);
+
     preview.westDate = preview.brush.extent()[0];
     preview.eastDate = preview.brush.extent()[1];
     preview.uniqueClipId = 'clip' + (preview.eastDate - preview.westDate);
     preview.range = chart.renderArea.append('g');
     preview.range.append('text')
         .attr('id', 'fromDate')
-        .text(formatTextTime(preview.westDate))
+        .text(textTimeFormat(preview.westDate))
         .attr('transform', 'translate(0,-5)')
         .style('text-anchor', 'start')
         .style('font-weight', 'bold');
     preview.range.append('text')
         .attr('id', 'toDate')
-        .text(formatTextTime(preview.eastDate))
+        .text(textTimeFormat(preview.eastDate))
         .attr('transform', 'translate(0,-5)')
         .style('text-anchor', 'end')
         .style('font-weight', 'bold');
     preview.range.append('text')
         .attr('id', 'range')
-        .text(dateRange())
+        .text(preview.dateRange())
         .attr('transform', 'translate(0,-5)')
         .style('text-anchor', 'middle')
         .style('font-weight', 'bold');
@@ -236,6 +209,8 @@ function LineBase(selection, data) {
         .data(data)
         .enter().append('g')
         .attr('class', 'series');
+
+    // Render lines
     var lines = series.append('path')
         .attr('class', 'line')
         .attr('clip-path', 'url(#' + preview.uniqueClipId + ')')
@@ -245,6 +220,8 @@ function LineBase(selection, data) {
         .style('stroke', function (d) {
             return chart.colors(d.name);
         });
+
+    // Render dots
     var dots = series.selectAll('dots')
         .data(function (d) {
             d.data.map(function (p) {
@@ -265,6 +242,7 @@ function LineBase(selection, data) {
         .attr('fill', function (d) {
             return chart.colors(d.name);
         });
+
     preview.series = context.selectAll('series')
         .data(data)
         .enter().append('g')
@@ -293,6 +271,7 @@ function LineBase(selection, data) {
         .attr('width', 6)
         .attr('class', 'handle');
 
+
     // ------------------------------------------------------------------------
     // Tooltip
     // ------------------------------------------------------------------------
@@ -313,7 +292,7 @@ function LineBase(selection, data) {
     config.tooltipHtml = function (points) {
         var html = '';
         html += '<div class="diagrammatica-tooltip-content">';
-        html += points.length > 0 ? '<div class="diagrammatica-tooltip-title">' + formatTextTime(points[0].x) + '</div>' : '';
+        html += points.length > 0 ? '<div class="diagrammatica-tooltip-title">' + textTimeFormat(points[0].x) + '</div>' : '';
         points.forEach(function (d) {
             html += '<svg height="10" width="10"><rect height="10" width="10" fill="' + chart.colors(d.name) + '"></rect></svg>';
             html += '<span> ' + d.name + '</span> : ' + d.y + '<br>';
@@ -507,8 +486,43 @@ function LineBase(selection, data) {
     };
 
     renderLegend(data);
-    sendpreview();
+    preview.sendPreview();
 }
+
+LineBase.prototype.updateX = function () {
+    var chart = this.chart;
+    var config = this.chart.config;
+    var preview = this.preview;
+    chart.xScale = d3.time.scale()
+        .range([0, config.paddedWidth()]);
+    chart.xAxis = d3.svg.axis()
+        .scale(chart.xScale)
+        .orient('bottom');
+    preview.chart.xScale = d3.time.scale()
+        .range([0, config.paddedWidth()]);
+    preview.chart.xAxis = d3.svg.axis()
+        .scale(preview.chart.xScale)
+        .orient('bottom');
+};
+
+LineBase.prototype.updateY = function () {
+    var chart = this.chart;
+    var config = this.chart.config;
+    var preview = this.preview;
+    var data = this.data;
+    chart.yScale = d3.scale.linear()
+        .range([config.paddedHeight(), 0]);
+    preview.chart.yScale = d3.scale.linear()
+        .range([preview.config.height(), 0])
+        .domain([0, d3.max(data, function (series) {
+            return d3.max(series.data, function (d) {
+                return d.y;
+            });
+        })]);
+    chart.yAxis = d3.svg.axis()
+        .scale(chart.yScale)
+        .orient('left');
+};
 
 var line = function (selection, data) {
     var lineBase = new LineBase(selection, data);
@@ -524,7 +538,7 @@ var line = function (selection, data) {
     var updateY = lineBase.updateY;
     var renderTooltip = lineBase.renderTooltip;
     var renderLegend = lineBase.renderLegend;
-    var sendpreview = lineBase.sendpreview;
+
 
     function update(newData) {
         data = check.defined(newData) ? newData : data;
@@ -664,7 +678,7 @@ var line = function (selection, data) {
 
         renderTooltip(data);
         renderLegend(data);
-        sendpreview();
+        lineBase.preview.sendPreview();
     }
 
     chart.update = update;

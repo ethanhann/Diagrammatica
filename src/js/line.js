@@ -22,14 +22,20 @@ function Preview(targetChart, data, textTimeFormat) {
     };
 }
 
+Preview.prototype.westDate = function () {
+    return this.brush.extent()[0];
+};
+
+Preview.prototype.eastDate = function () {
+    return this.brush.extent()[1];
+};
+
 Preview.prototype.sendPreview = function () {
     var evt = document.createEvent('CustomEvent');
-    this.westDate = this.brush.extent()[0];
-    this.eastDate = this.brush.extent()[1];
-    this.range.select('#fromDate').text(this.textTimeFormat(this.westDate))
+    this.range.select('#fromDate').text(this.textTimeFormat(this.westDate()))
         .transition()
         .duration(this.targetChartConfig.transitionDuration);
-    this.range.select('#toDate').text(this.textTimeFormat(this.eastDate))
+    this.range.select('#toDate').text(this.textTimeFormat(this.eastDate()))
         .transition()
         .duration(this.targetChartConfig.transitionDuration)
         .attr('transform', 'translate(' + (this.targetChartConfig.paddedWidth()) + ',-5)');
@@ -39,16 +45,16 @@ Preview.prototype.sendPreview = function () {
         .text(this.dateRange())
         .attr('transform', 'translate(' + (this.targetChartConfig.paddedWidth() / 2) + ',-5)');
     evt.initCustomEvent('brushEvent', true, true, {
-        'fromDate': this.westDate,
-        'toDate': this.eastDate,
+        'fromDate': this.westDate(),
+        'toDate': this.eastDate(),
         'data': this.data
     });
     document.dispatchEvent(evt);
 };
 
 Preview.prototype.dateRange = function () {
-    var from = moment(this.westDate);
-    var to = moment(this.eastDate);
+    var from = moment(this.westDate());
+    var to = moment(this.eastDate());
     var dateDiff = moment(to.diff(from));
     var numOfYears = dateDiff.diff(moment(0), 'years');
     var numOfYMonths = dateDiff.diff(moment(0), 'months') - (numOfYears * 12);
@@ -151,19 +157,17 @@ function LineBase(selection, data) {
             })
         ]);
 
-    preview.westDate = preview.brush.extent()[0];
-    preview.eastDate = preview.brush.extent()[1];
-    preview.uniqueClipId = 'clip' + (preview.eastDate - preview.westDate);
+    preview.uniqueClipId = 'clip' + (preview.eastDate() - preview.westDate());
     preview.range = chart.renderArea.append('g');
     preview.range.append('text')
         .attr('id', 'fromDate')
-        .text(textTimeFormat(preview.westDate))
+        .text(textTimeFormat(preview.westDate()))
         .attr('transform', 'translate(0,-5)')
         .style('text-anchor', 'start')
         .style('font-weight', 'bold');
     preview.range.append('text')
         .attr('id', 'toDate')
-        .text(textTimeFormat(preview.eastDate))
+        .text(textTimeFormat(preview.eastDate()))
         .attr('transform', 'translate(0,-5)')
         .style('text-anchor', 'end')
         .style('font-weight', 'bold');

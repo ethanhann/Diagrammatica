@@ -1,5 +1,5 @@
 'use strict';
-/* global d3: false, ChartBase, tooltip, isD3Selection: false, moment: false, Preview */
+/* global d3: false, ChartBase, tooltip, isD3Selection: false, Preview */
 /* exported line */
 
 function LineBase(selection, data) {

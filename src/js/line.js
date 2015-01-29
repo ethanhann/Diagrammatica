@@ -485,7 +485,7 @@ var line = function (selection, data) {
 
 
     function update(newData) {
-        data = check.defined(newData) ? newData : data;
+        data = check.undefined(newData) ? newData : data;
         // Rescale
         chart.xScale.domain([
             d3.min(data, function (series) {

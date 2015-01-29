@@ -72,7 +72,7 @@ var pie = function (selection, data) {
     // Update/re-render
     // ------------------------------------------------------------------------
     function update (newData) {
-        data = check.defined(newData) ? newData : data;
+        data = check.undefined(newData) ? newData : data;
         data.forEach(function (d) {
             d.population = +d.population;
         });

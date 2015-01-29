@@ -72,11 +72,11 @@ ChartBase.prototype.xAxisLabelText = function (value) {
 };
 
 ChartBase.prototype.setDimension = function (value, axisUpdateCallback, property) {
-    if (!check.defined(value)) {
+    if (check.undefined(value)) {
         return this.config[property];
     }
     this.config[property] = value;
-    if (check.defined(axisUpdateCallback)) {
+    if (check.undefined(axisUpdateCallback)) {
         axisUpdateCallback();
     }
     this.svg.attr(property, this.config[property]);

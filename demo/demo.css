@@ -3,9 +3,13 @@
     color: #FFFFFF;
 }
 
+.jumbotron > h1 > a {
+    color: #FFFFFF;
+}
+
 .jumbotron > h1 > a:hover {
     text-decoration: none;
-    color: #FFFFFF;
+    color: rgba(255, 255, 255, .82);
 }
 
 .section-header {

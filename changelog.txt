@@ -1,4 +1,18 @@
-d342299 (HEAD, origin/master, origin/HEAD, master) Update dev deps
+9095155 (HEAD, origin/master, origin/HEAD, master) Make page title brighter
+22b5bf9 QA check-type changes
+1e8e449 Make compatible with check-type 2.x
+e515e49 Update deps
+8cce3e4 moment is not used in line.js
+063982f Add discrete controllers for directive demos
+b594ab2 Move brush into new file
+265ee68 Refactor brush's east/west dates
+df6e068 Refactor line chart
+7038c6f Start factoring out the brush
+5f3b5de Add variable for transition duration time
+86d676c Send brush data when on initial line chart load
+40b79ea Refactor line chart to use base chart pattern
+6939982 (tag: 0.6.0) Prepare for release
+d342299 Update dev deps
 5e56a57 Bugfix: Dots now transition to their correct position if mouse is hovering while chart is being rendered
 0a380a7 Grow/Shrink dots as mouse hovers over them Encapsulated all brush related types to brushData
 f45ca5b Tooltip only displays series that are highlighted Tooltip is using Month Year format Brush height linked to chart height From/To handles thickness is increased and is exposed Brush handle info is displayed on the top of the chart Fixed clipping bug when multiple charts are used with ng-repeat

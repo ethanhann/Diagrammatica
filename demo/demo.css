@@ -1,3 +1,7 @@
+a:hover {
+    text-decoration: none;
+}
+
 .jumbotron {
     background-color: rgb(33, 113, 181);
     color: #FFFFFF;
@@ -33,4 +37,13 @@
 
 .slider-control {
     max-width: 480px;
+}
+
+.home-container {
+    max-width: 660px;
+}
+
+.jumbo-icons {
+    margin-top: 3em;
+    margin-bottom: 2em;
 }

@@ -30,6 +30,7 @@
     "jasmine": ">=2",
     "jquery": "~1.11.0",
     "font-awesome": ">=4",
-    "jquery-ui": "~1.11.1"
+    "jquery-ui": "~1.11.1",
+    "ionicons": "~2.0.1"
   }
 }

@@ -13,7 +13,7 @@ var BarBase = function (selection, data, orientation) {
     chart.xScale = d3.scale.ordinal();
     chart.yScale = d3.scale.linear();
     this.updateX = function (newData) {
-        data = check.undefined(newData) ? newData : data;
+        data = !check.undefined(newData) ? newData : data;
         var xScaleRange = isHorizontal() ? [0, config.paddedHeight()] : [0, config.paddedWidth()];
         chart.xScale
             .domain(data.map(function (d) {
@@ -26,7 +26,7 @@ var BarBase = function (selection, data, orientation) {
             .orient(xAxisOrient);
     };
     this.updateY = function (newData) {
-        data = check.undefined(newData) ? newData : data;
+        data = !check.undefined(newData) ? newData : data;
         chart.yScale
             .domain([0, d3.max(data, function (d) {
                 return d.value;
@@ -186,7 +186,7 @@ var bar = function (selection, data, orientation) {
     var bars = barBase.bars;
 
     var update = chart.update = function (newData) {
-        data = check.undefined(newData) ? newData : data;
+        data = !check.undefined(newData) ? newData : data;
         barBase.updateAxes(data);
         barBase.updateBars(data);
     };

@@ -269,7 +269,7 @@ var heatMap = function (selection, data) {
     var heatMapBase = new HeatMapBase(selection, data).render();
     var chart = heatMapBase.chart;
     var update = heatMapBase.chart.update = function (newData) {
-        data = heatMapBase.data = check.undefined(newData) ? newData : heatMapBase.data;
+        data = heatMapBase.data = !check.undefined(newData) ? newData : heatMapBase.data;
         heatMapBase.prepareDisplayData();
         heatMapBase.updateColors(heatMapBase.displayData.data);
         heatMapBase.updateX(heatMapBase.displayData.data);

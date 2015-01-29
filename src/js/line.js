@@ -485,7 +485,7 @@ var line = function (selection, data) {
 
 
     function update(newData) {
-        data = check.undefined(newData) ? newData : data;
+        data = !check.undefined(newData) ? newData : data;
         // Rescale
         chart.xScale.domain([
             d3.min(data, function (series) {
@@ -626,7 +626,7 @@ var line = function (selection, data) {
     }
 
     chart.update = update;
-    //update();
+
     // ------------------------------------------------------------------------
     // Properties
     // ------------------------------------------------------------------------
@@ -665,7 +665,7 @@ var line = function (selection, data) {
             return chart.config.margin.right;
         }
         chart.config.margin.right = value;
-        updateX();
+        lineBase.updateX();
         preview.clipping.attr('width', config.paddedWidth() + config.dotSize * 2);
         renderTooltip(data);
         return update;

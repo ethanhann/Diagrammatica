@@ -83,13 +83,21 @@ describe('diagrammatica.ChartBase', function () {
         });
     });
 
-    describe('width', function () {
+    describe('Dimension manipulation', function () {
+        it('should get height', function () {
+            var expected = chartBase.config.height;
+
+            var actual = chartBase.height();
+
+            expect(actual).toEqual(expected);
+        });
+
         it('should get width', function () {
             var expected = chartBase.config.width;
 
-            var width = chartBase.width();
+            var actual = chartBase.width();
 
-            expect(width).toEqual(expected);
+            expect(actual).toEqual(expected);
         });
 
         it('should set width and call the axis update callback', function () {
@@ -97,14 +105,10 @@ describe('diagrammatica.ChartBase', function () {
             var args = { axisUpdateCallback: function () {} };
             spyOn(args, 'axisUpdateCallback');
 
-            chartBase.width(expected, args.axisUpdateCallback);
+            chartBase.setDimension(expected, args.axisUpdateCallback, 'width');
 
             expect(chartBase.width()).toEqual(expected);
             expect(args.axisUpdateCallback).toHaveBeenCalled();
-        });
-
-        it('should set the width of the svg element ', function () {
-
         });
     });
 });

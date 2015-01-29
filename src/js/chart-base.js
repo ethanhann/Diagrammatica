@@ -56,7 +56,7 @@ var ChartBase = function (selection, chartClass) {
 
 ChartBase.prototype.axisLabelText = function (axisLetter, value) {
     var label = this.selection.select('.' + axisLetter + '.axis .label');
-    if (check.not.defined(value)) {
+    if (check.undefined(value)) {
         return label.empty() ? '' : label.text();
     }
     label.text(value);
@@ -76,7 +76,7 @@ ChartBase.prototype.setDimension = function (value, axisUpdateCallback, property
         return this.config[property];
     }
     this.config[property] = value;
-    if (check.undefined(axisUpdateCallback)) {
+    if (!check.undefined(axisUpdateCallback)) {
         axisUpdateCallback();
     }
     this.svg.attr(property, this.config[property]);

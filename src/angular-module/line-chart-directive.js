@@ -32,7 +32,7 @@ angular.module('diagrammatica')
                 chart.width(element.width())();
             });
             scope.$watch('data', function (newValue, oldValue) {
-                if (angular.isDefined(newValue) && newValue !== oldValue) {
+                if (angular.isDefined(newValue) && (newValue !== oldValue)) {
                     chart(newValue);
                 }
             });

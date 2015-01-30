@@ -1,0 +1,26 @@
+{
+  "name": "colorbrewer",
+  "main": "colorbrewer.js",
+  "homepage": "https://github.com/alexmasselot/colorbrewer",
+  "authors": [
+    "alexandre.masselot@gmail.com"
+  ],
+  "description": "copy colorbrewer defintion form Cynthia Brewer by Mike Bostock",
+  "license": "Apache-2.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "_release": "e861dc53e6",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "e861dc53e67122534f45c4ed9a3647d1eaaf2702"
+  },
+  "_source": "git://github.com/alexmasselot/colorbrewer.git",
+  "_target": "*",
+  "_originalSource": "colorbrewer2"
+}

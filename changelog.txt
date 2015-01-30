@@ -1,4 +1,8 @@
-9095155 (HEAD, origin/master, origin/HEAD, master) Make page title brighter
+f1f3cba (HEAD, origin/master, origin/HEAD, master) Don't use shortcut methods to update axes
+9f0f789 Revamp doc home page
+d0bc6e4 Bump version
+9f90ba1 Prepare for release
+9095155 Make page title brighter
 22b5bf9 QA check-type changes
 1e8e449 Make compatible with check-type 2.x
 e515e49 Update deps
@@ -32,11 +36,11 @@ bff0dc2 (tag: 0.5.1) Prepare for release
 307504f Bump version
 8f92a5b Fix heat map API
 a69f8a4 Build after merging slider demo
-6a97d09 (origin/range-slider-demo, range-slider-demo) Update dist
+6a97d09 (origin/range-slider-demo) Update dist
 706ae06 Re-enable reload
 2113e64 Refactor heat map
 8f5d3f4 Flesh out heat map slider demo
-3582182 WIP range slider demo
+3582182 (range-slider-demo) WIP range slider demo
 100a8af Rework demo
 3788f24 Rework demo
 44a6747 (tag: 0.5.0) Prepare for release

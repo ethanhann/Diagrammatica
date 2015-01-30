@@ -478,8 +478,6 @@ var line = function (selection, data) {
     var series = lineBase.series;
     var focus = lineBase.focus;
     var context = lineBase.context;
-    var updateX = lineBase.updateX;
-    var updateY = lineBase.updateY;
     var renderTooltip = lineBase.renderTooltip;
     var renderLegend = lineBase.renderLegend;
 
@@ -632,7 +630,7 @@ var line = function (selection, data) {
     // ------------------------------------------------------------------------
     update.width = function (value) {
         return chart.width(value, function () {
-            updateX();
+            lineBase.updateX();
             preview.clipping.attr('width', config.paddedWidth() + config.dotSize * 2);
             lineBase.selection.select('.x.axis .label')
                 .transition()
@@ -644,7 +642,7 @@ var line = function (selection, data) {
 
     update.height = function (value) {
         return chart.height(value, function () {
-            updateY();
+            lineBase.updateY();
             preview.clipping.attr('height', config.paddedHeight() + config.dotSize * 2);
             context.attr('transform', 'translate(0,' + preview.config.height() + ')');
             context.select('.x.brush')
@@ -670,7 +668,6 @@ var line = function (selection, data) {
         renderTooltip(data);
         return update;
     };
-
 
     update.yAxisLabelText = function (value) {
         return chart.yAxisLabelText(value);

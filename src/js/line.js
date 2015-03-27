@@ -7,6 +7,7 @@ function LineBase(selection, data) {
     self.data = data;
     selection = this.selection = isD3Selection(selection) ? selection : d3.select(selection);
     var chart = this.chart = new ChartBase(selection, 'line');
+    var selectedLegendItem;
     var config = chart.config;
     config.margin.bottom = 100;
     config.margin.top = 25;
@@ -292,13 +293,25 @@ function LineBase(selection, data) {
                     seriesPoint.name = series.name;
                     return seriesPoint;
                 });
-
+                if (check.object(selectedLegendItem)) {
+                    points = points.filter(function (p){
+                        return p.name === selectedLegendItem.name;
+                    });
+                }
+                dots.transition().duration(0);
                 dots.transition()
+                    .duration(config.transitionDuration)
                     .attr('cy', function (d) {
                         return chart.yScale(d.y);
                     })
                     .attr('cx', function (d) {
                         return chart.xScale(d.x);
+                    })
+                    .attr('opacity', function (t) {
+                        if (check.object(selectedLegendItem)) {
+                            return t.name === selectedLegendItem.name ? 1 : 0;
+                        }
+                        return 1;
                     })
                     .attr('r', function (t) {
                         var grow = points.filter(function (d) {
@@ -334,65 +347,102 @@ function LineBase(selection, data) {
     var legendGroup = chart.renderArea.append('g')
         .attr('class', 'legend');
 
-    var renderLegend = this.renderLegend = function (data) {
-        var legendItemData = data.map(function (d) {
-            return {name: d.name};
-        });
+    var resizeYAxis = function (selectedSeries) {
+        chart.yScale.domain([
+            d3.min(selectedSeries, function (series) {
+                return d3.min(series.data, function (t) {
+                    return t.y;
+                });
+            }),
+            d3.max(selectedSeries, function (series) {
+                return d3.max(series.data, function (t) {
+                    return t.y;
+                });
+            })
+        ]);
+        series.select('path')
+            .attr('d', function (d1) {
+                return lineGenerator(d1.data);
+            });
+        focus.select('.y.axis')
+            .transition()
+            .duration(config.transitionDuration)
+            .call(chart.yAxis);
+        dots.transition()
+            .duration(config.transitionDuration)
+            .attr('r', config.dotSize)
+            .attr('cy', function (d) {
+                return chart.yScale(d.y);
+            })
+            .attr('opacity', function (t) {
+                return selectedSeries[0].name === t.name ? 1 : 0;
+            });
+        lines.transition()
+            .duration(config.transitionDuration)
+            .attr('opacity', function (t) {
+                return selectedSeries[0].name === t.name ? 1 : 0;
+            });
+    };
 
-        var selectedLegendItem;
+    var restoreOriginalGraph = function(legendItems, newdata) {
+        resizeYAxis(newdata);
+        lines.transition().duration(0);
+        lines.transition()
+            .duration(config.transitionDuration)
+            .attr('opacity', 1);
+        dots.transition().duration(0);
+        dots.transition()
+            .duration(config.transitionDuration)
+            .attr('cy', function (d) {
+                return chart.yScale(d.y);
+            })
+            .attr('opacity', 1)
+            .attr('r', config.dotSize);
+        legendItems.transition().duration(0);
+        legendItems.transition()
+            .duration(config.transitionDuration)
+            .attr('opacity', 1);
+        selectedLegendItem = null;
+        renderTooltip(newdata);
+    };
+
+    var renderLegend = this.renderLegend = function (data) {
+        var newdata = data;
         var legendItems = legendGroup.selectAll('g')
-            .data(legendItemData)
+            .data(data)
             .enter()
             .append('g')
             .attr('class', 'legend-item')
             .on('mouseover', function (d) {
+                resizeYAxis([d]);
                 legendItems.transition()
                     .attr('opacity', function (t) {
-                        return d === t ? 1 : 0.3;
-                    });
-                lines.transition()
-                    .attr('opacity', function (t) {
-                        return d.name === t.name ? 1 : 0;
-                    });
-                dots.transition()
-                    .attr('opacity', function (t) {
-                        return d.name === t.name ? 1 : 0;
+                        return d.name === t.name ? 1 : 0.3;
                     });
             })
             .on('mouseout', function () {
                 if (check.object(selectedLegendItem)) {
+                    resizeYAxis([selectedLegendItem]);
+                    legendItems.transition().duration(0);
                     legendItems.transition()
+                        .duration(config.transitionDuration)
                         .attr('opacity', function (t) {
-                            return t === selectedLegendItem ? 1 : 0.3;
+                            return t.name === selectedLegendItem.name ? 1 : 0.3;
                         });
-                    lines.transition().attr('opacity', function (t) {
-                        return check.object(selectedLegendItem) && t.name === selectedLegendItem.name ? 1 : 0;
-                    });
-                    dots.transition().attr('opacity', function (t) {
-                        return check.object(selectedLegendItem) && t.name === selectedLegendItem.name ? 1 : 0;
-                    });
                 } else {
-                    legendItems.transition().attr('opacity', 1);
-                    lines.transition().attr('opacity', 1);
-                    dots.transition().attr('opacity', 1);
+                    restoreOriginalGraph(legendItems, newdata);
                 }
             })
             .on('click', function (d) {
-                selectedLegendItem = selectedLegendItem === d ? null : d;
+                selectedLegendItem = check.object(selectedLegendItem) ? selectedLegendItem.name === d.name ? null : d : d;
                 if (check.object(selectedLegendItem)) {
-                    lines.attr('opacity', function (t) {
-                        return check.object(selectedLegendItem) && t.name === selectedLegendItem.name ? 1 : 0;
-                    });
-                    dots.attr('opacity', function (t) {
-                        return check.object(selectedLegendItem) && t.name === selectedLegendItem.name ? 1 : 0;
-                    });
+                    resizeYAxis([selectedLegendItem]);
                     renderTooltip(data.filter(function (l) {
                         return l.name === selectedLegendItem.name;
                     }));
-                } else {
-                    lines.attr('opacity', 1);
-                    dots.attr('opacity', 1);
-                    renderTooltip(data);
+                }
+                else {
+                    restoreOriginalGraph(legendItems, newdata);
                 }
             });
 

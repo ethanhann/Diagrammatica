@@ -38,7 +38,7 @@ function LineBase(selection, data) {
             return chart.xScale(d.x);
         })
         .y(function (d) {
-            return preview.chart.yScale(d.y * 0.9);
+            return preview.chart.yScale(d.y);
         });
 
     chart.xScale.domain([
@@ -508,11 +508,18 @@ LineBase.prototype.updateY = function () {
         .range([config.paddedHeight(), 0]);
     preview.chart.yScale = d3.scale.linear()
         .range([preview.config.height(), 0])
-        .domain([0, d3.max(data, function (series) {
-            return d3.max(series.data, function (d) {
-                return d.y;
-            });
-        })]);
+        .domain([
+            d3.min(data, function (series) {
+                return d3.min(series.data, function (d) {
+                    return d.y * 0.9;
+                });
+            }),
+            d3.max(data, function (series) {
+                return d3.max(series.data, function (d) {
+                    return d.y * 1.1;
+                });
+            })
+        ]);
     chart.yAxis = d3.svg.axis()
         .scale(chart.yScale)
         .orient('left');

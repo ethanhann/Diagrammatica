@@ -31,9 +31,9 @@
     .controller('LineChartCtrl', ['$scope', 'diagrammatica', 'randomNumber', function ($scope, diagrammatica, randomNumber) {
         $scope.refreshLineChartData = function () {
             $scope.lineChartData = [
-                {name: 'series 1', data: []},
-                {name: 'series 2', data: []},
-                {name: 'series 3', data: []}
+                {name: 'series 1', data: [], multiplier: 1},
+                {name: 'series 2', data: [], multiplier: 2},
+                {name: 'series 3', data: [], multiplier: 3}
             ];
             var pointCount = 60;
             $scope.lineChartData.forEach(function (series) {
@@ -42,7 +42,7 @@
                 for (var i = 0; i <= pointCount; i++) {
                     series.data.push({
                         x: dateCounter.clone().toDate(),
-                        y: randomNumber()
+                        y: (randomNumber() +100) * series.multiplier
                     });
                     dateCounter = dateCounter.add(1, 'month');
                 }

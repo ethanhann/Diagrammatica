@@ -55,7 +55,7 @@ Preview.prototype.sendPreview = function () {
 
 Preview.prototype.dateRange = function () {
     var from = moment(this.westDate());
-    var to = moment(this.eastDate());
+    var to = moment(this.eastDate()).add(1, 'days');
     var dateDiff = moment(to.diff(from));
     var numOfYears = dateDiff.diff(moment(0), 'years');
     var numOfYMonths = dateDiff.diff(moment(0), 'months') - (numOfYears * 12);

@@ -1,6 +1,12 @@
-f1f3cba (HEAD, origin/master, origin/HEAD, master) Don't use shortcut methods to update axes
+3a62094 Updated randomized data for a greater spread.
+a6e2980 Bugfix: date range is corrected when range is between the 1st days of the to and from month.
+a17eff1 Brush y-axis min is now set to the smallest value rather than 0.
+e91dacf Resize graph when hovering or selecting a series
+8b96158 Add a few links to the demo
+b74f25c (tag: 0.6.2) Prepare for release
+f1f3cba Don't use shortcut methods to update axes
 9f0f789 Revamp doc home page
-d0bc6e4 Bump version
+d0bc6e4 (tag: 0.6.1) Bump version
 9f90ba1 Prepare for release
 9095155 Make page title brighter
 22b5bf9 QA check-type changes
@@ -40,7 +46,7 @@ a69f8a4 Build after merging slider demo
 706ae06 Re-enable reload
 2113e64 Refactor heat map
 8f5d3f4 Flesh out heat map slider demo
-3582182 (range-slider-demo) WIP range slider demo
+3582182 WIP range slider demo
 100a8af Rework demo
 3788f24 Rework demo
 44a6747 (tag: 0.5.0) Prepare for release
